@@ -13,6 +13,9 @@
 # The list is stored on the grid itself and -- like all other shares -- needs
 # maintenance and repairs.  If you can, please also add a cron job running
 # --check-list every once in a while.  This is in everyone's interest.
+#
+# If you also want to receive news relevant to the grid, also add the
+# --fetch-news option.  This is highly recommended.
 
 ########################################## Configuration #############################################
 # Change this to your Tahoe-LAFS node's directory (default: ~/.tahoe).
@@ -20,6 +23,7 @@ TAHOE_NODE_DIR="$HOME/.tahoe"
 
 # Location of the subscription list
 LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
+NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq'
 ######################################################################################################
 
 print_help () {
@@ -33,6 +37,10 @@ Commands:
                       list
     --check-list:     Maintain or repair the health of the subscrition
                       service's FURL
+    --fetch-news:     Retrieve news regarding the I2P grid.  These will be
+                      stored in $TAHOE_NODE_DIR/I2PNEWS.  If you run this
+                      script as a cron job, the news will also be emailed to
+                      you.
     --help:           Print this help text
 
 Errors:
@@ -84,6 +92,15 @@ check_list () {
 	tahoe deep-check --repair --add-lease "$LISTFURL"
 }
 
+fetch_news () {
+	[ -f $TAHOE_NODE_DIR/I2PNEWS ] && cp $TAHOE_NODE_DIR/I2PNEWS{,.bak}
+	tahoe get $NEWSFURL/NEWS $TAHOE_NODE_DIR/I2PNEWS 2> /dev/null || (echo Error ; return 1)
+	diff -N $TAHOE_NODE_DIR/I2PNEWS $TAHOE_NODE_DIR/I2PNEWS.bak > /dev/null && return
+	echo "There are NEWS!"
+	echo "The contents of $TAHOE_NODE_DIR/I2PNEWS follow:"
+	cat $TAHOE_NODE_DIR/I2PNEWS
+}
+
 
 case $1 in
 	--update-merge)
@@ -94,6 +111,9 @@ case $1 in
 	;;
 	--check-list)
 		check_list
+	;;
+	--fetch-news)
+		fetch_news
 	;;
 	--help)
 		print_help
