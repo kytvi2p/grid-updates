@@ -2,6 +2,8 @@
 
 # Example (cron) script for a Tahoe-LAFS introducer subscription service
 
+# Introduction
+# ============
 # This script retrieves and installs an up-to-date list of introducers for
 # Tahoe-LAFS nodes that support multiple introducers.  See
 # http://killyourtv.i2p/tahoe-lafs/ for more information.
@@ -11,11 +13,18 @@
 # the I2P grid as possible.
 #
 # The list is stored on the grid itself and -- like all other shares -- needs
-# maintenance and repairs.  If you can, please also add a cron job running
-# --check-list every once in a while.  This is in everyone's interest.
+# maintenance and repairs.  If you can, please also add the --check-list
+# function to your cron job, or run it separately every once in a while.  This
+# is in everyone's interest.
 #
-# If you also want to receive news relevant to the grid, also add the
-# --fetch-news option.  This is highly recommended.
+# If you also want to receive news relevant to the grid, add the --fetch-news
+# option.  It will fetch and display a NEWS file from the grid.  This is
+# recommended.
+
+# Setup notes
+# ===========
+# For this script to work, it needs read and write permissions to your
+# Tahoe-LAFS node's directory (typically ~/.tahoe).
 
 ########################################## Configuration #############################################
 # Change this to your Tahoe-LAFS node's directory (default: ~/.tahoe).
