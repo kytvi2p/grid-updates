@@ -93,7 +93,7 @@ check_list () {
 }
 
 fetch_news () {
-	[ -f $TAHOE_NODE_DIR/I2PNEWS ] && cp $TAHOE_NODE_DIR/I2PNEWS{,.bak}
+	[ -f $TAHOE_NODE_DIR/I2PNEWS ] && cp $TAHOE_NODE_DIR/I2PNEWS $TAHOE_NODE_DIR/I2PNEWS.bak
 	tahoe get $NEWSFURL/NEWS $TAHOE_NODE_DIR/I2PNEWS 2> /dev/null || (echo Error ; return 1)
 	diff -N $TAHOE_NODE_DIR/I2PNEWS $TAHOE_NODE_DIR/I2PNEWS.bak > /dev/null && return
 	echo "There are NEWS!"
