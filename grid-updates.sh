@@ -71,8 +71,8 @@ if [ $# -lt 1 ]; then
 fi
 
 download_list () {
-	NEWLIST=$(mktemp)
-	tahoe cp "$LISTFURL"/introducers $NEWLIST > /dev/null ||
+	TMPLIST=$(mktemp)
+	tahoe cp "$LISTFURL"/introducers $TMPLIST > /dev/null ||
 	echo "Error retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
 }
 
@@ -88,16 +88,16 @@ merge_list () {
 	# This resembles I2P's address book's system.
 	download_list
 	backup_list
-	cat $TAHOE_NODE_DIR/introducers.bak $NEWLIST \
+	cat $TAHOE_NODE_DIR/introducers.bak $TMPLIST \
 		| grep -v '^#' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
-	#rm $NEWLIST
+	#rm $TMPLIST
 }
 
 replace_list () {
 	# Make the local list identical to the subscribed one.
 	download_list
 	backup_list
-	mv -f $NEWLIST "$TAHOE_NODE_DIR"/introducers    # install list
+	mv -f $TMPLIST "$TAHOE_NODE_DIR"/introducers    # install list
 }
 
 check_list () {
