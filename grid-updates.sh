@@ -59,23 +59,16 @@ if [ $# -lt 1 ]; then
 	exit 1
 fi
 
-backup_list () {
-	if [ -f "$TAHOE_NODE_DIR"/introducers ]; then # Make backup
-		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by $0 on $(date -u)." > $TAHOE_NODE_DIR/introducers.bak
-		cat "$TAHOE_NODE_DIR/introducers" >> "$TAHOE_NODE_DIR/introducers.bak"
-	fi
-}
-
 download_list () {
 	tahoe cp "$LISTFURL"/introducers "$TAHOE_NODE_DIR"/introducers.new > /dev/null ||
 	echo "Error retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
 }
 
-replace_list () {
-	# Make the local list identical to the subscribed one.
-	download_list
-	backup_list
-	mv -f "$TAHOE_NODE_DIR"/introducers.new "$TAHOE_NODE_DIR"/introducers    # install list
+backup_list () {
+	if [ -f "$TAHOE_NODE_DIR"/introducers ]; then # Make backup
+		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by $0 on $(date -u)." > $TAHOE_NODE_DIR/introducers.bak
+		cat "$TAHOE_NODE_DIR/introducers" >> "$TAHOE_NODE_DIR/introducers.bak"
+	fi
 }
 
 merge_list () {
@@ -86,6 +79,13 @@ merge_list () {
 	cat $TAHOE_NODE_DIR/introducers.bak $TAHOE_NODE_DIR/introducers.new \
 		| grep -v '^#' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
 	rm $TAHOE_NODE_DIR/introducers.new
+}
+
+replace_list () {
+	# Make the local list identical to the subscribed one.
+	download_list
+	backup_list
+	mv -f "$TAHOE_NODE_DIR"/introducers.new "$TAHOE_NODE_DIR"/introducers    # install list
 }
 
 check_list () {
