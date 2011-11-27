@@ -68,11 +68,11 @@ backup_list () {
 
 download_list () {
 	tahoe cp "$LISTFURL"/introducers "$TAHOE_NODE_DIR"/introducers.new > /dev/null ||
-	echo "Error retrieving the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
+	echo "Error retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
 }
 
 replace_list () {
-	# Make the local list identical to the subscriber one.
+	# Make the local list identical to the subscribed one.
 	download_list
 	backup_list
 	mv -f "$TAHOE_NODE_DIR"/introducers.new "$TAHOE_NODE_DIR"/introducers    # install list
@@ -137,11 +137,11 @@ done
 
 [ $opt_check_list -eq 1 ] && check_list
 [ $opt_fetch_news -eq 1 ] && fetch_news
-if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ] ;then
+if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ]; then
 	merge_list && echo "Success: the list has been retrieved and merged."
-elif [ $opt_merge_list -eq 0 ] && [ $opt_replace_list -eq 1 ] ;then
+elif [ $opt_merge_list -eq 0 ] && [ $opt_replace_list -eq 1 ]; then
 	replace_list && echo "Success: the list has been retrieved."
-elif [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 1 ] ;then
+elif [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 1 ]; then
 	echo "Error: --update-merge and --update-replace are mutually exclusive." >&2
 	print_help
 	exit 1
