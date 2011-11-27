@@ -115,7 +115,7 @@ fetch_news () {
 		fi
 	else
 		echo "Error: couldn't fetch the news file."
-		return 1
+		exit 1
 	fi
 }
 
