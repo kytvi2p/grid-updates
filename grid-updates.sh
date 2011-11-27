@@ -28,9 +28,9 @@ NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmba
 
 print_help () {
 cat << EOF
-Usage: $0 COMMAND
+Usage: $0 OPTION
 
-Commands:
+Options:
     --update-merge:   Merge your local introducers list with the
                       subscription's
     --update-replace: Replace your local list of introducers with the master
@@ -54,7 +54,7 @@ EOF
 }
 
 if [ $# -lt 1 ]; then
-	echo "Error: need a command." >&2
+	echo "Error: need an option." >&2
 	print_help
 	exit 1
 fi
@@ -128,7 +128,7 @@ while ( [ $# -gt 0 ] ) ; do
 			exit
 		;;
 		*)
-			echo "Unknown command." >&2
+			echo "Unknown option." >&2
 			print_help
 			exit 1
 		;;
