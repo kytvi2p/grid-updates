@@ -53,8 +53,8 @@ http://killyourtv.i2p.
 EOF
 }
 
-if [ $# -ne 1 ]; then
-	echo "Error: wrong number of arguments." >&2
+if [ $# -lt 1 ]; then
+	echo "Error: need a command." >&2
 	print_help
 	exit 1
 fi
@@ -101,25 +101,48 @@ fetch_news () {
 	cat $TAHOE_NODE_DIR/I2PNEWS
 }
 
+opt_merge_list=0
+opt_replace_list=0
+opt_check_list=0
+opt_fetch_news=0
+while ( [ $# -gt 0 ] ) ; do
+	case $1 in
+		--update-merge)
+			opt_merge_list=1
+			shift
+		;;
+		--update-replace)
+			opt_replace_list=1
+			shift
+		;;
+		--check-list)
+			opt_check_list=1
+			shift
+		;;
+		--fetch-news)
+			opt_fetch_news=1
+			shift
+		;;
+		--help)
+			print_help
+			exit
+		;;
+		*)
+			echo "Unknown command." >&2
+			print_help
+			exit 1
+		;;
+	esac
+done
 
-case $1 in
-	--update-merge)
-		merge_list && echo "Success: the list has been retrieved and merged."
-	;;
-	--update-replace)
-		replace_list && echo "Success: the list has been retrieved."
-	;;
-	--check-list)
-		check_list
-	;;
-	--fetch-news)
-		fetch_news
-	;;
-	--help)
-		print_help
-	;;
-	*)
-		echo "Unknown command."
-		print_help
-	;;
-esac
+[ $opt_check_list -eq 1 ] && check_list
+[ $opt_fetch_news -eq 1 ] && fetch_news
+if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ] ;then
+	merge_list && echo "Success: the list has been retrieved and merged."
+elif [ $opt_merge_list -eq 0 ] && [ $opt_replace_list -eq 1 ] ;then
+	replace_list && echo "Success: the list has been retrieved."
+elif [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 1 ] ;then
+	echo "Error: --update-merge and --update-replace are mutually exclusive." >&2
+	print_help
+	exit 1
+fi
