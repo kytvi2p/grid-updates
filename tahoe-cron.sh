@@ -12,7 +12,7 @@
 #
 # The list is stored on the grid itself and -- like all other shares -- needs
 # maintenance and repairs.  If you can, please also add a cron job running
-# --check-list every once in a while.  This is in everyones interest.
+# --check-list every once in a while.  This is in everyone's interest.
 
 ########################################## Configuration #############################################
 # Change this to your Tahoe-LAFS node's directory (default: ~/.tahoe).
@@ -51,34 +51,39 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
+backup_list () {
+	if [ -f "$TAHOE_NODE_DIR"/introducers ]; then # Make backup
+		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by $0 on $(date -u)." > $TAHOE_NODE_DIR/introducers.bak
+		cat "$TAHOE_NODE_DIR/introducers" >> "$TAHOE_NODE_DIR/introducers.bak"
+	fi
+}
 
 download_list () {
-	tahoe cp "$LISTFURL"/introducers "$TAHOE_NODE_DIR"/introducers.subscription > /dev/null ||
-	(echo "Error retrieving the list.  Try again or check the share's integrity.  See \`$0 --help.\`" >&2 ; return 1)
+	tahoe cp "$LISTFURL"/introducers "$TAHOE_NODE_DIR"/introducers.new > /dev/null ||
+	echo "Error retrieving the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 }
 
 replace_list () {
 	# Make the local list identical to the subscriber one.
-	download_list || return
-	if [ -f "$TAHOE_NODE_DIR"/introducers ]; then          # Make backup
-		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by $0 on $(date -u)." > $TAHOE_NODE_DIR/introducers.bak
-		cat "$TAHOE_NODE_DIR/introducers" >> "$TAHOE_NODE_DIR/introducers.bak"
-	fi
-	mv -f "$TAHOE_NODE_DIR"/introducers{.subscription,}    # install list
+	download_list
+	backup_list
+	mv -f "$TAHOE_NODE_DIR"/introducers.new "$TAHOE_NODE_DIR"/introducers    # install list
 }
 
 merge_list () {
 	# Add new FURLs in the subscribed list to the local list.
 	# This resembles I2P's address book's system.
-	download_list || return
-	[ -f "$TAHOE_NODE_DIR"/introducers ] && cp -f "$TAHOE_NODE_DIR"/introducers{,.bak}  # make backup
-	cat $TAHOE_NODE_DIR/introducers{.subscription,.bak} | sort -u > $TAHOE_NODE_DIR/introducers  # merge
-	rm $TAHOE_NODE_DIR/introducers.subscription
+	download_list
+	backup_list
+	cat $TAHOE_NODE_DIR/introducers.bak $TAHOE_NODE_DIR/introducers.new \
+		| grep -v '^#' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
+	rm $TAHOE_NODE_DIR/introducers.new
 }
 
 check_list () {
 	tahoe deep-check --repair --add-lease "$LISTFURL"
 }
+
 
 case $1 in
 	--update-merge)
