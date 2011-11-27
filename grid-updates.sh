@@ -24,7 +24,9 @@
 # Setup notes
 # ===========
 # For this script to work, it needs read and write permissions to your
-# Tahoe-LAFS node's directory (typically ~/.tahoe).
+# Tahoe-LAFS node's directory (typically ~/.tahoe).  It will update your
+# introdcers file (if you ask it to) and make a backup of it.  If you also
+# fetch news, the script will write them to a file called I2PNEWS.
 
 ########################################## Configuration #############################################
 # Change this to your Tahoe-LAFS node's directory (default: ~/.tahoe).
@@ -103,12 +105,18 @@ check_list () {
 }
 
 fetch_news () {
-	[ -f $TAHOE_NODE_DIR/I2PNEWS ] && cp $TAHOE_NODE_DIR/I2PNEWS $TAHOE_NODE_DIR/I2PNEWS.bak
-	tahoe get $NEWSFURL/NEWS $TAHOE_NODE_DIR/I2PNEWS 2> /dev/null || (echo Error ; return 1)
-	diff -N $TAHOE_NODE_DIR/I2PNEWS $TAHOE_NODE_DIR/I2PNEWS.bak > /dev/null && return
-	echo "There are NEWS!"
-	echo "The contents of $TAHOE_NODE_DIR/I2PNEWS follow:"
-	cat $TAHOE_NODE_DIR/I2PNEWS
+	TMPNEWS=$(mktemp)
+	if tahoe get $NEWSFURL/NEWS $TMPNEWS 2> /dev/null ; then
+		if ! diff -N $TAHOE_NODE_DIR/I2PNEWS $TMPNEWS > /dev/null ; then
+			cp -f $TMPNEWS $TAHOE_NODE_DIR/I2PNEWS
+			echo "There are NEWS!"
+			echo "The contents of $TAHOE_NODE_DIR/I2PNEWS follow:"
+			cat $TAHOE_NODE_DIR/I2PNEWS
+		fi
+	else
+		echo "Error: couldn't fetch the news file."
+		return 1
+	fi
 }
 
 opt_merge_list=0
