@@ -46,7 +46,7 @@ Options:
                       subscription's
     --update-replace: Replace your local list of introducers with the master
                       list
-    --check-list:     Maintain or repair the health of the subscrition
+    --check-list:     Maintain or repair the health of the subscription
                       service's FURL
     --fetch-news:     Retrieve news regarding the I2P grid.  These will be
                       stored in $TAHOE_NODE_DIR/I2PNEWS.  If you run this
