@@ -105,7 +105,7 @@ opt_merge_list=0
 opt_replace_list=0
 opt_check_list=0
 opt_fetch_news=0
-while ( [ $# -gt 0 ] ) ; do
+while [ $# -gt 0 ] ; do
 	case $1 in
 		--update-merge)
 			opt_merge_list=1
