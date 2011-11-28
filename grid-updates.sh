@@ -122,15 +122,20 @@ check_list () {
 	$TAHOE deep-check --repair --add-lease "$LISTFURL"
 }
 
+print_news () {
+	echo "There are NEWS!"
+	diff --ignore-all-space --ignore-blank-lines --new-file $OLDNEWS $TAHOE_NODE_DIR/I2PNEWS | grep -e "^>\s.\+" | sed 's/^>\s//'
+}
+
 fetch_news () {
 	TMPNEWS=$(mktemp)
+	OLDNEWS=$(mktemp)
 	if [ -w $TMPNEWS ]; then
 		if $TAHOE get $NEWSFURL/NEWS $TMPNEWS 2> /dev/null ; then
 			if ! diff -N $TAHOE_NODE_DIR/I2PNEWS $TMPNEWS > /dev/null ; then
+				cp -f $TAHOE_NODE_DIR/I2PNEWS $OLDNEWS
 				cp -f $TMPNEWS $TAHOE_NODE_DIR/I2PNEWS
-				echo "There are NEWS!"
-				echo "The contents of $TAHOE_NODE_DIR/I2PNEWS follow:"
-				cat $TAHOE_NODE_DIR/I2PNEWS
+				print_news
 			fi
 		else
 			echo "Error: couldn't fetch the news file."
