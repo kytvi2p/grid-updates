@@ -78,7 +78,7 @@ if [ $# -lt 1 ]; then
 fi
 
 check_permissions () {
-	if [ ! -w $TAHOE_NODE_DIR/introducers ]; then
+	if [ -e $TAHOE_NODE_DIR/introducers ] && [ ! -w $TAHOE_NODE_DIR/introducers ]; then
 		echo "Error: need write permissions to $TAHOE_NODE_DIR/introducers to be able to update the file." >&2
 		exit 1
 	fi
