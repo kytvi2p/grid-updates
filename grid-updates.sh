@@ -8,7 +8,7 @@
 # Tahoe-LAFS nodes that support multiple introducers.  See
 # http://killyourtv.i2p/tahoe-lafs/ for more information.
 #
-# Run this script with either --merge-introdcers or --replace-introdcers as a
+# Run this script with either --merge-introducers or --replace-introducers as a
 # cron job to make sure your Tahoe-LAFS node will get the most reliable
 # connection to the I2P grid as possible.
 #
@@ -25,7 +25,7 @@
 # ===========
 # For this script to work, it needs read and write permissions to your
 # Tahoe-LAFS node's directory (typically ~/.tahoe).  It will update your
-# introdcers file (if you ask it to) and make a backup of it.  If you also
+# introducers file (if you ask it to) and make a backup of it.  If you also
 # fetch news, the script will write them to a file called I2PNEWS.
 
 ############################### Configuration #################################
