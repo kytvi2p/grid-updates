@@ -93,13 +93,15 @@ download_list () {
 }
 
 backup_list () {
-	LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
-	if [ ! -w $LISTBAK ] && ! touch $LISTBAK ; then
-		echo "Error: need write permissions to $LISTBAK to be able to update the file." >&2
-		exit 1
+	if [ ! -e $TAHOE_NODE_DIR/introducers ]; then
+		LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
+		if [ ! -w $LISTBAK ] && ! touch $LISTBAK ; then
+			echo "Error: need write permissions to $LISTBAK to be able to update the file." >&2
+			exit 1
+		fi
+		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by $0 on $(date -u)." > $LISTBAK
+		cat "$TAHOE_NODE_DIR/introducers" >> $LISTBAK
 	fi
-	echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by $0 on $(date -u)." > $LISTBAK
-	cat "$TAHOE_NODE_DIR/introducers" >> $LISTBAK
 }
 
 merge_list () {
