@@ -138,8 +138,10 @@ fetch_news () {
 	if [ -w $TMPNEWS ]; then
 		if $TAHOE get $NEWSFURL/NEWS $TMPNEWS 2> /dev/null ; then
 			if ! diff -N $TAHOE_NODE_DIR/I2PNEWS $TMPNEWS > /dev/null ; then
-				cp -f $TAHOE_NODE_DIR/I2PNEWS $OLDNEWS
-				cp -f $TMPNEWS $TAHOE_NODE_DIR/I2PNEWS
+				if [ -e $TAHOE_NODE_DIR/I2PNEWS ]; then
+					cp -f $TAHOE_NODE_DIR/I2PNEWS $OLDNEWS
+				fi
+				cp -f $TMPNEWS $TAHOE_NODE_DIR/I2PNEWS > /dev/null
 				print_news
 			fi
 		else
