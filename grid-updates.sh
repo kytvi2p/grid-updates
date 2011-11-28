@@ -111,7 +111,7 @@ merge_list () {
 	download_list || exit 1
 	backup_list || exit 1
 	cat $TAHOE_NODE_DIR/introducers.bak $TMPLIST \
-		| grep -v '^#' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
+		| grep '^pb://' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
 	#rm $TMPLIST
 }
 
