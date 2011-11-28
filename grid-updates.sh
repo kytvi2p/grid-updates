@@ -28,14 +28,12 @@
 # introdcers file (if you ask it to) and make a backup of it.  If you also
 # fetch news, the script will write them to a file called I2PNEWS.
 
-########################################## Configuration #############################################
-# Change this to your Tahoe-LAFS node's directory (default: ~/.tahoe).
-TAHOE_NODE_DIR="$HOME/.tahoe"
-
-# Location of the subscription list
+############################### Configuration #################################
+# Location (directory) of the subscription list:
 LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
+# Location (directory) of the NEWS file:
 NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq'
-######################################################################################################
+###############################################################################
 
 
 print_help () {
@@ -148,6 +146,10 @@ opt_check_list=0
 opt_fetch_news=0
 while [ $# -gt 0 ] ; do
 	case $1 in
+		--node-directory)
+			TAHOE_NODE_DIR=$2
+			shift 2
+		;;
 		--update-merge)
 			opt_merge_list=1
 			shift
@@ -176,6 +178,15 @@ while [ $# -gt 0 ] ; do
 	esac
 done
 
+
+if [ -z $TAHOE_NODE_DIR ]; then
+	TAHOE_NODE_DIR="$HOME/.tahoe"
+else
+	if [ ! -d $TAHOE_NODE_DIR ]; then
+		echo "Error: $TAHOE_NODE_DIR does not exist." >&2
+		exit 1
+	fi
+fi
 [ $opt_check_list -eq 1 ] && check_list
 [ $opt_fetch_news -eq 1 ] && fetch_news
 if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ]; then
