@@ -37,6 +37,7 @@ LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3p
 NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq'
 ######################################################################################################
 
+
 print_help () {
 cat << EOF
 Usage: $0 OPTION
@@ -64,30 +65,46 @@ http://killyourtv.i2p.
 EOF
 }
 
+TAHOE=$(which tahoe)
+[ -z $TAHOE ] && echo "Error: tahoe executable not found." >&2 && exit 1
+
 if [ $# -lt 1 ]; then
 	echo "Error: need an option." >&2
 	print_help
 	exit 1
 fi
 
+check_permissions () {
+	if [ ! -w $TAHOE_NODE_DIR/introducers ]; then
+		echo "Error: need write permissions to $TAHOE_NODE_DIR/introducers to be able to update the file." >&2
+		exit 1
+	fi
+}
+
 download_list () {
 	TMPLIST=$(mktemp)
-	tahoe cp "$LISTFURL"/introducers $TMPLIST > /dev/null ||
-	echo "Error retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
+	if ! $TAHOE cp "$LISTFURL"/introducers $TMPLIST > /dev/null ; then
+		echo "Error retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
+		exit 1
+	fi
 }
 
 backup_list () {
-	if [ -f "$TAHOE_NODE_DIR"/introducers ]; then # Make backup
-		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by $0 on $(date -u)." > $TAHOE_NODE_DIR/introducers.bak
-		cat "$TAHOE_NODE_DIR/introducers" >> "$TAHOE_NODE_DIR/introducers.bak"
+	LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
+	if [ ! -w $LISTBAK ] && ! touch $LISTBAK ; then
+		echo "Error: need write permissions to $LISTBAK to be able to update the file." >&2
+		exit 1
 	fi
+	echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by $0 on $(date -u)." > $LISTBAK
+	cat "$TAHOE_NODE_DIR/introducers" >> $LISTBAK
 }
 
 merge_list () {
 	# Add new FURLs in the subscribed list to the local list.
 	# This resembles I2P's address book's system.
-	download_list
-	backup_list
+	check_permissions || exit 1
+	download_list || exit 1
+	backup_list || exit 1
 	cat $TAHOE_NODE_DIR/introducers.bak $TMPLIST \
 		| grep -v '^#' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
 	#rm $TMPLIST
@@ -95,26 +112,32 @@ merge_list () {
 
 replace_list () {
 	# Make the local list identical to the subscribed one.
-	download_list
-	backup_list
+	check_permissions || exit 1
+	download_list || exit 1
+	backup_list || exit 1
 	mv -f $TMPLIST "$TAHOE_NODE_DIR"/introducers    # install list
 }
 
 check_list () {
-	tahoe deep-check --repair --add-lease "$LISTFURL"
+	$TAHOE deep-check --repair --add-lease "$LISTFURL"
 }
 
 fetch_news () {
 	TMPNEWS=$(mktemp)
-	if tahoe get $NEWSFURL/NEWS $TMPNEWS 2> /dev/null ; then
-		if ! diff -N $TAHOE_NODE_DIR/I2PNEWS $TMPNEWS > /dev/null ; then
-			cp -f $TMPNEWS $TAHOE_NODE_DIR/I2PNEWS
-			echo "There are NEWS!"
-			echo "The contents of $TAHOE_NODE_DIR/I2PNEWS follow:"
-			cat $TAHOE_NODE_DIR/I2PNEWS
+	if [ -w $TMPNEWS ]; then
+		if $TAHOE get $NEWSFURL/NEWS $TMPNEWS 2> /dev/null ; then
+			if ! diff -N $TAHOE_NODE_DIR/I2PNEWS $TMPNEWS > /dev/null ; then
+				cp -f $TMPNEWS $TAHOE_NODE_DIR/I2PNEWS
+				echo "There are NEWS!"
+				echo "The contents of $TAHOE_NODE_DIR/I2PNEWS follow:"
+				cat $TAHOE_NODE_DIR/I2PNEWS
+			fi
+		else
+			echo "Error: couldn't fetch the news file."
+			exit 1
 		fi
 	else
-		echo "Error: couldn't fetch the news file."
+		echo "Error: couldn't create temporary news file."
 		exit 1
 	fi
 }
