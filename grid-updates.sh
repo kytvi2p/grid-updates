@@ -8,13 +8,13 @@
 # Tahoe-LAFS nodes that support multiple introducers.  See
 # http://killyourtv.i2p/tahoe-lafs/ for more information.
 #
-# Run this script with either --update-merge or --update-replace as a cron job
-# to make sure your Tahoe-LAFS node will get the most reliable connection to
-# the I2P grid as possible.
+# Run this script with either --merge-introdcers or --replace-introdcers as a
+# cron job to make sure your Tahoe-LAFS node will get the most reliable
+# connection to the I2P grid as possible.
 #
 # The list is stored on the grid itself and -- like all other shares -- needs
 # maintenance and repairs.  If you can, please also add the --check-list
-# function to your cron job, or run it separately every once in a while.  This
+# option to your cron job, or run it separately every once in a while.  This
 # is in everyone's interest.
 #
 # If you also want to receive news relevant to the grid, add the --fetch-news
@@ -41,23 +41,25 @@ cat << EOF
 Usage: $0 OPTION
 
 Options:
-    --update-merge:   Merge your local introducers list with the
-                      subscription's
-    --update-replace: Replace your local list of introducers with the master
-                      list
-    --check-list:     Maintain or repair the health of the subscription
-                      service's FURL
-    --fetch-news:     Retrieve news regarding the I2P grid.  These will be
-                      stored in $TAHOE_NODE_DIR/I2PNEWS.  If you run this
-                      script as a cron job, the news will also be emailed to
-                      you.
-    --help:           Print this help text
+    -m, --merge-introducers       Merge your local introducers list with the
+                                  subscription's
+    -r, --replace-introducers     Replace your local list of introducers with the
+                                  master list
+    -c, --check-list              Maintain or repair the health of the subscription
+                                  service's FURL
+    -n, --fetch-news              Retrieve news regarding the I2P grid.  These
+                                  will be stored in [node directory]/I2PNEWS.
+                                  If you run this script as a cron job, the
+                                  news will also be emailed to you.
+    -d [directory],               Specify the node directory (default: ~/.tahoe)
+    --node-directory [directory]
+    -h, --help                    Print this help text
 
 Errors:
-	If the script repeatedly fails to retrieve the list from Tahoe-LAFS,
-the share may be damaged.  Try running --check-list which will try to repair
-the list.  If that does not help, you will most likely have to find a new FURL
-to subscribe to.  Ask in #tahoe-lafs on Irc2P, check the DeepWiki and/or
+    If the script repeatedly fails to retrieve the list from Tahoe-LAFS, the
+share may be damaged.  Try running --check-list which will try to repair the
+list.  If that does not help, you will most likely have to find a new FURL to
+subscribe to.  Ask in #tahoe-lafs on Irc2P, check the DeepWiki and/or
 http://killyourtv.i2p.
 
 EOF
@@ -146,27 +148,27 @@ opt_check_list=0
 opt_fetch_news=0
 while [ $# -gt 0 ] ; do
 	case $1 in
-		--node-directory)
+		--node-directory|-d)
 			TAHOE_NODE_DIR=$2
 			shift 2
 		;;
-		--update-merge)
+		--merge-introducers|-m)
 			opt_merge_list=1
 			shift
 		;;
-		--update-replace)
+		--replace-introducers|-r)
 			opt_replace_list=1
 			shift
 		;;
-		--check-list)
+		--check-list|-c)
 			opt_check_list=1
 			shift
 		;;
-		--fetch-news)
+		--fetch-news|-n)
 			opt_fetch_news=1
 			shift
 		;;
-		--help)
+		--help|-h)
 			print_help
 			exit
 		;;
