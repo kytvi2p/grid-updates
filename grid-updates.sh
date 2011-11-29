@@ -181,10 +181,6 @@ fetch_news () {
 	fi
 }
 
-opt_merge_list=0
-opt_replace_list=0
-opt_check_subscriptions=0
-opt_fetch_news=0
 while [ $# -gt 0 ] ; do
 	case $1 in
 		--node-directory|-d)
@@ -227,14 +223,17 @@ while [ $# -gt 0 ] ; do
 	esac
 done
 
-if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ]; then
+# some of those variables will not be initialized--and that's OK
+set +u
+
+if [ $opt_merge_list ] && [ ! $opt_replace_list ]; then
 	merge_list
-elif [ $opt_merge_list -eq 0 ] && [ $opt_replace_list -eq 1 ]; then
+elif [ ! $opt_merge_list ] && [ $opt_replace_list ]; then
 	replace_list
-elif [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 1 ]; then
+elif [ $opt_merge_list ] && [ $opt_replace_list ]; then
 	echo "Error: --update-merge and --update-replace are mutually exclusive." >&2
 	print_help
 	exit 1
 fi
-[ $opt_check_subscriptions -eq 1 ] && check_subscriptions
-[ $opt_fetch_news -eq 1 ] && fetch_news
+[ $opt_check_subscriptions ] && check_subscriptions
+[ $opt_fetch_news ] && fetch_news
