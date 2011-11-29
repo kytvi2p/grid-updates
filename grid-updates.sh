@@ -125,6 +125,7 @@ replace_list () {
 
 check_list () {
 	$TAHOE deep-check --repair --add-lease "$LISTFURL"
+	$TAHOE deep-check --repair --add-lease "$NEWSFURL"
 }
 
 print_news () {
