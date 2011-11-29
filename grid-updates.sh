@@ -227,8 +227,6 @@ while [ $# -gt 0 ] ; do
 	esac
 done
 
-[ $opt_check_subscriptions -eq 1 ] && check_subscriptions
-[ $opt_fetch_news -eq 1 ] && fetch_news
 if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ]; then
 	merge_list
 elif [ $opt_merge_list -eq 0 ] && [ $opt_replace_list -eq 1 ]; then
@@ -238,3 +236,5 @@ elif [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 1 ]; then
 	print_help
 	exit 1
 fi
+[ $opt_check_subscriptions -eq 1 ] && check_subscriptions
+[ $opt_fetch_news -eq 1 ] && fetch_news
