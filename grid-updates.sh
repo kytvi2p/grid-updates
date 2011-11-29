@@ -111,9 +111,9 @@ merge_list () {
 	else
 		# Add new FURLs in the subscribed list to the local list.
 		# This resembles I2P's address book's system.
-		check_permissions || exit 1
-		download_list || exit 1
-		backup_list || exit 1
+		check_permissions
+		download_list
+		backup_list
 		cat $TAHOE_NODE_DIR/introducers.bak $TMPLIST \
 			| grep '^pb://' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
 		echo "Success: the list has been retrieved and merged."
@@ -124,9 +124,9 @@ merge_list () {
 
 replace_list () {
 	# Make the local list identical to the subscribed one.
-	check_permissions || exit 1
-	download_list || exit 1
-	backup_list || exit 1
+	check_permissions
+	download_list
+	backup_list
 	mv -f $TMPLIST "$TAHOE_NODE_DIR"/introducers    # install list
 	echo "Success: the list has been retrieved."
 }
