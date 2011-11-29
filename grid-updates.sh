@@ -226,6 +226,12 @@ done
 # some of those variables will not be initialized--and that's OK
 set +u
 
+if [ ! $opt_merge_list ] && [ ! $opt_replace_list ] && [ ! $opt_check_subscriptions ] && [ ! $opt_fetch_news ]; then
+	echo "Error: An action must be selected."; echo
+	print_help
+	exit 1
+fi
+
 if [ $opt_merge_list ] && [ ! $opt_replace_list ]; then
 	merge_list
 elif [ ! $opt_merge_list ] && [ $opt_replace_list ]; then
