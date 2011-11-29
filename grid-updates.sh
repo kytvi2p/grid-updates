@@ -93,7 +93,7 @@ download_list () {
 }
 
 backup_list () {
-	if [ ! -e $TAHOE_NODE_DIR/introducers ]; then
+	if [  -e $TAHOE_NODE_DIR/introducers ]; then
 		LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
 		if [ ! -w $LISTBAK ] && ! touch $LISTBAK ; then
 			echo "Error: need write permissions to $LISTBAK to be able to update the file." >&2
