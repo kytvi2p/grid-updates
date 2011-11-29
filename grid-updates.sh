@@ -56,6 +56,7 @@ Options:
     --list-furl [FURL]            Overwrite default location of introducers
                                   list
     --news-furl [FURL]            Overwrite default location of news file
+    -v, --verbose                 Display more verbose output
     -h, --help                    Print this help text
 
 Errors:
@@ -140,7 +141,6 @@ merge_list () {
 		cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
 			| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
 		echo "Success: the list has been retrieved and merged."
-		exit 0
 		#rm $TMPLIST
 	fi
 }
@@ -155,8 +155,17 @@ replace_list () {
 }
 
 check_subscriptions () {
-	$TAHOE deep-check --repair --add-lease "$LISTFURL"
-	$TAHOE deep-check --repair --add-lease "$NEWSFURL"
+	if [ $opt_verbose ]; then
+		echo
+		echo "***Checking subscription share***"
+		"$TAHOE" deep-check -v --repair --add-lease "$LISTFURL" >&2
+		echo
+		echo "***Checking NEWS share***"
+		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL" >&2
+	else
+		"$TAHOE" deep-check --repair --add-lease "$LISTFURL"
+		"$TAHOE" deep-check --repair --add-lease "$NEWSFURL"
+	fi
 }
 
 print_news () {
@@ -176,6 +185,10 @@ fetch_news () {
 				fi
 				cp -f "$TMPNEWS" "$TAHOE_NODE_DIR/NEWS" > /dev/null
 				print_news
+			else
+				if [ $opt_verbose ]; then
+					echo "No new NEWS."
+				fi
 			fi
 		else
 			echo "Error: couldn't fetch the news file."
@@ -252,6 +265,10 @@ while [ $# -gt 0 ] ; do
 			opt_fetch_news=1
 			shift
 		;;
+		--verbose|-v)
+			opt_verbose=1
+			shift
+		;;
 		--help|-h)
 			print_help
 			exit
@@ -281,3 +298,5 @@ elif [ $opt_merge_list ] && [ $opt_replace_list ]; then
 fi
 [ $opt_check_subscriptions ] && check_subscriptions
 [ $opt_fetch_news ] && fetch_news
+
+exit 0
