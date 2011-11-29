@@ -105,14 +105,21 @@ backup_list () {
 }
 
 merge_list () {
-	# Add new FURLs in the subscribed list to the local list.
-	# This resembles I2P's address book's system.
-	check_permissions || exit 1
-	download_list || exit 1
-	backup_list || exit 1
-	cat $TAHOE_NODE_DIR/introducers.bak $TMPLIST \
-		| grep '^pb://' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
-	#rm $TMPLIST
+	if [ ! -e $TAHOE_NODE_DIR/introducers ]; then
+		echo "Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
+		replace_list
+	else
+		# Add new FURLs in the subscribed list to the local list.
+		# This resembles I2P's address book's system.
+		check_permissions || exit 1
+		download_list || exit 1
+		backup_list || exit 1
+		cat $TAHOE_NODE_DIR/introducers.bak $TMPLIST \
+			| grep '^pb://' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
+		echo "Success: the list has been retrieved and merged."
+		exit 0
+		#rm $TMPLIST
+	fi
 }
 
 replace_list () {
@@ -121,6 +128,7 @@ replace_list () {
 	download_list || exit 1
 	backup_list || exit 1
 	mv -f $TMPLIST "$TAHOE_NODE_DIR"/introducers    # install list
+	echo "Success: the list has been retrieved."
 }
 
 check_list () {
@@ -215,9 +223,9 @@ fi
 [ $opt_check_list -eq 1 ] && check_list
 [ $opt_fetch_news -eq 1 ] && fetch_news
 if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ]; then
-	merge_list && echo "Success: the list has been retrieved and merged."
+	merge_list
 elif [ $opt_merge_list -eq 0 ] && [ $opt_replace_list -eq 1 ]; then
-	replace_list && echo "Success: the list has been retrieved."
+	replace_list
 elif [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 1 ]; then
 	echo "Error: --update-merge and --update-replace are mutually exclusive." >&2
 	print_help
