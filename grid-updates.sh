@@ -26,7 +26,7 @@
 # For this script to work, it needs read and write permissions to your
 # Tahoe-LAFS node's directory (typically ~/.tahoe).  It will update your
 # introducers file (if you ask it to) and make a backup of it.  If you also
-# fetch news, the script will write them to a file called I2PNEWS.
+# fetch news, the script will write them to a file called NEWS.
 
 ############################### Configuration #################################
 # Location (directory) of the subscription list:
@@ -65,7 +65,7 @@ Options:
     -c, --check-subscriptions     Maintain or repair the health of the subscription
                                   service's FURL
     -n, --fetch-news              Retrieve news regarding the I2P grid.  These
-                                  will be stored in [node directory]/I2PNEWS.
+                                  will be stored in [node directory]/NEWS.
                                   If you run this script as a cron job, the
                                   news will also be emailed to you.
     -d [directory],               Specify the node directory (default: ~/.tahoe)
@@ -155,7 +155,7 @@ check_subscriptions () {
 
 print_news () {
 	echo "There are NEWS!"
-	diff --ignore-all-space --ignore-blank-lines --new-file "$OLDNEWS" "$TAHOE_NODE_DIR/I2PNEWS" | grep -e "^>\s.\+" | sed 's/^>\s//'
+	diff --ignore-all-space --ignore-blank-lines --new-file "$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s.\+" | sed 's/^>\s//'
 }
 
 fetch_news () {
@@ -163,11 +163,11 @@ fetch_news () {
 	OLDNEWS=$(mktemp)
 	if [ -w "$TMPNEWS" ]; then
 		if "$TAHOE" get "$NEWSFURL/NEWS" "$TMPNEWS" 2> /dev/null ; then
-			if ! diff -N "$TAHOE_NODE_DIR/I2PNEWS" "$TMPNEWS" > /dev/null ; then
-				if [ -e "$TAHOE_NODE_DIR/I2PNEWS" ]; then
-					cp -f "$TAHOE_NODE_DIR/I2PNEWS" "$OLDNEWS"
+			if ! diff -N "$TAHOE_NODE_DIR/NEWS" "$TMPNEWS" > /dev/null ; then
+				if [ -e "$TAHOE_NODE_DIR/NEWS" ]; then
+					cp -f "$TAHOE_NODE_DIR/NEWS" "$OLDNEWS"
 				fi
-				cp -f "$TMPNEWS" "$TAHOE_NODE_DIR/I2PNEWS" > /dev/null
+				cp -f "$TMPNEWS" "$TAHOE_NODE_DIR/NEWS" > /dev/null
 				print_news
 			fi
 		else
