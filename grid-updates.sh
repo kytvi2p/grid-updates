@@ -69,7 +69,7 @@ EOF
 }
 
 TAHOE=$(which tahoe)
-[ -z $TAHOE ] && echo "Error: tahoe executable not found." >&2 && exit 1
+[ -z "$TAHOE" ] && echo "Error: tahoe executable not found." >&2 && exit 1
 
 if [ $# -lt 1 ]; then
 	echo "Error: need an option." >&2
@@ -78,7 +78,7 @@ if [ $# -lt 1 ]; then
 fi
 
 check_permissions () {
-	if [ -e $TAHOE_NODE_DIR/introducers ] && [ ! -w $TAHOE_NODE_DIR/introducers ]; then
+	if [ -e "$TAHOE_NODE_DIR/introducers" ] && [ ! -w "$TAHOE_NODE_DIR/introducers" ]; then
 		echo "Error: need write permissions to $TAHOE_NODE_DIR/introducers to be able to update the file." >&2
 		exit 1
 	fi
@@ -86,26 +86,26 @@ check_permissions () {
 
 download_list () {
 	TMPLIST=$(mktemp)
-	if ! $TAHOE cp "$LISTFURL"/introducers $TMPLIST > /dev/null ; then
+	if ! "$TAHOE" cp "$LISTFURL"/introducers $TMPLIST > /dev/null ; then
 		echo "Error retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
 		exit 1
 	fi
 }
 
 backup_list () {
-	if [  -e $TAHOE_NODE_DIR/introducers ]; then
+	if [  -e "$TAHOE_NODE_DIR/introducers" ]; then
 		LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
-		if [ ! -w $LISTBAK ] && ! touch $LISTBAK ; then
+		if [ ! -w "$LISTBAK" ] && ! touch "$LISTBAK" ; then
 			echo "Error: need write permissions to $LISTBAK to be able to update the file." >&2
 			exit 1
 		fi
-		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by `basename $0` on $(date -u)." > $LISTBAK
-		cat "$TAHOE_NODE_DIR/introducers" >> $LISTBAK
+		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by `basename $0` on $(date -u)." > "$LISTBAK"
+		cat "$TAHOE_NODE_DIR/introducers" >> "$LISTBAK"
 	fi
 }
 
 merge_list () {
-	if [ ! -e $TAHOE_NODE_DIR/introducers ]; then
+	if [ ! -e "$TAHOE_NODE_DIR/introducers" ]; then
 		echo "Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
 		replace_list
 	else
@@ -114,8 +114,8 @@ merge_list () {
 		check_permissions
 		download_list
 		backup_list
-		cat $TAHOE_NODE_DIR/introducers.bak $TMPLIST \
-			| grep '^pb://' | sort -u > $TAHOE_NODE_DIR/introducers  # merge
+		cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
+			| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
 		echo "Success: the list has been retrieved and merged."
 		exit 0
 		#rm $TMPLIST
@@ -127,30 +127,30 @@ replace_list () {
 	check_permissions
 	download_list
 	backup_list
-	mv -f $TMPLIST "$TAHOE_NODE_DIR"/introducers    # install list
+	mv -f "$TMPLIST" "$TAHOE_NODE_DIR/introducers"    # install list
 	echo "Success: the list has been retrieved."
 }
 
 check_list () {
-	$TAHOE deep-check --repair --add-lease "$LISTFURL"
-	$TAHOE deep-check --repair --add-lease "$NEWSFURL"
+	"$TAHOE" deep-check --repair --add-lease "$LISTFURL"
+	"$TAHOE" deep-check --repair --add-lease "$NEWSFURL"
 }
 
 print_news () {
 	echo "There are NEWS!"
-	diff --ignore-all-space --ignore-blank-lines --new-file $OLDNEWS $TAHOE_NODE_DIR/I2PNEWS | grep -e "^>\s.\+" | sed 's/^>\s//'
+	diff --ignore-all-space --ignore-blank-lines --new-file "$OLDNEWS" "$TAHOE_NODE_DIR/I2PNEWS" | grep -e "^>\s.\+" | sed 's/^>\s//'
 }
 
 fetch_news () {
 	TMPNEWS=$(mktemp)
 	OLDNEWS=$(mktemp)
-	if [ -w $TMPNEWS ]; then
-		if $TAHOE get $NEWSFURL/NEWS $TMPNEWS 2> /dev/null ; then
-			if ! diff -N $TAHOE_NODE_DIR/I2PNEWS $TMPNEWS > /dev/null ; then
-				if [ -e $TAHOE_NODE_DIR/I2PNEWS ]; then
-					cp -f $TAHOE_NODE_DIR/I2PNEWS $OLDNEWS
+	if [ -w "$TMPNEWS" ]; then
+		if "$TAHOE" get "$NEWSFURL/NEWS" "$TMPNEWS" 2> /dev/null ; then
+			if ! diff -N "$TAHOE_NODE_DIR/I2PNEWS" "$TMPNEWS" > /dev/null ; then
+				if [ -e "$TAHOE_NODE_DIR/I2PNEWS" ]; then
+					cp -f "$TAHOE_NODE_DIR/I2PNEWS" "$OLDNEWS"
 				fi
-				cp -f $TMPNEWS $TAHOE_NODE_DIR/I2PNEWS > /dev/null
+				cp -f "$TMPNEWS" "$TAHOE_NODE_DIR/I2PNEWS" > /dev/null
 				print_news
 			fi
 		else
@@ -210,16 +210,16 @@ while [ $# -gt 0 ] ; do
 done
 
 
-if [ -z $TAHOE_NODE_DIR ]; then
+if [ -z "$TAHOE_NODE_DIR" ]; then
 	TAHOE_NODE_DIR="$HOME/.tahoe"
 else
-	if [ ! -d $TAHOE_NODE_DIR ]; then
+	if [ ! -d "$TAHOE_NODE_DIR" ]; then
 		echo "Error: $TAHOE_NODE_DIR does not exist." >&2
 		exit 1
 	fi
 fi
-[ -z $NEWSFURL ] && NEWSFURL=$DEFAULT_NEWSFURL
-[ -z $LISTFURL ] && LISTFURL=$DEFAULT_LISTFURL
+[ -z "$NEWSFURL" ] && NEWSFURL="$DEFAULT_NEWSFURL"
+[ -z "$LISTFURL" ] && LISTFURL="$DEFAULT_LISTFURL"
 [ $opt_check_list -eq 1 ] && check_list
 [ $opt_fetch_news -eq 1 ] && fetch_news
 if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ]; then
