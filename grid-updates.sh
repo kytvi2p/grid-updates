@@ -231,7 +231,7 @@ if [ $opt_merge_list ] && [ ! $opt_replace_list ]; then
 elif [ ! $opt_merge_list ] && [ $opt_replace_list ]; then
 	replace_list
 elif [ $opt_merge_list ] && [ $opt_replace_list ]; then
-	echo "Error: --update-merge and --update-replace are mutually exclusive." >&2
+	echo "Error: --merge-introducers and --replace-introducers are mutually exclusive." >&2
 	print_help
 	exit 1
 fi
