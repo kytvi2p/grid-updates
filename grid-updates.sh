@@ -103,7 +103,7 @@ check_permissions () {
 
 download_list () {
 	TMPLIST=$(mktemp)
-	if ! "$TAHOE" cp "$LISTFURL"/introducers $TMPLIST > /dev/null ; then
+	if ! "$TAHOE" get "$LISTFURL"/introducers $TMPLIST 2> /dev/null ; then
 		echo "Error retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
 		exit 1
 	fi
