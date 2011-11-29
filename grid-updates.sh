@@ -13,9 +13,9 @@
 # connection to the I2P grid as possible.
 #
 # The list is stored on the grid itself and -- like all other shares -- needs
-# maintenance and repairs.  If you can, please also add the --check-list
-# option to your cron job, or run it separately every once in a while.  This
-# is in everyone's interest.
+# maintenance and repairs.  If you can, please also add the
+# --check-subscriptions option to your cron job, or run it separately every
+# once in a while.  This is in everyone's interest.
 #
 # If you also want to receive news relevant to the grid, add the --fetch-news
 # option.  It will fetch and display a NEWS file from the grid.  This is
@@ -45,7 +45,7 @@ Options:
                                   subscription's
     -r, --replace-introducers     Replace your local list of introducers with the
                                   master list
-    -c, --check-list              Maintain or repair the health of the subscription
+    -c, --check-subscriptions     Maintain or repair the health of the subscription
                                   service's FURL
     -n, --fetch-news              Retrieve news regarding the I2P grid.  These
                                   will be stored in [node directory]/I2PNEWS.
@@ -60,10 +60,10 @@ Options:
 
 Errors:
     If the script repeatedly fails to retrieve the list from Tahoe-LAFS, the
-share may be damaged.  Try running --check-list which will try to repair the
-list.  If that does not help, you will most likely have to find a new FURL to
-subscribe to.  Ask in #tahoe-lafs on Irc2P, check the DeepWiki and/or
-http://killyourtv.i2p.
+    share may be damaged.  Try running --check-subscriptions which will try to
+    repair the list.  If that does not help, you will most likely have to find
+    a new FURL to subscribe to.  Ask in #tahoe-lafs on Irc2P, check the
+    DeepWiki and/or http://killyourtv.i2p.
 
 EOF
 }
@@ -131,9 +131,9 @@ replace_list () {
 	echo "Success: the list has been retrieved."
 }
 
-check_list () {
-	"$TAHOE" deep-check --repair --add-lease "$LISTFURL"
-	"$TAHOE" deep-check --repair --add-lease "$NEWSFURL"
+check_subscriptions () {
+	$TAHOE deep-check --repair --add-lease "$LISTFURL"
+	$TAHOE deep-check --repair --add-lease "$NEWSFURL"
 }
 
 print_news () {
@@ -165,7 +165,7 @@ fetch_news () {
 
 opt_merge_list=0
 opt_replace_list=0
-opt_check_list=0
+opt_check_subscriptions=0
 opt_fetch_news=0
 while [ $# -gt 0 ] ; do
 	case $1 in
@@ -189,8 +189,8 @@ while [ $# -gt 0 ] ; do
 			opt_replace_list=1
 			shift
 		;;
-		--check-list|-c)
-			opt_check_list=1
+		--check-subscriptions|-c)
+			opt_check_subscriptions=1
 			shift
 		;;
 		--fetch-news|-n)
@@ -218,9 +218,9 @@ else
 		exit 1
 	fi
 fi
-[ -z "$NEWSFURL" ] && NEWSFURL="$DEFAULT_NEWSFURL"
-[ -z "$LISTFURL" ] && LISTFURL="$DEFAULT_LISTFURL"
-[ $opt_check_list -eq 1 ] && check_list
+[ -z $NEWSFURL ] && NEWSFURL=$DEFAULT_NEWSFURL
+[ -z $LISTFURL ] && LISTFURL=$DEFAULT_LISTFURL
+[ $opt_check_subscriptions -eq 1 ] && check_subscriptions
 [ $opt_fetch_news -eq 1 ] && fetch_news
 if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ]; then
 	merge_list
