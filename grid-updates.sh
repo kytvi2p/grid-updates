@@ -36,6 +36,23 @@ DEFAULT_NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriia
 ###############################################################################
 
 
+# Initialize early so that checking for uninitialized variables can be done
+if [ -z "$TAHOE_NODE_DIR" ]; then
+	TAHOE_NODE_DIR="$HOME/.tahoe"
+else
+	if [ ! -d "$TAHOE_NODE_DIR" ]; then
+		echo "Error: $TAHOE_NODE_DIR does not exist." >&2
+		exit 1
+	fi
+fi
+[ -z "$NEWSFURL" ] && NEWSFURL=$DEFAULT_NEWSFURL
+[ -z "$LISTFURL" ] && LISTFURL=$DEFAULT_LISTFURL
+
+# abort if any variables aren't initialized to try to prevent any surprises
+set -o nounset  # same as set -u
+set -e # abort if there are any uncaught errors along the way
+
+
 print_help () {
 cat << EOF
 Usage: $0 OPTION
@@ -209,17 +226,6 @@ while [ $# -gt 0 ] ; do
 	esac
 done
 
-
-if [ -z "$TAHOE_NODE_DIR" ]; then
-	TAHOE_NODE_DIR="$HOME/.tahoe"
-else
-	if [ ! -d "$TAHOE_NODE_DIR" ]; then
-		echo "Error: $TAHOE_NODE_DIR does not exist." >&2
-		exit 1
-	fi
-fi
-[ -z $NEWSFURL ] && NEWSFURL=$DEFAULT_NEWSFURL
-[ -z $LISTFURL ] && LISTFURL=$DEFAULT_LISTFURL
 [ $opt_check_subscriptions -eq 1 ] && check_subscriptions
 [ $opt_fetch_news -eq 1 ] && fetch_news
 if [ $opt_merge_list -eq 1 ] && [ $opt_replace_list -eq 0 ]; then
