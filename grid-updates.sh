@@ -155,7 +155,8 @@ check_subscriptions () {
 
 print_news () {
 	echo "There are NEWS!"
-	diff --ignore-all-space --ignore-blank-lines --new-file "$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s.\+" | sed 's/^>\s//'
+	diff --ignore-all-space --ignore-blank-lines --new-file \
+		"$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s" | sed 's/^>\s//'
 }
 
 fetch_news () {
