@@ -14,11 +14,11 @@
 #
 # The list is stored on the grid itself and -- like all other shares -- needs
 # maintenance and repairs.  If you can, please also add the
-# --check-subscriptions option to your cron job, or run it separately every
+# --check-subscriptions action to your cron job, or run it separately every
 # once in a while.  This is in everyone's interest.
 #
 # If you also want to receive news relevant to the grid, add the --fetch-news
-# option.  It will fetch and display a NEWS file from the grid.  This is
+# action.  It will fetch and display a NEWS file from the grid.  This is
 # recommended.
 
 # Setup notes
@@ -38,9 +38,9 @@ DEFAULT_NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriia
 
 print_help () {
 cat << EOF
-Usage: $0 OPTION
+Usage: $0 ACTION
 
-Options:
+Actions:
     -m, --merge-introducers       Merge your local introducers list with the
                                   subscription's
     -r, --replace-introducers     Replace your local list of introducers with the
@@ -51,6 +51,7 @@ Options:
                                   will be stored in [node directory]/NEWS.
                                   If you run this script as a cron job, the
                                   news will also be emailed to you.
+Options:
     -d [directory],               Specify the node directory (default: ~/.tahoe)
     --node-directory [directory]
     --list-furl [FURL]            Overwrite default location of introducers
@@ -269,7 +270,7 @@ while [ $# -gt 0 ] ; do
 			exit
 		;;
 		*)
-			echo "Unknown option." >&2
+			echo "Unknown command." >&2
 			print_help
 			exit 1
 		;;
