@@ -71,15 +71,15 @@ EOF
 }
 
 TAHOE=$(which tahoe)
-[ -z "$TAHOE" ] && echo "Error: tahoe executable not found." >&2 && exit 1
+[ -z "$TAHOE" ] && echo "ERROR: tahoe executable not found." >&2 && exit 1
 
 check_if_tahoe_node () {
 	if [ -d $TAHOE_NODE_DIR ]; then
 		if [ ! -e $TAHOE_NODE_DIR/tahoe.cfg ]; then
-			echo "Warning: $TAHOE_NODE_DIR doesn't look like a tahoe node"
+			echo "WARNING: $TAHOE_NODE_DIR doesn't look like a tahoe node"
 		fi
 	else
-		echo "Error: $TAHOE_NODE_DIR is not a directory." >&2
+		echo "ERROR: $TAHOE_NODE_DIR is not a directory." >&2
 		exit 1
 	fi
 }
@@ -95,7 +95,7 @@ set -e # abort if there are any uncaught errors along the way
 
 check_permissions () {
 	if [ -e "$TAHOE_NODE_DIR/introducers" ] && [ ! -w "$TAHOE_NODE_DIR/introducers" ]; then
-		echo "Error: need write permissions to $TAHOE_NODE_DIR/introducers to be able to update the file." >&2
+		echo "ERROR: need write permissions to $TAHOE_NODE_DIR/introducers to be able to update the file." >&2
 		exit 1
 	fi
 }
@@ -103,7 +103,7 @@ check_permissions () {
 download_list () {
 	TMPLIST=$(mktemp)
 	if ! "$TAHOE" get "$LISTFURL"/introducers "$TMPLIST" 2> /dev/null ; then
-		echo "Error retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
+		echo "ERROR retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
 		exit 1
 	fi
 }
@@ -112,7 +112,7 @@ backup_list () {
 	if [ -e "$TAHOE_NODE_DIR/introducers" ]; then
 		LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
 		if [ ! -w "$LISTBAK" ] && ! touch "$LISTBAK" 2> /dev/null ; then
-			echo "Error: need write permissions to $LISTBAK to be able to update the file." >&2
+			echo "ERROR: need write permissions to $LISTBAK to be able to update the file." >&2
 			exit 1
 		fi
 		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by `basename $0` on $(date -u)." > "$LISTBAK"
@@ -123,7 +123,7 @@ backup_list () {
 merge_list () {
 	if [ ! -e "$TAHOE_NODE_DIR/introducers" ]; then
 		if [ $opt_verbose ]; then
-			echo "Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
+			echo "INFO: Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
 		fi
 		replace_list
 	else
@@ -192,7 +192,7 @@ fetch_news () {
 			exit 1
 		fi
 	else
-		echo "Error: couldn't create temporary news file." >&2
+		echo "ERROR: couldn't create temporary news file." >&2
 		exit 1
 	fi
 }
@@ -202,12 +202,12 @@ check_for_valid_furls () {
 	# but it's better than nothing...isn't it?
 
 	if [ ! $(echo $NEWSFURL |grep '^URI:') ]; then
-		echo "Error: $NEWSFURL is not a valid news-furl." >&2
+		echo "ERROR: $NEWSFURL is not a valid news-furl." >&2
 		exit 1
 	fi
 
 	if [ ! $(echo $LISTFURL |grep '^URI:') ]; then
-		echo "Error: $LISTFURL is not a valid list-furl." >&2
+		echo "ERROR: $LISTFURL is not a valid list-furl." >&2
 		exit 1
 	fi
 }
@@ -221,7 +221,7 @@ while [ $# -gt 0 ] ; do
 	case $1 in
 		--node-directory|-d)
 			if [ -z "$2" ]; then
-				echo "Error: tahoe node directory not specified." >&2
+				echo "ERROR: tahoe node directory not specified." >&2
 				print_help
 				exit 1
 			fi
@@ -231,7 +231,7 @@ while [ $# -gt 0 ] ; do
 		;;
 		--list-furl)
 			if [ -z "$2" ]; then
-				echo "Error: list-furl not specified." >&2
+				echo "ERROR: list-furl not specified." >&2
 				print_help
 				exit 1
 			fi
@@ -241,7 +241,7 @@ while [ $# -gt 0 ] ; do
 		;;
 		--news-furl)
 			if [ -z "$2" ]; then
-				echo "Error: news-furl not specified." >&2
+				echo "ERROR: news-furl not specified." >&2
 				print_help
 				exit 1
 			fi
@@ -274,7 +274,7 @@ while [ $# -gt 0 ] ; do
 			exit
 		;;
 		*)
-			echo "Unknown command." >&2
+			echo "ERROR: Unknown command." >&2
 			print_help
 			exit 1
 		;;
@@ -282,7 +282,7 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ ! $opt_merge_list ] && [ ! $opt_replace_list ] && [ ! $opt_check_subscriptions ] && [ ! $opt_fetch_news ]; then
-	echo "Error: An action must be selected." >&2
+	echo "ERROR: An action must be selected." >&2
 	print_help
 	exit 1
 fi
@@ -292,7 +292,7 @@ if [ $opt_merge_list ] && [ ! $opt_replace_list ]; then
 elif [ ! $opt_merge_list ] && [ $opt_replace_list ]; then
 	replace_list
 elif [ $opt_merge_list ] && [ $opt_replace_list ]; then
-	echo "Error: --merge-introducers and --replace-introducers are mutually exclusive." >&2
+	echo "ERROR: --merge-introducers and --replace-introducers are mutually exclusive." >&2
 	print_help
 	exit 1
 fi
