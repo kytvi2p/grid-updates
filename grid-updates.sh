@@ -122,7 +122,9 @@ backup_list () {
 
 merge_list () {
 	if [ ! -e "$TAHOE_NODE_DIR/introducers" ]; then
-		echo "Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
+		if [ $opt_verbose ]; then
+			echo "Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
+		fi
 		replace_list
 	else
 		# Add new FURLs in the subscribed list to the local list.
@@ -132,7 +134,7 @@ merge_list () {
 		backup_list
 		cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
 			| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
-		echo "Success: the list has been retrieved and merged."
+		[ $opt_verbose ] && echo "INFO: Success: the list has been retrieved and merged."
 		#rm $TMPLIST
 	fi
 }
@@ -143,7 +145,7 @@ replace_list () {
 	download_list
 	backup_list
 	mv -f "$TMPLIST" "$TAHOE_NODE_DIR/introducers"    # install list
-	echo "Success: the list has been retrieved."
+	[ $opt_verbose ] && echo "INFO: Success: the list has been retrieved."
 }
 
 check_subscriptions () {
