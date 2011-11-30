@@ -187,7 +187,24 @@ fetch_news () {
 	fi
 }
 
+check_for_valid_furls () {
+	# FURLs will start with URI:. Yes, this is very rudimentary checking,
+	#but it's better than nothing...isn't it?
+
+	if [ ! $(echo $NEWSFURL |grep '^URI:') ]; then
+		echo "Error: $NEWSFURL is not a valid news-furl."
+		exit 1
+	fi
+
+	if [ ! $(echo $LISTFURL |grep '^URI:') ]; then
+		echo "Error: $LISTFURL is not a valid list-furl."
+		exit 1
+	fi
+}
+
+
 # some of those variables will not be initialized--and that's OK
+# We'll do our own checking from this point forward.
 set +u
 
 while [ $# -gt 0 ] ; do
@@ -202,12 +219,22 @@ while [ $# -gt 0 ] ; do
 			check_if_tahoe_node
 		;;
 		--list-furl)
+			if [ -z "$2" ]; then
+				echo "Error: list-furl not specified."; echo
+				exit 1
+			fi
 			LISTFURL=$2
 			shift 2
+			check_for_valid_furls
 		;;
 		--news-furl)
+			if [ -z "$2" ]; then
+				echo "Error: news-furl not specified."; echo
+				exit 1
+			fi
 			NEWSFURL=$2
 			shift 2
+			check_for_valid_furls
 		;;
 		--merge-introducers|-m)
 			opt_merge_list=1
