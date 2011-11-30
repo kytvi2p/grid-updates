@@ -147,6 +147,7 @@ check_permissions () {
 }
 
 download_list () {
+	[ $opt_verbose ] && echo "INFO: Attempting to download introducers list..."
 	TMPLIST=$(mktemp)
 	if ! "$TAHOE" get "$LISTFURL"/introducers "$TMPLIST" 2> /dev/null ; then
 		echo "ERROR retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
