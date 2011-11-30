@@ -36,23 +36,6 @@ DEFAULT_NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriia
 ###############################################################################
 
 
-# Initialize early so that checking for uninitialized variables can be done
-if [ -z "$TAHOE_NODE_DIR" ]; then
-	TAHOE_NODE_DIR="$HOME/.tahoe"
-else
-	if [ ! -d "$TAHOE_NODE_DIR" ]; then
-		echo "Error: $TAHOE_NODE_DIR does not exist." >&2
-		exit 1
-	fi
-fi
-[ -z "$NEWSFURL" ] && NEWSFURL=$DEFAULT_NEWSFURL
-[ -z "$LISTFURL" ] && LISTFURL=$DEFAULT_LISTFURL
-
-# abort if any variables aren't initialized to try to prevent any surprises
-set -o nounset  # same as set -u
-set -e # abort if there are any uncaught errors along the way
-
-
 print_help () {
 cat << EOF
 Usage: $0 OPTION
@@ -93,6 +76,29 @@ if [ $# -lt 1 ]; then
 	print_help
 	exit 1
 fi
+check_if_tahoe_node () {
+	if [ -d $TAHOE_NODE_DIR ]; then
+		if [ ! -e $TAHOE_NODE_DIR/tahoe.cfg ]; then
+			echo "Warning: $TAHOE_NODE_DIR doesn't look like a tahoe node"
+		fi
+	else
+		echo "Error: $TAHOE_NODE_DIR is not a directory."
+		exit 1
+	fi
+}
+
+if [ -z "$TAHOE_NODE_DIR" ]; then
+	TAHOE_NODE_DIR="$HOME/.tahoe"
+	check_if_tahoe_node
+fi
+
+# Initialize early so that checking for uninitialized variables can be done
+[ -z "$NEWSFURL" ] && NEWSFURL=$DEFAULT_NEWSFURL
+[ -z "$LISTFURL" ] && LISTFURL=$DEFAULT_LISTFURL
+
+# abort if any variables aren't initialized to try to prevent any surprises
+set -o nounset  # same as set -u
+set -e # abort if there are any uncaught errors along the way
 
 check_permissions () {
 	if [ -e "$TAHOE_NODE_DIR/introducers" ] && [ ! -w "$TAHOE_NODE_DIR/introducers" ]; then
@@ -181,11 +187,19 @@ fetch_news () {
 	fi
 }
 
+# some of those variables will not be initialized--and that's OK
+set +u
+
 while [ $# -gt 0 ] ; do
 	case $1 in
 		--node-directory|-d)
+			if [ -z "$2" ]; then
+				echo "Error: tahoe node directory not specified."; echo
+				exit 1
+			fi
 			TAHOE_NODE_DIR=$2
 			shift 2
+			check_if_tahoe_node
 		;;
 		--list-furl)
 			LISTFURL=$2
@@ -222,9 +236,6 @@ while [ $# -gt 0 ] ; do
 		;;
 	esac
 done
-
-# some of those variables will not be initialized--and that's OK
-set +u
 
 if [ ! $opt_merge_list ] && [ ! $opt_replace_list ] && [ ! $opt_check_subscriptions ] && [ ! $opt_fetch_news ]; then
 	echo "Error: An action must be selected."; echo
