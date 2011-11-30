@@ -220,10 +220,14 @@ check_subscriptions () {
 		echo "INFO: 2. Checking NEWS share"
 		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL" | \
 			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
-			return 0
+		echo "INFO: 2. Checking scripts share"
+		"$TAHOE" deep-check -v --repair --add-lease "$SCRIPTFURL" | \
+			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
+		return 0
 	else
 		"$TAHOE" deep-check --repair --add-lease "$LISTFURL" > /dev/null
 		"$TAHOE" deep-check --repair --add-lease "$NEWSFURL" > /dev/null
+		"$TAHOE" deep-check --repair --add-lease "$SCRIPTFURL" > /dev/null
 		return 0
 	fi
 }
