@@ -150,12 +150,13 @@ replace_list () {
 
 check_subscriptions () {
 	if [ $opt_verbose ]; then
-		echo
-		echo "***Checking subscription share***"
-		"$TAHOE" deep-check -v --repair --add-lease "$LISTFURL"
-		echo
-		echo "***Checking NEWS share***"
-		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL"
+		echo "INFO: Beginning to check subscription shares"
+		echo "INFO: 1. Checking subscription share"
+		"$TAHOE" deep-check -v --repair --add-lease "$LISTFURL" | \
+			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
+		echo "INFO: 2. Checking NEWS share"
+		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL" | \
+			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
 	else
 		"$TAHOE" deep-check --repair --add-lease "$LISTFURL" > /dev/null
 		"$TAHOE" deep-check --repair --add-lease "$NEWSFURL" > /dev/null
