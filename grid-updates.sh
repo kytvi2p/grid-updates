@@ -111,6 +111,7 @@ Options:
     --news-furl [FURL]          Overwrite default location of news file
     --script-furl [FURL]        Overwrite default location of script updates
     -v, --verbose               Display more verbose output
+    -V, --version               Display version information
     -h, --help                  Print this help text
 
 Errors:
@@ -384,7 +385,7 @@ while [ $# -gt 0 ] ; do
 			opt_fetch_news=1
 			shift
 		;;
-		--version)
+		--version|-V)
 			echo "$(basename $0) version: $VERSION"
 			exit 0
 		;;
