@@ -150,13 +150,13 @@ check_subscriptions () {
 	if [ $opt_verbose ]; then
 		echo
 		echo "***Checking subscription share***"
-		"$TAHOE" deep-check -v --repair --add-lease "$LISTFURL" >&2
+		"$TAHOE" deep-check -v --repair --add-lease "$LISTFURL"
 		echo
 		echo "***Checking NEWS share***"
-		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL" >&2
+		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL"
 	else
-		"$TAHOE" deep-check --repair --add-lease "$LISTFURL"
-		"$TAHOE" deep-check --repair --add-lease "$NEWSFURL"
+		"$TAHOE" deep-check --repair --add-lease "$LISTFURL" > /dev/null
+		"$TAHOE" deep-check --repair --add-lease "$NEWSFURL" > /dev/null
 	fi
 }
 
