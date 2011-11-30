@@ -80,6 +80,8 @@ else
        fi
 fi
 
+VERSION='0.0'
+
 
 print_help () {
 cat << EOF
@@ -325,6 +327,10 @@ while [ $# -gt 0 ] ; do
 		--fetch-news|-n)
 			opt_fetch_news=1
 			shift
+		;;
+		--version)
+			echo "$(basename $0) version: $VERSION"
+			exit 0
 		;;
 		--verbose|-v)
 			opt_verbose=1
