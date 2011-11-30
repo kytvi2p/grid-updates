@@ -78,6 +78,7 @@ check_if_tahoe_node () {
 		if [ ! -e $TAHOE_NODE_DIR/tahoe.cfg ]; then
 			echo "WARNING: $TAHOE_NODE_DIR doesn't look like a tahoe node"
 		fi
+		return 0
 	else
 		echo "ERROR: $TAHOE_NODE_DIR is not a directory." >&2
 		exit 1
@@ -117,6 +118,7 @@ backup_list () {
 		fi
 		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by `basename $0` on $(date -u)." > "$LISTBAK"
 		cat "$TAHOE_NODE_DIR/introducers" >> "$LISTBAK"
+		return 0
 	fi
 }
 
@@ -126,6 +128,7 @@ merge_list () {
 			echo "INFO: Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
 		fi
 		replace_list
+		return 0
 	else
 		# Add new FURLs in the subscribed list to the local list.
 		# This resembles I2P's address book's system.
@@ -135,6 +138,7 @@ merge_list () {
 		cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
 			| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
 		[ $opt_verbose ] && echo "INFO: Success: the list has been retrieved and merged."
+		return 0
 		#rm $TMPLIST
 	fi
 }
@@ -146,6 +150,7 @@ replace_list () {
 	backup_list
 	mv -f "$TMPLIST" "$TAHOE_NODE_DIR/introducers"    # install list
 	[ $opt_verbose ] && echo "INFO: Success: the list has been retrieved."
+	return 0
 }
 
 check_subscriptions () {
@@ -157,9 +162,11 @@ check_subscriptions () {
 		echo "INFO: 2. Checking NEWS share"
 		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL" | \
 			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
+			return 0
 	else
 		"$TAHOE" deep-check --repair --add-lease "$LISTFURL" > /dev/null
 		"$TAHOE" deep-check --repair --add-lease "$NEWSFURL" > /dev/null
+		return 0
 	fi
 }
 
@@ -175,8 +182,10 @@ print_news () {
 		# print
 		diff --ignore-all-space --ignore-blank-lines --new-file \
 			"$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s" | sed 's/^>\s//'
+		return 0
 	else
 		[ $opt_verbose ] && echo "INFO: No new NEWS."
+		return 0
 	fi
 }
 
@@ -187,10 +196,12 @@ fetch_news () {
 		[ $opt_verbose ] && echo "INFO: Attempting to download NEWS file..."
 		if "$TAHOE" get "$NEWSFURL/NEWS" "$TMPNEWS" 2> /dev/null ; then
 			print_news
+			return 0
 		else
 			echo "ERROR: couldn't fetch the news file." >&2
 			exit 1
 		fi
+
 	else
 		echo "ERROR: couldn't create temporary news file." >&2
 		exit 1
