@@ -79,7 +79,7 @@ check_if_tahoe_node () {
 			echo "Warning: $TAHOE_NODE_DIR doesn't look like a tahoe node"
 		fi
 	else
-		echo "Error: $TAHOE_NODE_DIR is not a directory."
+		echo "Error: $TAHOE_NODE_DIR is not a directory." >&2
 		exit 1
 	fi
 }
@@ -183,11 +183,11 @@ fetch_news () {
 				fi
 			fi
 		else
-			echo "Error: couldn't fetch the news file."
+			echo "Error: couldn't fetch the news file." >&2
 			exit 1
 		fi
 	else
-		echo "Error: couldn't create temporary news file."
+		echo "Error: couldn't create temporary news file." >&2
 		exit 1
 	fi
 }
@@ -197,12 +197,12 @@ check_for_valid_furls () {
 	# but it's better than nothing...isn't it?
 
 	if [ ! $(echo $NEWSFURL |grep '^URI:') ]; then
-		echo "Error: $NEWSFURL is not a valid news-furl."
+		echo "Error: $NEWSFURL is not a valid news-furl." >&2
 		exit 1
 	fi
 
 	if [ ! $(echo $LISTFURL |grep '^URI:') ]; then
-		echo "Error: $LISTFURL is not a valid list-furl."
+		echo "Error: $LISTFURL is not a valid list-furl." >&2
 		exit 1
 	fi
 }
@@ -216,7 +216,8 @@ while [ $# -gt 0 ] ; do
 	case $1 in
 		--node-directory|-d)
 			if [ -z "$2" ]; then
-				echo "Error: tahoe node directory not specified."; echo
+				echo "Error: tahoe node directory not specified." >&2
+				print_help
 				exit 1
 			fi
 			TAHOE_NODE_DIR=$2
@@ -225,7 +226,8 @@ while [ $# -gt 0 ] ; do
 		;;
 		--list-furl)
 			if [ -z "$2" ]; then
-				echo "Error: list-furl not specified."; echo
+				echo "Error: list-furl not specified." >&2
+				print_help
 				exit 1
 			fi
 			LISTFURL=$2
@@ -234,7 +236,8 @@ while [ $# -gt 0 ] ; do
 		;;
 		--news-furl)
 			if [ -z "$2" ]; then
-				echo "Error: news-furl not specified."; echo
+				echo "Error: news-furl not specified." >&2
+				print_help
 				exit 1
 			fi
 			NEWSFURL=$2
@@ -274,7 +277,7 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ ! $opt_merge_list ] && [ ! $opt_replace_list ] && [ ! $opt_check_subscriptions ] && [ ! $opt_fetch_news ]; then
-	echo "Error: An action must be selected."; echo
+	echo "Error: An action must be selected." >&2
 	print_help
 	exit 1
 fi
