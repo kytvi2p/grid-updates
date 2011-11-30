@@ -72,11 +72,6 @@ EOF
 TAHOE=$(which tahoe)
 [ -z "$TAHOE" ] && echo "Error: tahoe executable not found." >&2 && exit 1
 
-if [ $# -lt 1 ]; then
-	echo "Error: need an option." >&2
-	print_help
-	exit 1
-fi
 check_if_tahoe_node () {
 	if [ -d $TAHOE_NODE_DIR ]; then
 		if [ ! -e $TAHOE_NODE_DIR/tahoe.cfg ]; then
