@@ -161,29 +161,32 @@ check_subscriptions () {
 }
 
 print_news () {
-	echo "There are NEWS!"
-	diff --ignore-all-space --ignore-blank-lines --new-file \
-		"$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s" | sed 's/^>\s//'
+	# if new NEWS...
+	if ! diff -N "$TAHOE_NODE_DIR/NEWS" "$TMPNEWS" > /dev/null ; then
+		# move old news aside
+		if [ -e "$TAHOE_NODE_DIR/NEWS" ]; then
+			cp -f "$TAHOE_NODE_DIR/NEWS" "$OLDNEWS"
+		fi
+		# put new news into place
+		cp -f "$TMPNEWS" "$TAHOE_NODE_DIR/NEWS" > /dev/null
+		# print
+		echo "There are NEWS!"
+		diff --ignore-all-space --ignore-blank-lines --new-file \
+			"$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s" | sed 's/^>\s//'
+	else
+		[ $opt_verbose ] && echo "INFO: No new NEWS."
+	fi
 }
 
 fetch_news () {
 	TMPNEWS=$(mktemp)
 	OLDNEWS=$(mktemp)
 	if [ -w "$TMPNEWS" ]; then
+		[ $opt_verbose ] && echo "INFO: Attempting to download NEWS file..."
 		if "$TAHOE" get "$NEWSFURL/NEWS" "$TMPNEWS" 2> /dev/null ; then
-			if ! diff -N "$TAHOE_NODE_DIR/NEWS" "$TMPNEWS" > /dev/null ; then
-				if [ -e "$TAHOE_NODE_DIR/NEWS" ]; then
-					cp -f "$TAHOE_NODE_DIR/NEWS" "$OLDNEWS"
-				fi
-				cp -f "$TMPNEWS" "$TAHOE_NODE_DIR/NEWS" > /dev/null
-				print_news
-			else
-				if [ $opt_verbose ]; then
-					echo "No new NEWS."
-				fi
-			fi
+			print_news
 		else
-			echo "Error: couldn't fetch the news file." >&2
+			echo "ERROR: couldn't fetch the news file." >&2
 			exit 1
 		fi
 	else
