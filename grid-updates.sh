@@ -35,6 +35,51 @@ LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3p
 NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq/Latest'
 ###############################################################################
 
+###############################################################################
+# Stop multiple instances from running simultaneously
+###############################################################################
+if [ -w /var/lock ]; then  # the default lock directory in Linux
+        LOCKDIR="/var/lock/grid-updates.lck"
+else
+        LOCKDIR="/tmp/grid-updates.lck"   # but maybe not elsewhere...
+fi
+PIDFILE="${LOCKDIR}/PID"
+ENO_SUCCESS=0;
+ENO_GENERAL=1;
+ENO_LOCKFAIL=2;
+ENO_RECVSIG=3;
+
+#trap 'ECODE=$?; echo "[`basename $0`] Exit: ${ECODE}" >&2' 0
+
+if mkdir "${LOCKDIR}"  > /dev/null 2>&1 ; then
+       trap 'ECODE=$?;
+       rm -rf "${LOCKDIR}"' 0
+       touch $PIDFILE
+       echo $$ > "${PIDFILE}"
+       trap 'echo "ERROR: Killed by a signal $ECODE $ENO_RECVSIG" >&2
+            exit ${ENO_RECVSIG}' 1 2 3 15
+else
+       # lock failed, check if it's stale
+       OTHERPID="$(cat "${PIDFILE}")"
+
+       if [ $? != 0 ]; then
+               echo "ERROR: Another instance of `basename $0` is active with PID ${OTHERPID}" >&2
+               exit ${ENO_LOCKFAIL}
+       fi
+
+       if ! kill -0 ${OTHERPID} >/dev/null 2>&1; then
+               #stale lock, removing it and restarting
+               [ $opt_verbose ] && echo "INFO: Removing stale PID ${OTHERPID}" >&2
+               rm -rf ${LOCKDIR}
+               [ $opt_verbose ] && echo "INFO: [`basename $0`] restarting" >&2
+               exec "$0" "$@"
+       else
+               #lock is valid and OTHERPID is active
+               echo "ERROR: Another instance of `basename $0` is active with PID ${OTHERPID}" >&2
+               exit ${ENO_LOCKFAIL}
+       fi
+fi
+
 
 print_help () {
 cat << EOF
