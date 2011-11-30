@@ -29,10 +29,10 @@
 # fetch news, the script will write them to a file called NEWS.
 
 ############################### Configuration #################################
-# Location (directory) of the subscription list:
-DEFAULT_LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
-# Location (directory) of the NEWS file:
-DEFAULT_NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq/Latest'
+# Default location (directory) of the subscription list:
+LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
+# Default location (directory) of the NEWS file:
+NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq/Latest'
 ###############################################################################
 
 
@@ -88,10 +88,6 @@ if [ -z "$TAHOE_NODE_DIR" ]; then
 	TAHOE_NODE_DIR="$HOME/.tahoe"
 	check_if_tahoe_node
 fi
-
-# Initialize early so that checking for uninitialized variables can be done
-[ -z "$NEWSFURL" ] && NEWSFURL=$DEFAULT_NEWSFURL
-[ -z "$LISTFURL" ] && LISTFURL=$DEFAULT_LISTFURL
 
 # abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
