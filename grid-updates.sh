@@ -117,7 +117,7 @@ download_list () {
 }
 
 backup_list () {
-	if [  -e "$TAHOE_NODE_DIR/introducers" ]; then
+	if [ -e "$TAHOE_NODE_DIR/introducers" ]; then
 		LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
 		if [ ! -w "$LISTBAK" ] && ! touch "$LISTBAK" 2> /dev/null ; then
 			echo "Error: need write permissions to $LISTBAK to be able to update the file." >&2
@@ -202,7 +202,7 @@ fetch_news () {
 
 check_for_valid_furls () {
 	# FURLs will start with URI:. Yes, this is very rudimentary checking,
-	#but it's better than nothing...isn't it?
+	# but it's better than nothing...isn't it?
 
 	if [ ! $(echo $NEWSFURL |grep '^URI:') ]; then
 		echo "Error: $NEWSFURL is not a valid news-furl."
