@@ -308,6 +308,12 @@ download_update () {
 		echo "ERROR: cannot write to download directory $UPDATE_DOWNLOAD_DIR"
 		exit 1
 	fi
+
+	if [ ! -d $UPDATE_DOWNLOAD_DIR ]; then
+		echo "ERROR: $UPDATE_DOWNLOAD_DIR is not a directory."
+		exit 1
+	fi
+
 	if check_update; then
 		[ $opt_verbose ] && echo "INFO: Attempting to download new version..."
 		if tahoe get $SCRIPTFURL/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
