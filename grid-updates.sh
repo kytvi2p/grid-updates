@@ -292,7 +292,7 @@ check_for_valid_furls () {
 
 check_update () {
 	[ $opt_verbose ] && echo "INFO: Attempting to check for new version."
-	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTFURL | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -1)
+	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTFURL | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
 	LATEST_VERSION_NUMBER=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
 	if [ $VERSION != $LATEST_VERSION_NUMBER ]; then
 		[ $opt_verbose ] && echo "INFO: new version available: $LATEST_VERSION_NUMBER."
