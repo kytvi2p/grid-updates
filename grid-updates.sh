@@ -283,6 +283,11 @@ check_for_valid_furls () {
 		echo "ERROR: $LISTFURL is not a valid list-furl." >&2
 		exit 1
 	fi
+
+	if [ ! $(echo SCRIPTFURL |grep '^URI:') ]; then
+		echo "ERROR: $SCRIPTFURL is not a valid list-furl." >&2
+		exit 1
+	fi
 }
 
 check_update () {
@@ -344,6 +349,16 @@ while [ $# -gt 0 ] ; do
 				exit 1
 			fi
 			NEWSFURL=$2
+			shift 2
+			check_for_valid_furls
+		;;
+		--script-furl)
+			if [ -z "$2" ]; then
+				echo "ERROR: script-furl not specified." >&2
+				print_help
+				exit 1
+			fi
+			SCRIPTFURL=$2
 			shift 2
 			check_for_valid_furls
 		;;
