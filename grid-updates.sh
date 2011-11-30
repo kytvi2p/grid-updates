@@ -33,7 +33,11 @@
 LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
 # Default location (directory) of the NEWS file:
 NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq/Latest'
+# Default location (directory) of script releases:
+SCRIPTFURL='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
 ###############################################################################
+
+VERSION='0.0'
 
 ###############################################################################
 # Stop multiple instances from running simultaneously
@@ -80,32 +84,34 @@ else
        fi
 fi
 
-VERSION='0.0'
-
-
 print_help () {
 cat << EOF
 Usage: $0 ACTION
 
 Actions:
-    -m, --merge-introducers       Merge your local introducers list with the
-                                  subscription's
-    -r, --replace-introducers     Replace your local list of introducers with the
-                                  master list
-    -c, --check-subscriptions     Maintain or repair the health of the subscription
-                                  service's FURL
-    -n, --fetch-news              Retrieve news regarding the I2P grid.  These
-                                  will be stored in [node directory]/NEWS.
-                                  If you run this script as a cron job, the
-                                  news will also be emailed to you.
+    -m, --merge-introducers     Merge your local introducers list with the
+                                subscription's
+    -r, --replace-introducers   Replace your local list of introducers with the
+                                master list
+    -c, --check-subscriptions   Maintain or repair the health of the subscription
+                                service's FURL
+    -n, --fetch-news            Retrieve news regarding the I2P grid.  These
+                                will be stored in [node directory]/NEWS.
+                                If you run this script as a cron job, the
+                                news will also be emailed to you.
+    --check-update              Check for a new version of this script on the
+                                grid
+    --download-update           Download a new version of this script from the
+        [target directory]      grid (implies --check-update)
 Options:
-    -d [directory],               Specify the node directory (default: ~/.tahoe)
+    -d [directory],             Specify the node directory (default: ~/.tahoe)
     --node-directory [directory]
-    --list-furl [FURL]            Overwrite default location of introducers
-                                  list
-    --news-furl [FURL]            Overwrite default location of news file
-    -v, --verbose                 Display more verbose output
-    -h, --help                    Print this help text
+    --list-furl [FURL           Overwrite default location of introducers
+                                list
+    --news-furl [FURL]          Overwrite default location of news file
+    --script-furl [FURL]        Overwrite default location of script updates
+    -v, --verbose               Display more verbose output
+    -h, --help                  Print this help text
 
 Errors:
     If the script repeatedly fails to retrieve the list from Tahoe-LAFS, the
@@ -275,6 +281,31 @@ check_for_valid_furls () {
 	fi
 }
 
+check_update () {
+	[ $opt_verbose ] && echo "INFO: Attempting to check for new version."
+	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTFURL | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -1)
+	LATEST_VERSION_NUMBER=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
+	if [ $VERSION != $LATEST_VERSION_NUMBER ]; then
+		[ $opt_verbose ] && echo "INFO: new version available: $LATEST_VERSION_NUMBER."
+		return 0
+	else
+		[ $opt_verbose ] && echo "INFO: no new version available."
+		return 1
+	fi
+}
+
+download_update () {
+	if [ ! -w $UPDATE_DOWNLOAD_DIR ]; then
+		echo "ERROR: cannot write to download directory $UPDATE_DOWNLOAD_DIR"
+		exit 1
+	fi
+	if check_update; then
+		[ $opt_verbose ] && echo "INFO: Attempting to download new version..."
+		if tahoe get $SCRIPTFURL/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
+			echo "Update found (version $LATEST_VERSION_NUMBER) and downloaded to $UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME."
+		fi
+	fi
+}
 
 # some of those variables will not be initialized--and that's OK
 # We'll do our own checking from this point forward.
@@ -332,6 +363,20 @@ while [ $# -gt 0 ] ; do
 			echo "$(basename $0) version: $VERSION"
 			exit 0
 		;;
+		--check-update)
+			opt_check_update=1
+			shift
+		;;
+		--download-update)
+			if [ -z "$2" ]; then
+				echo "ERROR: download directory not specified." >&2
+				print_help
+				exit 1
+			fi
+			UPDATE_DOWNLOAD_DIR="$2"
+			opt_download_update=1
+			shift 2
+		;;
 		--verbose|-v)
 			opt_verbose=1
 			shift
@@ -348,7 +393,9 @@ while [ $# -gt 0 ] ; do
 	esac
 done
 
-if [ ! $opt_merge_list ] && [ ! $opt_replace_list ] && [ ! $opt_check_subscriptions ] && [ ! $opt_fetch_news ]; then
+if [ ! $opt_merge_list ] && [ ! $opt_replace_list ] && \
+[ ! $opt_check_subscriptions ] && [ ! $opt_fetch_news ] && \
+[ ! $opt_check_update ] && [ ! $opt_download_update ]; then
 	echo "ERROR: An action must be selected." >&2
 	print_help
 	exit 1
@@ -365,5 +412,13 @@ elif [ $opt_merge_list ] && [ $opt_replace_list ]; then
 fi
 [ $opt_check_subscriptions ] && check_subscriptions
 [ $opt_fetch_news ] && fetch_news
+
+if [ $opt_check_subscriptions ] && [ $opt_download_update ]; then
+	download_update
+elif [ $opt_download_update ]; then
+	download_update
+elif [ $opt_check_update ]; then
+	check_update
+fi
 
 exit 0
