@@ -173,7 +173,6 @@ print_news () {
 		# put new news into place
 		cp -f "$TMPNEWS" "$TAHOE_NODE_DIR/NEWS" > /dev/null
 		# print
-		echo "There are NEWS!"
 		diff --ignore-all-space --ignore-blank-lines --new-file \
 			"$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s" | sed 's/^>\s//'
 	else
