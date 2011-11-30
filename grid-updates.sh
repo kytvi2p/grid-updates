@@ -41,6 +41,12 @@ SCRIPTFURL='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7im
 
 VERSION='0.0'
 
+only_verbose () {
+	if [ $opt_verbose ]; then
+		$@
+	fi
+}
+
 ###############################################################################
 # Stop multiple instances from running simultaneously
 ###############################################################################
@@ -75,9 +81,9 @@ else
 
        if ! kill -0 ${OTHERPID} >/dev/null 2>&1; then
                #stale lock, removing it and restarting
-               [ $opt_verbose ] && echo "INFO: Removing stale PID ${OTHERPID}" >&2
+               verbose echo "INFO: Removing stale PID ${OTHERPID}" >&2
                rm -rf ${LOCKDIR}
-               [ $opt_verbose ] && echo "INFO: [`basename $0`] restarting" >&2
+               only_verbose echo "INFO: [`basename $0`] restarting" >&2
                exec "$0" "$@"
        else
                #lock is valid and OTHERPID is active
@@ -155,7 +161,7 @@ check_permissions () {
 }
 
 download_list () {
-	[ $opt_verbose ] && echo "INFO: Attempting to download introducers list..."
+	only_verbose echo "INFO: Attempting to download introducers list..."
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ ! -w $TMPLIST ]; then
 		echo "Error: could not write to temporary file $TMPLIST."
@@ -182,9 +188,7 @@ backup_list () {
 
 merge_list () {
 	if [ ! -e "$TAHOE_NODE_DIR/introducers" ]; then
-		if [ $opt_verbose ]; then
-			echo "INFO: Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
-		fi
+		only_verbose echo "INFO: Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
 		replace_list
 		return 0
 	else
@@ -195,7 +199,7 @@ merge_list () {
 		backup_list
 		cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
 			| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
-		[ $opt_verbose ] && echo "INFO: Success: the list has been retrieved and merged."
+		only_verbose echo "INFO: Success: the list has been retrieved and merged."
 		return 0
 		#rm $TMPLIST
 	fi
@@ -207,7 +211,7 @@ replace_list () {
 	download_list
 	backup_list
 	mv -f "$TMPLIST" "$TAHOE_NODE_DIR/introducers"    # install list
-	[ $opt_verbose ] && echo "INFO: Success: the list has been retrieved."
+	only_verbose echo "INFO: Success: the list has been retrieved."
 	return 0
 }
 
@@ -246,7 +250,7 @@ print_news () {
 			"$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s" | sed 's/^>\s//'
 		return 0
 	else
-		[ $opt_verbose ] && echo "INFO: No new NEWS."
+		only_verbose echo "INFO: No new NEWS."
 		return 0
 	fi
 }
@@ -255,7 +259,7 @@ fetch_news () {
 	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ -w "$TMPNEWS" ]; then
-		[ $opt_verbose ] && echo "INFO: Attempting to download NEWS file..."
+		only_verbose echo "INFO: Attempting to download NEWS file..."
 		if "$TAHOE" get "$NEWSFURL/NEWS" "$TMPNEWS" 2> /dev/null ; then
 			print_news
 			return 0
@@ -291,14 +295,14 @@ check_for_valid_furls () {
 }
 
 check_update () {
-	[ $opt_verbose ] && echo "INFO: Attempting to check for new version."
+	only_verbose echo "INFO: Attempting to check for new version."
 	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTFURL | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
 	LATEST_VERSION_NUMBER=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
 	if [ $VERSION != $LATEST_VERSION_NUMBER ]; then
-		[ $opt_verbose ] && echo "INFO: new version available: $LATEST_VERSION_NUMBER."
+		only_verbose echo "INFO: new version available: $LATEST_VERSION_NUMBER."
 		return 0
 	else
-		[ $opt_verbose ] && echo "INFO: no new version available."
+		only_verbose echo "INFO: no new version available."
 		return 1
 	fi
 }
@@ -315,7 +319,7 @@ download_update () {
 	fi
 
 	if check_update; then
-		[ $opt_verbose ] && echo "INFO: Attempting to download new version..."
+		only_verbose echo "INFO: Attempting to download new version..."
 		if tahoe get $SCRIPTFURL/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
 			echo "Update found (version $LATEST_VERSION_NUMBER) and downloaded to $UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME."
 		fi
