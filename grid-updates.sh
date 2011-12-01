@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Example (cron) script for a Tahoe-LAFS introducer subscription service
+# Helper script for a Tahoe-LAFS nodes.
 
 # Introduction
 # ============
@@ -28,8 +28,11 @@
 # introducers file (if you ask it to) and make a backup of it.  If you also
 # fetch news, the script will write them to a file called NEWS.
 
+# This script's version:
+VERSION='0.0'
+
 ############################### Configuration #################################
-# Default location (directory) of the tahoe node:
+# Default location of the Tahoe-LAFS node:
 TAHOE_NODE_DIR="$HOME/.tahoe"
 # Default location (directory) of the subscription list:
 LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
@@ -39,17 +42,13 @@ NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmba
 SCRIPTFURL='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
 ###############################################################################
 
-VERSION='0.0'
-
 only_verbose () {
 	if [ $opt_verbose ]; then
 		$@
 	fi
 }
 
-###############################################################################
 # Stop multiple instances from running simultaneously
-###############################################################################
 if [ -w /var/lock ]; then  # the default lock directory in Linux
         LOCKDIR="/var/lock/grid-updates.lck"
 else
@@ -94,7 +93,8 @@ fi
 
 print_help () {
 cat << EOF
-Usage: $0 ACTION
+
+Usage: $0 [OPTIONS] [ACTION]
 
 Actions:
     -m, --merge-introducers     Merge your local introducers list with the
@@ -114,7 +114,7 @@ Actions:
 Options:
     -d [directory],             Specify the node directory (default: ~/.tahoe)
     --node-directory [directory]
-    --list-furl [FURL           Overwrite default location of introducers
+    --list-furl [FURL]          Overwrite default location of introducers
                                 list
     --news-furl [FURL]          Overwrite default location of news file
     --script-furl [FURL]        Overwrite default location of script updates
@@ -123,22 +123,22 @@ Options:
     -h, --help                  Print this help text
 
 Errors:
-    If the script repeatedly fails to retrieve the list from Tahoe-LAFS, the
-    share may be damaged.  Try running --check-subscriptions which will try to
-    repair the list.  If that does not help, you will most likely have to find
-    a new FURL to subscribe to.  Ask in #tahoe-lafs on Irc2P, check the
-    DeepWiki and/or http://killyourtv.i2p.
+	If the script repeatedly fails to retrieve a file from the grid, the share
+	may be damaged.  Try running --check-subscriptions which will try to repair
+	it.  If that doesn't help, you will most likely have to find a new FURL to
+	subscribe to.  Ask in #tahoe-lafs on Irc2P, check the DeepWiki and/or
+	http://killyourtv.i2p.
 
 EOF
 }
 
 TAHOE=$(which tahoe)
-[ -z "$TAHOE" ] && echo "ERROR: tahoe executable not found." >&2 && exit 1
+[ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
 
 check_if_tahoe_node () {
 	if [ -d $TAHOE_NODE_DIR ]; then
 		if [ ! -e $TAHOE_NODE_DIR/tahoe.cfg ]; then
-			echo "WARNING: $TAHOE_NODE_DIR doesn't look like a tahoe node"
+			echo "WARNING: $TAHOE_NODE_DIR doesn't look like a tahoe node."
 		fi
 		return 0
 	else
@@ -149,26 +149,26 @@ check_if_tahoe_node () {
 
 check_if_tahoe_node
 
-# abort if any variables aren't initialized to try to prevent any surprises
+# Abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
-set -e # abort if there are any uncaught errors along the way
+set -e          # abort if there are any uncaught errors along the way
 
 check_permissions () {
 	if [ -e "$TAHOE_NODE_DIR/introducers" ] && [ ! -w "$TAHOE_NODE_DIR/introducers" ]; then
-		echo "ERROR: need write permissions to $TAHOE_NODE_DIR/introducers to be able to update the file." >&2
+		echo "ERROR: Need write permissions to $TAHOE_NODE_DIR/introducers to be able to update the file." >&2
 		exit 1
 	fi
 }
 
 download_list () {
-	only_verbose echo "INFO: Attempting to download introducers list..."
+	only_verbose echo "INFO: Attempting to download introducers list."
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ ! -w $TMPLIST ]; then
-		echo "Error: could not write to temporary file $TMPLIST."
+		echo "Error: Could not write to temporary file $TMPLIST."
 		exit 1
 	fi
 	if ! "$TAHOE" get "$LISTFURL"/introducers "$TMPLIST" 2> /dev/null ; then
-		echo "ERROR retrieving the list.  Try again or check the share's integrity. See \`$0 --help.\`" >&2
+		echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 		exit 1
 	fi
 }
@@ -177,7 +177,7 @@ backup_list () {
 	if [ -e "$TAHOE_NODE_DIR/introducers" ]; then
 		LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
 		if [ ! -w "$LISTBAK" ] && ! touch "$LISTBAK" 2> /dev/null ; then
-			echo "ERROR: need write permissions to $LISTBAK to be able to update the file." >&2
+			echo "ERROR: Need write permissions to $LISTBAK to be able to update the file." >&2
 			exit 1
 		fi
 		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by `basename $0` on $(date -u)." > "$LISTBAK"
@@ -217,14 +217,14 @@ replace_list () {
 
 check_subscriptions () {
 	if [ $opt_verbose ]; then
-		echo "INFO: Beginning to check subscription shares"
-		echo "INFO: 1. Checking subscription share"
+		echo "INFO: Beginning to check subscription shares."
+		echo "INFO: Checking subscription share (1/3)."
 		"$TAHOE" deep-check -v --repair --add-lease "$LISTFURL" | \
 			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
-		echo "INFO: 2. Checking NEWS share"
+		echo "INFO: Checking NEWS share (2/3)."
 		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL" | \
 			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
-		echo "INFO: 3. Checking scripts share"
+		echo "INFO: Checking scripts share (3/3)."
 		"$TAHOE" deep-check -v --repair --add-lease "$SCRIPTFURL" | \
 			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
 		return 0
@@ -250,7 +250,7 @@ print_news () {
 			"$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s" | sed 's/^>\s//'
 		return 0
 	else
-		only_verbose echo "INFO: No new NEWS."
+		only_verbose echo "INFO: There are no news."
 		return 0
 	fi
 }
@@ -259,17 +259,17 @@ fetch_news () {
 	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ -w "$TMPNEWS" ]; then
-		only_verbose echo "INFO: Attempting to download NEWS file..."
+		only_verbose echo "INFO: Attempting to download NEWS file."
 		if "$TAHOE" get "$NEWSFURL/NEWS" "$TMPNEWS" 2> /dev/null ; then
 			print_news
 			return 0
 		else
-			echo "ERROR: couldn't fetch the news file." >&2
+			echo "ERROR: Couldn't fetch the NEWS file." >&2
 			exit 1
 		fi
 
 	else
-		echo "ERROR: couldn't create temporary news file." >&2
+		echo "ERROR: Couldn't create temporary NEWS file." >&2
 		exit 1
 	fi
 }
@@ -299,17 +299,17 @@ check_update () {
 	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTFURL | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
 	LATEST_VERSION_NUMBER=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
 	if [ $VERSION != $LATEST_VERSION_NUMBER ]; then
-		only_verbose echo "INFO: new version available: $LATEST_VERSION_NUMBER."
+		only_verbose echo "INFO: New version available: $LATEST_VERSION_NUMBER."
 		return 0
 	else
-		only_verbose echo "INFO: no new version available."
+		only_verbose echo "INFO: No new version available."
 		return 1
 	fi
 }
 
 download_update () {
 	if [ ! -w $UPDATE_DOWNLOAD_DIR ]; then
-		echo "ERROR: cannot write to download directory $UPDATE_DOWNLOAD_DIR"
+		echo "ERROR: Cannot write to download directory $UPDATE_DOWNLOAD_DIR."
 		exit 1
 	fi
 
@@ -319,14 +319,14 @@ download_update () {
 	fi
 
 	if check_update; then
-		only_verbose echo "INFO: Attempting to download new version..."
+		only_verbose echo "INFO: Attempting to download new version."
 		if tahoe get $SCRIPTFURL/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
 			echo "Update found (version $LATEST_VERSION_NUMBER) and downloaded to $UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME."
 		fi
 	fi
 }
 
-# some of those variables will not be initialized--and that's OK
+# some of those variables will not be initialized--and that's OK.
 # We'll do our own checking from this point forward.
 set +u
 
@@ -334,7 +334,7 @@ while [ $# -gt 0 ] ; do
 	case $1 in
 		--node-directory|-d)
 			if [ -z "$2" ]; then
-				echo "ERROR: tahoe node directory not specified." >&2
+				echo "ERROR: Tahoe node directory not specified." >&2
 				print_help
 				exit 1
 			fi
@@ -398,7 +398,7 @@ while [ $# -gt 0 ] ; do
 		;;
 		--download-update)
 			if [ -z "$2" ]; then
-				echo "ERROR: download directory not specified." >&2
+				echo "ERROR: Download directory not specified." >&2
 				print_help
 				exit 1
 			fi
@@ -425,7 +425,7 @@ done
 if [ ! $opt_merge_list ] && [ ! $opt_replace_list ] && \
 [ ! $opt_check_subscriptions ] && [ ! $opt_fetch_news ] && \
 [ ! $opt_check_update ] && [ ! $opt_download_update ]; then
-	echo "ERROR: An action must be selected." >&2
+	echo "ERROR: You need to specify an action." >&2
 	print_help
 	exit 1
 fi
