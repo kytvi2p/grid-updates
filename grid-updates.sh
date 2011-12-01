@@ -43,7 +43,7 @@ SCRIPTFURL='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7im
 ###############################################################################
 
 only_verbose () {
-	if [ $opt_verbose ]; then
+	if [ $OPT_VERBOSE ]; then
 		$@
 	fi
 }
@@ -216,7 +216,7 @@ replace_list () {
 }
 
 check_subscriptions () {
-	if [ $opt_verbose ]; then
+	if [ $OPT_VERBOSE ]; then
 		echo "INFO: Beginning to check subscription shares."
 		echo "INFO: Checking subscription share (1/3)."
 		"$TAHOE" deep-check -v --repair --add-lease "$LISTFURL" | \
@@ -373,19 +373,19 @@ while [ $# -gt 0 ] ; do
 			check_for_valid_furls
 		;;
 		--merge-introducers|-m)
-			opt_merge_list=1
+			OPT_MERGE_LIST=1
 			shift
 		;;
 		--replace-introducers|-r)
-			opt_replace_list=1
+			OPT_REPLACE_LIST=1
 			shift
 		;;
 		--check-subscriptions|-c)
-			opt_check_subscriptions=1
+			OPT_CHECK_SUBSCRIPTIONS=1
 			shift
 		;;
 		--fetch-news|-n)
-			opt_fetch_news=1
+			OPT_FETCH_NEWS=1
 			shift
 		;;
 		--version|-V)
@@ -393,7 +393,7 @@ while [ $# -gt 0 ] ; do
 			exit 0
 		;;
 		--check-update)
-			opt_check_update=1
+			OPT_CHECK_UPDATE=1
 			shift
 		;;
 		--download-update)
@@ -403,11 +403,11 @@ while [ $# -gt 0 ] ; do
 				exit 1
 			fi
 			UPDATE_DOWNLOAD_DIR="$2"
-			opt_download_update=1
+			OPT_DOWNLOAD_UPDATE=1
 			shift 2
 		;;
 		--verbose|-v)
-			opt_verbose=1
+			OPT_VERBOSE=1
 			shift
 		;;
 		--help|-h)
@@ -422,31 +422,31 @@ while [ $# -gt 0 ] ; do
 	esac
 done
 
-if [ ! $opt_merge_list ] && [ ! $opt_replace_list ] && \
-[ ! $opt_check_subscriptions ] && [ ! $opt_fetch_news ] && \
-[ ! $opt_check_update ] && [ ! $opt_download_update ]; then
+if [ ! $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ] && \
+[ ! $OPT_CHECK_SUBSCRIPTIONS ] && [ ! $OPT_FETCH_NEWS ] && \
+[ ! $OPT_CHECK_UPDATE ] && [ ! $OPT_DOWNLOAD_UPDATE ]; then
 	echo "ERROR: You need to specify an action." >&2
 	print_help
 	exit 1
 fi
 
-if [ $opt_merge_list ] && [ ! $opt_replace_list ]; then
+if [ $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ]; then
 	merge_list
-elif [ ! $opt_merge_list ] && [ $opt_replace_list ]; then
+elif [ ! $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
 	replace_list
-elif [ $opt_merge_list ] && [ $opt_replace_list ]; then
+elif [ $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
 	echo "ERROR: --merge-introducers and --replace-introducers are mutually exclusive." >&2
 	print_help
 	exit 1
 fi
-[ $opt_check_subscriptions ] && check_subscriptions
-[ $opt_fetch_news ] && fetch_news
+[ $OPT_CHECK_SUBSCRIPTIONS ] && check_subscriptions
+[ $OPT_FETCH_NEWS ] && fetch_news
 
-if [ $opt_check_subscriptions ] && [ $opt_download_update ]; then
+if [ $OPT_CHECK_SUBSCRIPTIONS ] && [ $OPT_DOWNLOAD_UPDATE ]; then
 	download_update
-elif [ $opt_download_update ]; then
+elif [ $OPT_DOWNLOAD_UPDATE ]; then
 	download_update
-elif [ $opt_check_update ]; then
+elif [ $OPT_CHECK_UPDATE ]; then
 	check_update
 fi
 
