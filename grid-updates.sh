@@ -156,7 +156,7 @@ check_permissions () {
 
 download_list () {
 	[ $opt_verbose ] && echo "INFO: Attempting to download introducers list..."
-	TMPLIST=$(mktemp)
+	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ ! -w $TMPLIST ]; then
 		echo "Error: could not write to temporary file $TMPLIST."
 		exit 1
@@ -252,8 +252,8 @@ print_news () {
 }
 
 fetch_news () {
-	TMPNEWS=$(mktemp)
-	OLDNEWS=$(mktemp)
+	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
+	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ -w "$TMPNEWS" ]; then
 		[ $opt_verbose ] && echo "INFO: Attempting to download NEWS file..."
 		if "$TAHOE" get "$NEWSFURL/NEWS" "$TMPNEWS" 2> /dev/null ; then
