@@ -29,6 +29,8 @@
 # fetch news, the script will write them to a file called NEWS.
 
 ############################### Configuration #################################
+# Default location (directory) of the tahoe node:
+TAHOE_NODE_DIR="$HOME/.tahoe"
 # Default location (directory) of the subscription list:
 LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
 # Default location (directory) of the NEWS file:
@@ -139,10 +141,7 @@ check_if_tahoe_node () {
 	fi
 }
 
-if [ -z "$TAHOE_NODE_DIR" ]; then
-	TAHOE_NODE_DIR="$HOME/.tahoe"
-	check_if_tahoe_node
-fi
+check_if_tahoe_node
 
 # abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
