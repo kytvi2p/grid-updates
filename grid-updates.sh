@@ -35,11 +35,11 @@ VERSION='0.0'
 # Default location of the Tahoe-LAFS node:
 TAHOE_NODE_DIR="$HOME/.tahoe"
 # Default location (directory) of the subscription list:
-LISTFURL='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
+LISTURI='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
 # Default location (directory) of the NEWS file:
-NEWSFURL='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq/Latest'
+NEWSURI='URI:DIR2-RO:vi2xzmrimvcyjdoypphdwxqbte:g7lpf2v6vyvl4w5udgpriiawg6ofmbazktvxmspesvkqtmujr2rq/Latest'
 # Default location (directory) of script releases:
-SCRIPTFURL='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
+SCRIPTURI='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
 ###############################################################################
 
 only_verbose () {
@@ -102,7 +102,7 @@ Actions:
     -r, --replace-introducers   Replace your local list of introducers with the
                                 master list
     -c, --check-subscriptions   Maintain or repair the health of the subscription
-                                service's FURL
+                                service's URI
     -n, --fetch-news            Retrieve news regarding the I2P grid.  These
                                 will be stored in [node directory]/NEWS.
                                 If you run this script as a cron job, the
@@ -114,10 +114,10 @@ Actions:
 Options:
     -d [directory],             Specify the node directory (default: ~/.tahoe)
     --node-directory [directory]
-    --list-furl [FURL]          Overwrite default location of introducers
+    --list-uri [URI]          Overwrite default location of introducers
                                 list
-    --news-furl [FURL]          Overwrite default location of news file
-    --script-furl [FURL]        Overwrite default location of script updates
+    --news-uri [URI]          Overwrite default location of news file
+    --script-uri [URI]        Overwrite default location of script updates
     -v, --verbose               Display more verbose output
     -V, --version               Display version information
     -h, --help                  Print this help text
@@ -125,7 +125,7 @@ Options:
 Errors:
 	If the script repeatedly fails to retrieve a file from the grid, the share
 	may be damaged.  Try running --check-subscriptions which will try to repair
-	it.  If that doesn't help, you will most likely have to find a new FURL to
+	it.  If that doesn't help, you will most likely have to find a new URI to
 	subscribe to.  Ask in #tahoe-lafs on Irc2P, check the DeepWiki and/or
 	http://killyourtv.i2p.
 
@@ -167,7 +167,7 @@ download_list () {
 		echo "Error: Could not write to temporary file $TMPLIST."
 		exit 1
 	fi
-	if ! "$TAHOE" get "$LISTFURL"/introducers "$TMPLIST" 2> /dev/null ; then
+	if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
 		echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 		exit 1
 	fi
@@ -192,7 +192,7 @@ merge_list () {
 		replace_list
 		return 0
 	else
-		# Add new FURLs in the subscribed list to the local list.
+		# Add new URIs in the subscribed list to the local list.
 		# This resembles I2P's address book's system.
 		check_permissions
 		download_list
@@ -219,19 +219,19 @@ check_subscriptions () {
 	if [ $OPT_VERBOSE ]; then
 		echo "INFO: Beginning to check subscription shares."
 		echo "INFO: Checking subscription share (1/3)."
-		"$TAHOE" deep-check -v --repair --add-lease "$LISTFURL" | \
+		"$TAHOE" deep-check -v --repair --add-lease "$LISTURI" | \
 			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
 		echo "INFO: Checking NEWS share (2/3)."
-		"$TAHOE" deep-check -v --repair --add-lease "$NEWSFURL" | \
+		"$TAHOE" deep-check -v --repair --add-lease "$NEWSURI" | \
 			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
 		echo "INFO: Checking scripts share (3/3)."
-		"$TAHOE" deep-check -v --repair --add-lease "$SCRIPTFURL" | \
+		"$TAHOE" deep-check -v --repair --add-lease "$SCRIPTURI" | \
 			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
 		return 0
 	else
-		"$TAHOE" deep-check --repair --add-lease "$LISTFURL" > /dev/null
-		"$TAHOE" deep-check --repair --add-lease "$NEWSFURL" > /dev/null
-		"$TAHOE" deep-check --repair --add-lease "$SCRIPTFURL" > /dev/null
+		"$TAHOE" deep-check --repair --add-lease "$LISTURI" > /dev/null
+		"$TAHOE" deep-check --repair --add-lease "$NEWSURI" > /dev/null
+		"$TAHOE" deep-check --repair --add-lease "$SCRIPTURI" > /dev/null
 		return 0
 	fi
 }
@@ -260,7 +260,7 @@ fetch_news () {
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ -w "$TMPNEWS" ]; then
 		only_verbose echo "INFO: Attempting to download NEWS file."
-		if "$TAHOE" get "$NEWSFURL/NEWS" "$TMPNEWS" 2> /dev/null ; then
+		if "$TAHOE" get "$NEWSURI/NEWS" "$TMPNEWS" 2> /dev/null ; then
 			print_news
 			return 0
 		else
@@ -274,29 +274,29 @@ fetch_news () {
 	fi
 }
 
-check_for_valid_furls () {
-	# FURLs will start with URI:. Yes, this is very rudimentary checking,
+check_for_valid_uris () {
+	# URIs will start with URI:. Yes, this is very rudimentary checking,
 	# but it's better than nothing...isn't it?
 
-	if [ ! $(echo $NEWSFURL |grep '^URI:') ]; then
-		echo "ERROR: $NEWSFURL is not a valid news-furl." >&2
+	if [ ! $(echo $NEWSURI |grep '^URI:') ]; then
+		echo "ERROR: $NEWSURI is not a valid news-uri." >&2
 		exit 1
 	fi
 
-	if [ ! $(echo $LISTFURL |grep '^URI:') ]; then
-		echo "ERROR: $LISTFURL is not a valid list-furl." >&2
+	if [ ! $(echo $LISTURI |grep '^URI:') ]; then
+		echo "ERROR: $LISTURI is not a valid list-uri." >&2
 		exit 1
 	fi
 
-	if [ ! $(echo SCRIPTFURL |grep '^URI:') ]; then
-		echo "ERROR: $SCRIPTFURL is not a valid list-furl." >&2
+	if [ ! $(echo SCRIPTURI |grep '^URI:') ]; then
+		echo "ERROR: $SCRIPTURI is not a valid list-uri." >&2
 		exit 1
 	fi
 }
 
 check_update () {
 	only_verbose echo "INFO: Attempting to check for new version."
-	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTFURL | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
+	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
 	LATEST_VERSION_NUMBER=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
 	if [ $VERSION != $LATEST_VERSION_NUMBER ]; then
 		# Only print if not called via --download-update
@@ -322,7 +322,7 @@ download_update () {
 
 	if check_update; then
 		only_verbose echo "INFO: Attempting to download new version."
-		if tahoe get $SCRIPTFURL/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
+		if tahoe get $SCRIPTURI/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
 			echo "Update found (version $LATEST_VERSION_NUMBER) and downloaded to $UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME."
 		fi
 	fi
@@ -344,35 +344,35 @@ while [ $# -gt 0 ] ; do
 			shift 2
 			check_if_tahoe_node
 		;;
-		--list-furl)
+		--list-uri)
 			if [ -z "$2" ]; then
-				echo "ERROR: list-furl not specified." >&2
+				echo "ERROR: list-uri not specified." >&2
 				print_help
 				exit 1
 			fi
-			LISTFURL=$2
+			LISTURI=$2
 			shift 2
-			check_for_valid_furls
+			check_for_valid_uris
 		;;
-		--news-furl)
+		--news-uri)
 			if [ -z "$2" ]; then
-				echo "ERROR: news-furl not specified." >&2
+				echo "ERROR: news-uri not specified." >&2
 				print_help
 				exit 1
 			fi
-			NEWSFURL=$2
+			NEWSURI=$2
 			shift 2
-			check_for_valid_furls
+			check_for_valid_uris
 		;;
-		--script-furl)
+		--script-uri)
 			if [ -z "$2" ]; then
-				echo "ERROR: script-furl not specified." >&2
+				echo "ERROR: script-uri not specified." >&2
 				print_help
 				exit 1
 			fi
-			SCRIPTFURL=$2
+			SCRIPTURI=$2
 			shift 2
-			check_for_valid_furls
+			check_for_valid_uris
 		;;
 		--merge-introducers|-m)
 			OPT_MERGE_LIST=1
