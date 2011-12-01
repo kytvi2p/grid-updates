@@ -1,6 +1,16 @@
 #!/bin/sh
 
-# Helper script for a Tahoe-LAFS nodes.
+# grid-updates -- a helper script for a Tahoe-LAFS nodes
+#
+#
+# Authors:
+#     darrob <darrob@mail.i2p>
+#     KillYourTV <kytv@mail.i2p>
+#
+# License: public domain
+#
+# Requirements:
+#     Bourne-compatible shell, Tahoe-LAFS
 
 # Introduction
 # ============
