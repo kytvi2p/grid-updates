@@ -160,6 +160,10 @@ check_permissions () {
 	fi
 }
 
+pretty_print () {
+	while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
+}
+
 download_list () {
 	only_verbose echo "INFO: Attempting to download introducers list."
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
@@ -215,24 +219,33 @@ replace_list () {
 	return 0
 }
 
+checking_failed ()
+{
+	echo "ERROR: failed to check $1 share."
+	return 1
+}
+
 check_subscriptions () {
 	if [ $OPT_VERBOSE ]; then
 		echo "INFO: Beginning to check subscription shares."
 		echo "INFO: Checking subscription share (1/3)."
-		"$TAHOE" deep-check -v --repair --add-lease "$LISTURI" | \
-			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
+		("$TAHOE" deep-check -v --repair --add-lease "$LISTURI" 2>/dev/null >&1 | pretty_print) \
+			|| checking_failed "subscriptions"
+
 		echo "INFO: Checking NEWS share (2/3)."
-		"$TAHOE" deep-check -v --repair --add-lease "$NEWSURI" | \
-			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
+		("$TAHOE" deep-check -v --repair --add-lease "$NEWSURI" 2>/dev/null >&1 | pretty_print) \
+			|| checking_failed "news"
+
 		echo "INFO: Checking scripts share (3/3)."
-		"$TAHOE" deep-check -v --repair --add-lease "$SCRIPTURI" | \
-			while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
-		return 0
+		("$TAHOE" deep-check -v --repair --add-lease "$SCRIPTURI" 2>/dev/null >&1 | pretty_print) \
+			|| checking_failed "scripts"
 	else
-		"$TAHOE" deep-check --repair --add-lease "$LISTURI" > /dev/null
-		"$TAHOE" deep-check --repair --add-lease "$NEWSURI" > /dev/null
-		"$TAHOE" deep-check --repair --add-lease "$SCRIPTURI" > /dev/null
-		return 0
+		("$TAHOE" deep-check --repair --add-lease "$LISTURI" > /dev/null 2>&1) \
+			|| checking_failed "subscriptions"
+		("$TAHOE" deep-check --repair --add-lease "$NEWSURI" > /dev/null 2>&1) \
+			|| checking_failed "news"
+		("$TAHOE" deep-check --repair --add-lease "$SCRIPTURI" > /dev/null 2>&1) \
+			|| checking_failed "scripts"
 	fi
 }
 
