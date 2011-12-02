@@ -202,6 +202,7 @@ backup_list () {
 }
 
 merge_list () {
+	TMPLIST2=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ ! -e "$TAHOE_NODE_DIR/introducers" ]; then
 		only_verbose echo "INFO: Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
 		replace_list
@@ -213,8 +214,15 @@ merge_list () {
 		download_list
 		backup_list
 		cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
-			| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
-		only_verbose echo "INFO: Success: the list has been retrieved and merged. (Changes will take effect upon restart of the node.)"
+			| grep '^pb://' | sort -u > "$TMPLIST2"
+		if diff -N "$TMPLIST2" $TAHOE_NODE_DIR/introducers > /dev/null 2>&1 ; then
+			only_verbose echo "INFO: Updated list not available."
+			return 0
+		else
+			cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
+				| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
+			only_verbose echo "INFO: Success: the list has been retrieved and merged. (Changes will take effect upon restart of the node.)"
+		fi
 
 		return 0
 		#rm $TMPLIST
@@ -226,8 +234,12 @@ replace_list () {
 	check_permissions
 	download_list
 	backup_list
-	mv -f "$TMPLIST" "$TAHOE_NODE_DIR/introducers"    # install list
-	only_verbose echo "INFO: Success: the list has been retrieved. (Changes will take effect upon restart of the node.)"
+	if diff -N $LISTBAK $TAHOE_NODE_DIR/introducers > /dev/null 2>&1; then
+		mv -f "$TMPLIST" "$TAHOE_NODE_DIR/introducers"    # install list
+		only_verbose echo "INFO: Success: the list has been retrieved. (Changes will take effect upon restart of the node.)"
+	else
+		only_verbose echo "INFO: No updates available."
+	fi
 	return 0
 }
 
