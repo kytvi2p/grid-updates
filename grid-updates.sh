@@ -307,23 +307,15 @@ fetch_news () {
 }
 
 check_for_valid_uris () {
-	# URIs will start with URI:. Yes, this is very rudimentary checking,
+	# Tahoe URIs will start with URI:
+	#Yes, this is very rudimentary checking,
 	# but it's better than nothing...isn't it?
 
-	if [ ! $(echo $NEWSURI |grep '^URI:') ]; then
-		echo "ERROR: $NEWSURI is not a valid news-uri." >&2
-		exit 1
+	if [ ! $(echo "$1" | grep '^URI:') ]; then
+		echo "ERROR: "$1" is not a valid ${2}-uri." >&2
+		return 1
 	fi
 
-	if [ ! $(echo $LISTURI |grep '^URI:') ]; then
-		echo "ERROR: $LISTURI is not a valid list-uri." >&2
-		exit 1
-	fi
-
-	if [ ! $(echo $SCRIPTURI |grep '^URI:') ]; then
-		echo "ERROR: $SCRIPTURI is not a valid list-uri." >&2
-		exit 1
-	fi
 }
 
 check_update () {
@@ -396,7 +388,7 @@ while [ $# -gt 0 ] ; do
 			fi
 			LISTURI=$2
 			shift 2
-			check_for_valid_uris
+			check_for_valid_uris "$LISTURI" "list"
 		;;
 		--news-uri)
 			if [ -z "$2" ]; then
@@ -406,7 +398,7 @@ while [ $# -gt 0 ] ; do
 			fi
 			NEWSURI=$2
 			shift 2
-			check_for_valid_uris
+			check_for_valid_uris "$NEWSURI" "news"
 		;;
 		--script-uri)
 			if [ -z "$2" ]; then
@@ -416,7 +408,7 @@ while [ $# -gt 0 ] ; do
 			fi
 			SCRIPTURI=$2
 			shift 2
-			check_for_valid_uris
+			check_for_valid_uris "$SCRIPTURI" "script"
 		;;
 		--merge-introducers|-m)
 			OPT_MERGE_LIST=1
