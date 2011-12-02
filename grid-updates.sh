@@ -70,8 +70,6 @@ ENO_GENERAL=1;
 ENO_LOCKFAIL=2;
 ENO_RECVSIG=3;
 
-#trap 'ECODE=$?; echo "[`basename $0`] Exit: ${ECODE}" >&2' 0
-
 if mkdir "${LOCKDIR}"  > /dev/null 2>&1 ; then
        trap 'ECODE=$?;
        rm -rf "${LOCKDIR}"' 0
@@ -223,7 +221,6 @@ merge_list () {
 		fi
 
 		return 0
-		#rm $TMPLIST
 	fi
 }
 
