@@ -163,6 +163,10 @@ set -o nounset  # same as set -u
 set -e          # abort if there are any uncaught errors along the way
 
 check_permissions () {
+	if [ ! -w $TAHOE_NODE_DIR ]; then
+		echo "ERROR: Need write permissions to "$TAHOE_NODE_DIR" to be able to update $1" >&2
+		exit 1
+	fi
 	if [ -e "$INTRODUCER_LIST" ] && [ ! -w "$INTRODUCER_LIST" ]; then
 		echo "ERROR: Need write permissions to "$INTRODUCER_LIST" to be able to update the file." >&2
 		exit 1
@@ -204,7 +208,7 @@ merge_list () {
 	else
 		# Add new URIs in the subscribed list to the local list.
 		# This resembles I2P's address book's system.
-		check_permissions
+		check_permissions "the subscription list"
 		download_list
 		backup_list
 		cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
@@ -225,7 +229,7 @@ merge_list () {
 
 replace_list () {
 	# Make the local list identical to the subscribed one.
-	check_permissions
+	check_permissions "the subscription list"
 	download_list
 	backup_list
 	if diff -N "$LISTBAK" "$INTRODUCER_LIST" > /dev/null 2>&1; then
