@@ -323,15 +323,19 @@ check_for_valid_uris () {
 check_update () {
 	only_verbose echo "INFO: Attempting to check for new version."
 	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
-	LATEST_VERSION_NUMBER=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
-	if [ $VERSION != $LATEST_VERSION_NUMBER ]; then
-		# Only print if not called via --download-update
-		[ ! $OPT_DOWNLOAD_UPDATE ] && echo "New version available: $LATEST_VERSION_NUMBER."
-		return 0
+	if [ "$LATEST_VERSION_FILENAME" ]; then
+		LATEST_VERSION_NUMBER=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
+		if [ "$VERSION" != "$LATEST_VERSION_NUMBER" ]; then
+			# Only print if not called via --download-update
+			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "New version available: $LATEST_VERSION_NUMBER."
+			return 0
+		else
+			# Only print if not called via --download-update
+			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "No new version available."
+			return 1
+		fi
 	else
-		# Only print if not called via --download-update
-		[ ! $OPT_DOWNLOAD_UPDATE ] && echo "No new version available."
-		return 1
+		echo "Error: Nothing found. This doesn't seem to be a download location for grid-updates." >&2
 	fi
 }
 
