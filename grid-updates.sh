@@ -346,13 +346,13 @@ check_update () {
 }
 
 download_update () {
-	if [ ! -w $UPDATE_DOWNLOAD_DIR ]; then
-		echo "ERROR: Cannot write to download directory $UPDATE_DOWNLOAD_DIR."
+	if [ ! -d $UPDATE_DOWNLOAD_DIR ]; then
+		echo "ERROR: $UPDATE_DOWNLOAD_DIR is not a directory."
 		exit 1
 	fi
 
-	if [ ! -d $UPDATE_DOWNLOAD_DIR ]; then
-		echo "ERROR: $UPDATE_DOWNLOAD_DIR is not a directory."
+	if [ ! -w $UPDATE_DOWNLOAD_DIR ]; then
+		echo "ERROR: Cannot write to download directory $UPDATE_DOWNLOAD_DIR."
 		exit 1
 	fi
 
