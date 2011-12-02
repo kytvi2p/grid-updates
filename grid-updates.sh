@@ -176,10 +176,6 @@ pretty_print () {
 download_list () {
 	only_verbose echo "INFO: Attempting to download introducers list."
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
-	if [ ! -w $TMPLIST ]; then
-		echo "Error: Could not write to temporary file $TMPLIST."
-		exit 1
-	fi
 	if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
 		echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 		exit 1
@@ -294,20 +290,15 @@ print_news () {
 fetch_news () {
 	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
-	if [ -w "$TMPNEWS" ]; then
-		only_verbose echo "INFO: Attempting to download NEWS file."
-		if "$TAHOE" get "$NEWSURI/NEWS" "$TMPNEWS" 2> /dev/null ; then
-			print_news
-			return 0
-		else
-			echo "ERROR: Couldn't fetch the NEWS file." >&2
-			exit 1
-		fi
-
+	only_verbose echo "INFO: Attempting to download NEWS file."
+	if "$TAHOE" get "$NEWSURI/NEWS" "$TMPNEWS" 2> /dev/null ; then
+		print_news
+		return 0
 	else
-		echo "ERROR: Couldn't create temporary NEWS file." >&2
+		echo "ERROR: Couldn't fetch the NEWS file." >&2
 		exit 1
 	fi
+
 }
 
 check_for_valid_uris () {
