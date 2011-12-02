@@ -314,7 +314,7 @@ check_for_valid_uris () {
 		exit 1
 	fi
 
-	if [ ! $(echo SCRIPTURI |grep '^URI:') ]; then
+	if [ ! $(echo $SCRIPTURI |grep '^URI:') ]; then
 		echo "ERROR: $SCRIPTURI is not a valid list-uri." >&2
 		exit 1
 	fi
