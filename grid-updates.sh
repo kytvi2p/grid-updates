@@ -441,13 +441,15 @@ while [ $# -gt 0 ] ; do
 		;;
 		--download-update)
 			if [ -z "$2" ]; then
-				echo "ERROR: Download directory not specified." >&2
-				print_help
-				exit 1
+				only_verbose echo "INFO: No download directory specified. Using $PWD/."
+				UPDATE_DOWNLOAD_DIR="$PWD"
+				OPT_DOWNLOAD_UPDATE=1
+				shift
+			else
+				UPDATE_DOWNLOAD_DIR="$2"
+				OPT_DOWNLOAD_UPDATE=1
+				shift 2
 			fi
-			UPDATE_DOWNLOAD_DIR="$2"
-			OPT_DOWNLOAD_UPDATE=1
-			shift 2
 		;;
 		--verbose|-v)
 			OPT_VERBOSE=1
