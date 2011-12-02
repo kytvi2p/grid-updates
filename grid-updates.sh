@@ -137,8 +137,9 @@ TAHOE=$(which tahoe)
 
 check_if_tahoe_node () {
 	if [ -d $TAHOE_NODE_DIR ]; then
-		if [ ! -e $TAHOE_NODE_DIR/tahoe.cfg ]; then
-			echo "WARNING: $TAHOE_NODE_DIR doesn't look like a tahoe node."
+		if [ ! -e $TAHOE_NODE_DIR/node.url ]; then
+			echo "ERROR: Cannot find $TAHOE_NODE_DIR/node.url. Not a valid tahoe node." >&2
+			exit 1
 		fi
 		return 0
 	else
@@ -226,6 +227,7 @@ checking_failed ()
 }
 
 check_subscriptions () {
+	check_if_tahoe_node
 	if [ $OPT_VERBOSE ]; then
 		echo "INFO: Beginning to check subscription shares."
 		echo "INFO: Checking subscription share (1/3)."
