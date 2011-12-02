@@ -33,7 +33,7 @@ VERSION='0.0'
 
 ############################### Configuration #################################
 # Default location of the Tahoe-LAFS node:
-TAHOE_NODE_DIR="$HOME/.tahoe"
+#TAHOE_NODE_DIR="$HOME/.tahoe"
 # Default location (directory) of the subscription list:
 LISTURI='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
 # Default location (directory) of the NEWS file:
@@ -147,7 +147,7 @@ check_if_tahoe_node () {
 	fi
 }
 
-check_if_tahoe_node
+: ${TAHOE_NODE_DIR:="$HOME/.tahoe"}
 
 # Abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
