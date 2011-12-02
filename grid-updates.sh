@@ -214,7 +214,8 @@ merge_list () {
 		backup_list
 		cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
 			| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
-		only_verbose echo "INFO: Success: the list has been retrieved and merged."
+		only_verbose echo "INFO: Success: the list has been retrieved and merged. (Changes will take effect upon restart of the node.)"
+
 		return 0
 		#rm $TMPLIST
 	fi
@@ -226,7 +227,7 @@ replace_list () {
 	download_list
 	backup_list
 	mv -f "$TMPLIST" "$TAHOE_NODE_DIR/introducers"    # install list
-	only_verbose echo "INFO: Success: the list has been retrieved."
+	only_verbose echo "INFO: Success: the list has been retrieved. (Changes will take effect upon restart of the node.)"
 	return 0
 }
 
