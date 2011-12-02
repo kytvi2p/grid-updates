@@ -158,15 +158,13 @@ check_if_tahoe_node () {
 	fi
 }
 
-: ${TAHOE_NODE_DIR:="$HOME/.tahoe"}
-
 # Abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
 set -e          # abort if there are any uncaught errors along the way
 
 check_permissions () {
-	if [ -e "$TAHOE_NODE_DIR/introducers" ] && [ ! -w "$TAHOE_NODE_DIR/introducers" ]; then
-		echo "ERROR: Need write permissions to $TAHOE_NODE_DIR/introducers to be able to update the file." >&2
+	if [ -e "$INTRODUCER_LIST" ] && [ ! -w "$INTRODUCER_LIST" ]; then
+		echo "ERROR: Need write permissions to "$INTRODUCER_LIST" to be able to update the file." >&2
 		exit 1
 	fi
 }
@@ -189,22 +187,22 @@ download_list () {
 }
 
 backup_list () {
-	if [ -e "$TAHOE_NODE_DIR/introducers" ]; then
-		LISTBAK="$TAHOE_NODE_DIR/introducers.bak"
+	if [ -e "$INTRODUCER_LIST" ]; then
+		LISTBAK="$INTRODUCER_LIST.bak"
 		if [ ! -w "$LISTBAK" ] && ! touch "$LISTBAK" 2> /dev/null ; then
 			echo "ERROR: Need write permissions to $LISTBAK to be able to update the file." >&2
 			exit 1
 		fi
-		echo "# This is a backup of $TAHOE_NODE_DIR/introducers. It was created by `basename $0` on $(date -u)." > "$LISTBAK"
-		cat "$TAHOE_NODE_DIR/introducers" >> "$LISTBAK"
+		echo "# This is a backup of "$INTRODUCER_LIST". It was created by `basename $0` on $(date -u)." > "$LISTBAK"
+		cat "$INTRODUCER_LIST" >> "$LISTBAK"
 		return 0
 	fi
 }
 
 merge_list () {
 	TMPLIST2=$(mktemp $LOCKDIR/grid-update.XXXX)
-	if [ ! -e "$TAHOE_NODE_DIR/introducers" ]; then
-		only_verbose echo "INFO: Unable to find $TAHOE_NODE_DIR/introducers. Retrieving a new list."
+	if [ ! -e "$INTRODUCER_LIST" ]; then
+		only_verbose echo "INFO: Unable to find "$INTRODUCER_LIST". Retrieving a new list."
 		replace_list
 		return 0
 	else
@@ -213,14 +211,14 @@ merge_list () {
 		check_permissions
 		download_list
 		backup_list
-		cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
+		cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
 			| grep '^pb://' | sort -u > "$TMPLIST2"
-		if diff -N "$TMPLIST2" $TAHOE_NODE_DIR/introducers > /dev/null 2>&1 ; then
+		if diff -N "$TMPLIST2" "$INTRODUCER_LIST" > /dev/null 2>&1 ; then
 			only_verbose echo "INFO: Updated list not available."
 			return 0
 		else
-			cat "$TAHOE_NODE_DIR/introducers.bak" "$TMPLIST" \
-				| grep '^pb://' | sort -u > "$TAHOE_NODE_DIR/introducers"  # merge
+			cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
+				| grep '^pb://' | sort -u > "$INTRODUCER_LIST"  # merge
 			only_verbose echo "INFO: Success: the list has been retrieved and merged. (Changes will take effect upon restart of the node.)"
 		fi
 
@@ -234,8 +232,8 @@ replace_list () {
 	check_permissions
 	download_list
 	backup_list
-	if diff -N $LISTBAK $TAHOE_NODE_DIR/introducers > /dev/null 2>&1; then
-		mv -f "$TMPLIST" "$TAHOE_NODE_DIR/introducers"    # install list
+	if diff -N "$LISTBAK" "$INTRODUCER_LIST" > /dev/null 2>&1; then
+		mv -f "$TMPLIST" "$INTRODUCER_LIST"    # install list
 		only_verbose echo "INFO: Success: the list has been retrieved. (Changes will take effect upon restart of the node.)"
 	else
 		only_verbose echo "INFO: No updates available."
@@ -276,16 +274,16 @@ check_subscriptions () {
 
 print_news () {
 	# if new NEWS...
-	if ! diff -N "$TAHOE_NODE_DIR/NEWS" "$TMPNEWS" > /dev/null ; then
+	if ! diff -N "$TAHOENEWS" "$TMPNEWS" > /dev/null ; then
 		# move old news aside
-		if [ -e "$TAHOE_NODE_DIR/NEWS" ]; then
-			cp -f "$TAHOE_NODE_DIR/NEWS" "$OLDNEWS"
+		if [ -e "$TAHOENEWS" ]; then
+			cp -f "$TAHOENEWS" "$OLDNEWS"
 		fi
 		# put new news into place
-		cp -f "$TMPNEWS" "$TAHOE_NODE_DIR/NEWS" > /dev/null
+		cp -f "$TMPNEWS" "$TAHOENEWS" > /dev/null
 		# print
 		diff --ignore-all-space --ignore-blank-lines --new-file \
-			"$OLDNEWS" "$TAHOE_NODE_DIR/NEWS" | grep -e "^>\s" | sed 's/^>\s//'
+			"$OLDNEWS" "$TAHOENEWS" | grep -e "^>\s" | sed 's/^>\s//'
 		return 0
 	else
 		only_verbose echo "INFO: There are no news."
@@ -369,6 +367,11 @@ download_update () {
 		fi
 	fi
 }
+
+# Useful constants
+: ${TAHOE_NODE_DIR:="$HOME/.tahoe"}
+INTRODUCER_LIST="$TAHOE_NODE_DIR/introducers"
+TAHOENEWS="$TAHOE_NODE_DIR/NEWS"
 
 # some of those variables will not be initialized--and that's OK.
 # We'll do our own checking from this point forward.
