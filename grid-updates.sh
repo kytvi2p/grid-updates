@@ -145,7 +145,7 @@ EOF
 TAHOE=$(which tahoe)
 [ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
 
-check_if_tahoe_node () {
+check_tahoe_node () {
 	if [ -d $TAHOE_NODE_DIR ]; then
 		if [ ! -e $TAHOE_NODE_DIR/node.url ]; then
 			echo "ERROR: Cannot find $TAHOE_NODE_DIR/node.url. Not a valid tahoe node." >&2
@@ -244,7 +244,7 @@ checking_failed ()
 }
 
 check_subscriptions () {
-	check_if_tahoe_node
+	check_tahoe_node
 	if [ $OPT_VERBOSE ]; then
 		echo "INFO: Beginning to check subscription shares."
 		echo "INFO: Checking subscription share (1/3)."
@@ -378,7 +378,7 @@ while [ $# -gt 0 ] ; do
 			fi
 			TAHOE_NODE_DIR=$2
 			shift 2
-			check_if_tahoe_node
+			check_tahoe_node
 		;;
 		--list-uri)
 			if [ -z "$2" ]; then
