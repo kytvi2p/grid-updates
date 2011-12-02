@@ -243,7 +243,7 @@ replace_list () {
 
 checking_failed ()
 {
-	echo "ERROR: failed to check $1 share."
+	echo "ERROR: failed to check $1 share." >&2
 	return 1
 }
 
@@ -347,12 +347,12 @@ check_update () {
 
 download_update () {
 	if [ ! -d $UPDATE_DOWNLOAD_DIR ]; then
-		echo "ERROR: $UPDATE_DOWNLOAD_DIR is not a directory."
+		echo "ERROR: $UPDATE_DOWNLOAD_DIR is not a directory." >&2
 		exit 1
 	fi
 
 	if [ ! -w $UPDATE_DOWNLOAD_DIR ]; then
-		echo "ERROR: Cannot write to download directory $UPDATE_DOWNLOAD_DIR."
+		echo "ERROR: Cannot write to download directory $UPDATE_DOWNLOAD_DIR." >&2
 		exit 1
 	fi
 
