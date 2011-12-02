@@ -357,10 +357,13 @@ download_update () {
 	fi
 
 	if check_update; then
+		only_verbose echo "INFO: New version available: $LATEST_VERSION_NUMBER."
 		only_verbose echo "INFO: Attempting to download new version."
 		if tahoe get $SCRIPTURI/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
 			echo "Update found (version $LATEST_VERSION_NUMBER) and downloaded to $UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME."
 		fi
+	else
+		only_verbose echo "INFO: No new version available."
 	fi
 }
 
