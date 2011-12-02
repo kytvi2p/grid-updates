@@ -306,7 +306,7 @@ fetch_news () {
 
 }
 
-check_for_valid_uris () {
+check_uri () {
 	# Tahoe URIs will start with URI:
 	#Yes, this is very rudimentary checking,
 	# but it's better than nothing...isn't it?
@@ -388,7 +388,7 @@ while [ $# -gt 0 ] ; do
 			fi
 			LISTURI=$2
 			shift 2
-			check_for_valid_uris "$LISTURI" "list"
+			check_uri "$LISTURI" "list"
 		;;
 		--news-uri)
 			if [ -z "$2" ]; then
@@ -398,7 +398,7 @@ while [ $# -gt 0 ] ; do
 			fi
 			NEWSURI=$2
 			shift 2
-			check_for_valid_uris "$NEWSURI" "news"
+			check_uri "$NEWSURI" "news"
 		;;
 		--script-uri)
 			if [ -z "$2" ]; then
@@ -408,7 +408,7 @@ while [ $# -gt 0 ] ; do
 			fi
 			SCRIPTURI=$2
 			shift 2
-			check_for_valid_uris "$SCRIPTURI" "script"
+			check_uri "$SCRIPTURI" "script"
 		;;
 		--merge-introducers|-m)
 			OPT_MERGE_LIST=1
