@@ -39,7 +39,7 @@
 # fetch news, the script will write them to a file called NEWS.
 
 # This script's version:
-VERSION='0.0'
+VERSION='0.1'
 
 ############################### Configuration #################################
 # Default location of the Tahoe-LAFS node:
