@@ -214,7 +214,7 @@ merge_list () {
 		cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
 			| grep '^pb://' | sort -u > "$TMPLIST2"
 		if diff -N "$TMPLIST2" "$INTRODUCER_LIST" > /dev/null 2>&1 ; then
-			only_verbose echo "INFO: Updated list not available."
+			only_verbose echo "INFO: No new introducers found."
 			return 0
 		else
 			cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
