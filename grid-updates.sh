@@ -230,7 +230,10 @@ replace_list () {
 	download_list
 	backup_list
 	if diff -N "$LISTBAK" "$INTRODUCER_LIST" > /dev/null 2>&1; then
-		mv -f "$TMPLIST" "$INTRODUCER_LIST"    # install list
+		mv -f "$TMPLIST" "$INTRODUCER_LIST" > /dev/null 2>&1   # install list
+		only_verbose echo "INFO: Success: the list has been retrieved. (Changes will take effect upon restart of the node.)"
+	elif [ ! -e "$INTRODUCER_LIST" ]; then # if we're here there was a back up but no introducer list
+		mv -f "$TMPLIST" "$INTRODUCER_LIST" > /dev/null 2>&1   # install list
 		only_verbose echo "INFO: Success: the list has been retrieved. (Changes will take effect upon restart of the node.)"
 	else
 		only_verbose echo "INFO: No updates available."
