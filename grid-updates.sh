@@ -317,7 +317,7 @@ check_update () {
 	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
 		LATEST_AVAILABLE_VERSION=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
-		NEWEST_VERSION=$(echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -rV | head -n 1)
+		NEWEST_VERSION=$(/bin/echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -rV | head -n 1)
 		if [ "$VERSION" != "$NEWEST_VERSION" ]; then
 			# Only print if not called via --download-update
 			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "New version available: $LATEST_AVAILABLE_VERSION."
