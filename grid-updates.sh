@@ -476,7 +476,7 @@ fi
 [ $OPT_CHECK_SUBSCRIPTIONS ] && check_subscriptions
 [ $OPT_FETCH_NEWS ] && fetch_news
 
-if [ $OPT_CHECK_SUBSCRIPTIONS ] && [ $OPT_DOWNLOAD_UPDATE ]; then
+if [ $OPT_CHECK_UPDATE ] && [ $OPT_DOWNLOAD_UPDATE ]; then
 	download_update
 elif [ $OPT_DOWNLOAD_UPDATE ]; then
 	download_update
