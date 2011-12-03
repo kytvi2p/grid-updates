@@ -316,10 +316,11 @@ check_update () {
 	only_verbose echo "INFO: Attempting to check for new version."
 	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
-		LATEST_VERSION_NUMBER=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
-		if [ "$VERSION" != "$LATEST_VERSION_NUMBER" ]; then
+		LATEST_AVAILABLE_VERSION=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
+		NEWEST_VERSION=$(echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -rV | head -n 1)
+		if [ "$VERSION" != "$NEWEST_VERSION" ]; then
 			# Only print if not called via --download-update
-			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "New version available: $LATEST_VERSION_NUMBER."
+			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "New version available: $LATEST_AVAILABLE_VERSION."
 			return 0
 		else
 			# Only print if not called via --download-update
@@ -343,10 +344,10 @@ download_update () {
 	fi
 
 	if check_update; then
-		only_verbose echo "INFO: New version available: $LATEST_VERSION_NUMBER."
+		only_verbose echo "INFO: New version available: $LATEST_AVAILABLE_VERSION."
 		only_verbose echo "INFO: Attempting to download new version."
 		if tahoe get $SCRIPTURI/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
-			echo "Update found (version $LATEST_VERSION_NUMBER) and downloaded to $UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME."
+			echo "Update found (version $LATEST_AVAILABLE_VERSION) and downloaded to $UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME."
 		fi
 	else
 		only_verbose echo "INFO: No new version available."
