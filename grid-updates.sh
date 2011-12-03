@@ -244,29 +244,26 @@ checking_failed ()
 	return 1
 }
 
+deep_check () {
+	if [ $OPT_VERBOSE ]; then
+		"$TAHOE" deep-check -v --repair --add-lease "$1" 2>/dev/null >&1 | pretty_print
+	else
+		"$TAHOE" deep-check --repair --add-lease "$1" >/dev/null 2>&1
+	fi
+}
+
 check_subscriptions () {
 	check_tahoe_node
-	if [ $OPT_VERBOSE ]; then
-		echo "INFO: Beginning to check subscription shares."
-		echo "INFO: Checking subscription share (1/3)."
-		("$TAHOE" deep-check -v --repair --add-lease "$LISTURI" 2>/dev/null >&1 | pretty_print) \
-			|| checking_failed "subscriptions"
 
-		echo "INFO: Checking NEWS share (2/3)."
-		("$TAHOE" deep-check -v --repair --add-lease "$NEWSURI" 2>/dev/null >&1 | pretty_print) \
-			|| checking_failed "news"
+	only_verbose echo "INFO: Beginning to check subscription shares."
+	only_verbose echo "INFO: Checking subscription share (1/3)."
+	deep_check "$LISTURI" || checking_failed "subscriptions"
 
-		echo "INFO: Checking scripts share (3/3)."
-		("$TAHOE" deep-check -v --repair --add-lease "$SCRIPTURI" 2>/dev/null >&1 | pretty_print) \
-			|| checking_failed "scripts"
-	else
-		("$TAHOE" deep-check --repair --add-lease "$LISTURI" > /dev/null 2>&1) \
-			|| checking_failed "subscriptions"
-		("$TAHOE" deep-check --repair --add-lease "$NEWSURI" > /dev/null 2>&1) \
-			|| checking_failed "news"
-		("$TAHOE" deep-check --repair --add-lease "$SCRIPTURI" > /dev/null 2>&1) \
-			|| checking_failed "scripts"
-	fi
+	only_verbose echo "INFO: Checking NEWS share (2/3)."
+	deep_check "$NEWSURI" || checking_failed "news"
+
+	only_verbose echo "INFO: Checking scripts share (3/3)."
+	deep_check "$SCRIPTURI" || checking_failed "scripts"
 }
 
 print_news () {
