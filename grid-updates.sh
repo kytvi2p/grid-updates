@@ -178,9 +178,20 @@ pretty_print () {
 download_list () {
 	only_verbose echo "INFO: Attempting to download introducers list."
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
-	if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
-		echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
-		exit 1
+	if [ $(echo $LISTURI |egrep '^http:\/\/(.*).i2p') ]; then
+		if [ ! $(which wget) ]; then
+			echo "ERROR: wget is required for retrieving subscriptions from eepsites." >&2
+			return 1
+		fi
+		if ! wget --quiet "$LISTURI" -O "$TMPLIST" >/dev/null 2>&1 ; then
+			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
+			return 1
+		fi
+	else
+		if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
+			echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
+			return 1
+		fi
 	fi
 }
 
@@ -293,14 +304,27 @@ fetch_news () {
 	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	only_verbose echo "INFO: Attempting to download NEWS file."
-	if "$TAHOE" get "$NEWSURI/NEWS" "$TMPNEWS" 2> /dev/null ; then
-		print_news
-		return 0
+	if [ $(echo $NEWSURI |egrep '^http:\/\/(.*).i2p') ]; then
+		if [ ! $(which wget) ]; then
+			echo "ERROR: wget is required for retrieving news from eepsites." >&2
+			return 1
+		fi
+		if  wget --quiet "$NEWSURI" -O "$TMPNEWS" > /dev/null 2>&1 ; then
+			print_news
+			return 0
+		else
+			echo "ERROR: Could not retrieve the news from $NEWSURI." >&2
+			return 1
+		fi
 	else
-		echo "ERROR: Couldn't fetch the NEWS file." >&2
-		exit 1
+		if "$TAHOE" get "$NEWSURI/NEWS" "$TMPNEWS" 2> /dev/null ; then
+			print_news
+			return 0
+		else
+			echo "ERROR: Couldn't fetch the NEWS file." >&2
+			exit 1
+		fi
 	fi
-
 }
 
 check_uri () {
@@ -308,14 +332,17 @@ check_uri () {
 	#Yes, this is very rudimentary checking,
 	# but it's better than nothing...isn't it?
 
-	if [ ! $(echo "$1" | grep '^URI:') ]; then
+	if [ ! $(echo "$1" | grep '^URI:') ] && [ ! $(echo "$1" | egrep '^http\:\/\/(.*).i2p') ] ; then
 		echo "ERROR: "$1" is not a valid ${2}-uri." >&2
 		return 1
 	fi
-
 }
 
 check_update () {
+	if [ $(echo $SCRIPTURI |egrep '^http:\/\/(.*).i2p') ]; then
+		echo "ERROR: Script updates are not currently supported from eepSites." >&2
+		return 1
+	fi
 	only_verbose echo "INFO: Attempting to check for new version."
 	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
@@ -361,6 +388,8 @@ download_update () {
 : ${TAHOE_NODE_DIR:="$HOME/.tahoe"}
 INTRODUCER_LIST="$TAHOE_NODE_DIR/introducers"
 TAHOENEWS="$TAHOE_NODE_DIR/NEWS"
+: ${http_proxy:="127.0.0.1:4444"}
+export http_proxy
 
 # some of those variables will not be initialized--and that's OK.
 # We'll do our own checking from this point forward.
