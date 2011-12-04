@@ -24,12 +24,12 @@
 #
 # The list is stored on the grid itself and -- like all other shares -- needs
 # maintenance and repairs.  If you can, please also add the
-# --check-subscriptions action to your cron job, or run it separately every
+# --repair-subscriptions action to your cron job, or run it separately every
 # once in a while.  This is in everyone's interest.
 #
-# If you also want to receive news relevant to the grid, add the --fetch-news
-# action.  It will fetch and display a NEWS file from the grid.  This is
-# recommended.
+# If you also want to receive news relevant to the grid, add the
+# --download-news action.  It will fetch and display a NEWS file from the grid.
+# This is recommended.
 
 # Setup notes
 # ===========
@@ -109,16 +109,16 @@ Actions:
                                 subscription's
     -r, --replace-introducers   Replace your local list of introducers with the
                                 master list
-    -c, --check-subscriptions   Maintain or repair the health of the subscription
-                                service's URI
-    -n, --fetch-news            Retrieve news regarding the I2P grid.  These
+    -n, --download-news         Retrieve news regarding the I2P grid.  These
                                 will be stored in [node directory]/NEWS.
                                 If you run this script as a cron job, the
                                 news will also be emailed to you.
-    --check-update              Check for a new version of this script on the
+    --check-version             Check for a new version of this script on the
                                 grid
     --download-update           Download a new version of this script from the
-        [target directory]      grid (implies --check-update)
+        [target directory]      grid (implies --check-version)
+    -R, --repair-subscriptions  Maintain or repair the health of the subscription
+                                service's URI
 Options:
     -d [directory],             Specify the node directory (default: ~/.tahoe)
     --node-directory [directory]
@@ -131,11 +131,11 @@ Options:
     -h, --help                  Print this help text
 
 Errors:
-	If the script repeatedly fails to retrieve a file from the grid, the share
-	may be damaged.  Try running --check-subscriptions which will try to repair
-	it.  If that doesn't help, you will most likely have to find a new URI to
-	subscribe to.  Ask in #tahoe-lafs on Irc2P, check the DeepWiki and/or
-	http://killyourtv.i2p.
+    If the script repeatedly fails to retrieve a file from the grid, the share
+    may be damaged.  Try running --repair-subscriptions which will try to
+    repair it.  If that doesn't help, you will most likely have to find a new
+    URI to subscribe to.  Ask in #tahoe-lafs on Irc2P, check the DeepWiki
+    and/or http://killyourtv.i2p.
 
 EOF
 }
@@ -266,7 +266,7 @@ deep_check () {
 	fi
 }
 
-check_subscriptions () {
+repair_subscriptions () {
 	check_tahoe_node
 
 	only_verbose echo "INFO: Beginning to check subscription shares."
@@ -299,7 +299,7 @@ print_news () {
 	fi
 }
 
-fetch_news () {
+download_news () {
 	check_permissions "news" "$TAHOENEWS"
 	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
@@ -338,7 +338,7 @@ check_uri () {
 	fi
 }
 
-check_update () {
+check_version () {
 	if [ $(echo $SCRIPTURI |egrep '^http:\/\/(.*).i2p') ]; then
 		echo "ERROR: Script updates are not currently supported from eepSites." >&2
 		return 1
@@ -375,7 +375,7 @@ download_update () {
 		exit 1
 	fi
 
-	if check_update; then
+	if check_version; then
 		only_verbose echo "INFO: New version available: $LATEST_AVAILABLE_VERSION."
 		only_verbose echo "INFO: Attempting to download new version."
 		if tahoe get $SCRIPTURI/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
@@ -447,20 +447,20 @@ while [ $# -gt 0 ] ; do
 			OPT_REPLACE_LIST=1
 			shift
 		;;
-		--check-subscriptions|-c)
-			OPT_CHECK_SUBSCRIPTIONS=1
+		--repair-subscriptions|-R)
+			OPT_REPAIR_SUBSCRIPTIONS=1
 			shift
 		;;
-		--fetch-news|-n)
-			OPT_FETCH_NEWS=1
+		--download-news|-n)
+			OPT_DOWNLOAD_NEWS=1
 			shift
 		;;
 		--version|-V)
 			echo "$(basename $0) version: $VERSION"
 			exit 0
 		;;
-		--check-update)
-			OPT_CHECK_UPDATE=1
+		--check-version)
+			OPT_CHECK_VERSION=1
 			shift
 		;;
 		--download-update)
@@ -492,8 +492,8 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ ! $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ] && \
-[ ! $OPT_CHECK_SUBSCRIPTIONS ] && [ ! $OPT_FETCH_NEWS ] && \
-[ ! $OPT_CHECK_UPDATE ] && [ ! $OPT_DOWNLOAD_UPDATE ]; then
+[ ! $OPT_REPAIR_SUBSCRIPTIONS ] && [ ! $OPT_DOWNLOAD_NEWS ] && \
+[ ! $OPT_CHECK_VERSION ] && [ ! $OPT_DOWNLOAD_UPDATE ]; then
 	echo "ERROR: You need to specify an action." >&2
 	print_help
 	exit 1
@@ -508,15 +508,15 @@ elif [ $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
 	print_help
 	exit 1
 fi
-[ $OPT_CHECK_SUBSCRIPTIONS ] && check_subscriptions
-[ $OPT_FETCH_NEWS ] && fetch_news
+[ $OPT_REPAIR_SUBSCRIPTIONS ] && repair_subscriptions
+[ $OPT_DOWNLOAD_NEWS ] && download_news
 
-if [ $OPT_CHECK_UPDATE ] && [ $OPT_DOWNLOAD_UPDATE ]; then
+if [ $OPT_CHECK_VERSION ] && [ $OPT_DOWNLOAD_UPDATE ]; then
 	download_update
 elif [ $OPT_DOWNLOAD_UPDATE ]; then
 	download_update
-elif [ $OPT_CHECK_UPDATE ]; then
-	check_update
+elif [ $OPT_CHECK_VERSION ]; then
+	check_version
 fi
 
 exit 0
