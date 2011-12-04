@@ -122,10 +122,10 @@ Actions:
 Options:
     -d [directory],             Specify the node directory (default: ~/.tahoe)
     --node-directory [directory]
-    --list-uri [URI]            Overwrite default location of introducers
+    --list-uri [URI]            Override default location of introducers
                                 list
-    --news-uri [URI]            Overwrite default location of news file
-    --script-uri [URI]          Overwrite default location of script updates
+    --news-uri [URI]            Override default location of news file
+    --script-uri [URI]          Override default location of script updates
     -v, --verbose               Display more verbose output
     -V, --version               Display version information
     -h, --help                  Print this help text
