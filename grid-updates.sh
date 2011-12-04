@@ -209,6 +209,7 @@ backup_list () {
 }
 
 merge_list () {
+	INTRODUCER_LIST="$TAHOE_NODE_DIR/introducers"
 	TMPLIST2=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ ! -e "$INTRODUCER_LIST" ]; then
 		only_verbose echo "INFO: Unable to find "$INTRODUCER_LIST". Retrieving a new list."
@@ -236,6 +237,7 @@ merge_list () {
 }
 
 replace_list () {
+	INTRODUCER_LIST="$TAHOE_NODE_DIR/introducers"
 	# Make the local list identical to the subscribed one.
 	check_permissions "the subscription list" "$INTRODUCER_LIST"
 	download_list
@@ -300,6 +302,7 @@ print_news () {
 }
 
 download_news () {
+	TAHOENEWS="$TAHOE_NODE_DIR/NEWS"
 	check_permissions "news" "$TAHOENEWS"
 	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
@@ -388,8 +391,6 @@ download_update () {
 
 # Useful constants
 : ${TAHOE_NODE_DIR:="$HOME/.tahoe"}
-INTRODUCER_LIST="$TAHOE_NODE_DIR/introducers"
-TAHOENEWS="$TAHOE_NODE_DIR/NEWS"
 : ${http_proxy:="127.0.0.1:4444"}
 export http_proxy
 
