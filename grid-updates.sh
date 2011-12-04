@@ -291,7 +291,7 @@ print_news () {
 		cp -f "$TMPNEWS" "$TAHOENEWS" > /dev/null
 		# print
 		diff --ignore-all-space --ignore-blank-lines --new-file \
-			"$OLDNEWS" "$TAHOENEWS" | grep -e "^>\s" | sed 's/^>\s//'
+		        "$OLDNEWS" "$TAHOENEWS" | grep -e "^>\ " | sed 's/^>\ //'
 		return 0
 	else
 		only_verbose echo "INFO: There are no news."
@@ -343,11 +343,13 @@ check_update () {
 		echo "ERROR: Script updates are not currently supported from eepSites." >&2
 		return 1
 	fi
+	LC_ALL=C # make sure sort order is what we expect
 	only_verbose echo "INFO: Attempting to check for new version."
-	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -rV | head -n 1)
+	# sort -V not on FreeBSD. These sort parameters were taken from http://stackoverflow.com/a/4046149
+	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -r -t- -k2,2 -n | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
 		LATEST_AVAILABLE_VERSION=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
-		NEWEST_VERSION=$(/bin/echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -rV | head -n 1)
+		NEWEST_VERSION=$(/bin/echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -t- -k2,2 -n | head -n 1)
 		if [ "$VERSION" != "$NEWEST_VERSION" ]; then
 			# Only print if not called via --download-update
 			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "New version available: $LATEST_AVAILABLE_VERSION."
