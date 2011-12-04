@@ -12,31 +12,7 @@
 # Requirements:
 #     Bourne-compatible shell, Tahoe-LAFS
 
-# Introduction
-# ============
-# This script retrieves and installs an up-to-date list of introducers for
-# Tahoe-LAFS nodes that support multiple introducers.  See
-# http://killyourtv.i2p/tahoe-lafs/ for more information.
-#
-# Run this script with either --merge-introducers or --replace-introducers as a
-# cron job to make sure your Tahoe-LAFS node will get the most reliable
-# connection to the I2P grid as possible.
-#
-# The list is stored on the grid itself and -- like all other shares -- needs
-# maintenance and repairs.  If you can, please also add the
-# --repair-subscriptions action to your cron job, or run it separately every
-# once in a while.  This is in everyone's interest.
-#
-# If you also want to receive news relevant to the grid, add the
-# --download-news action.  It will fetch and display a NEWS file from the grid.
-# This is recommended.
-
-# Setup notes
-# ===========
-# For this script to work, it needs read and write permissions to your
-# Tahoe-LAFS node's directory (typically ~/.tahoe).  It will update your
-# introducers file (if you ask it to) and make a backup of it.  If you also
-# fetch news, the script will write them to a file called NEWS.
+# For more information see the README.md and INSTALL.md files.
 
 # This script's version:
 VERSION='0.1-git'

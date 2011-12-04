@@ -1,0 +1,12 @@
+TBA (version 0.2)
+
+	* Various bug fixes (also checked for BSD compatibility)
+	* Better documentation (README and INSTALL)
+	* Much more flexible download options
+	* Renamed some actions to hopefully clarify their purpose
+	  (you may have to adapt your cron setups)
+	* Renamed grid-updates.sh to grid-updates
+
+2011-12-02 (version 0.1)
+
+	First release
