@@ -176,20 +176,50 @@ pretty_print () {
 }
 
 download_list () {
-	only_verbose echo "INFO: Attempting to download introducers list."
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ $(echo $LISTURI |egrep '^http:\/\/(.*).i2p') ]; then
-		if [ ! $(which wget) ]; then
-			echo "ERROR: wget is required for retrieving subscriptions from eepsites." >&2
-			return 1
-		fi
-		if ! wget --quiet "$LISTURI" -O "$TMPLIST" >/dev/null 2>&1 ; then
+		if ! eep_get "${LISTURI}/introducers" "$TMPLIST" "subscriptions"; then
 			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
 			return 1
 		fi
 	else
+		only_verbose echo "INFO: Attempting to download introducers list from the grid."
 		if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
 			echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
+			return 1
+		fi
+	fi
+}
+
+eep_get () {
+	if [ -d "${HOME}/i2p" ] && [ ! $(echo ${PATH} | grep \/i2p) ]; then
+		PATH="${PATH}:${HOME}/i2p" # try to ensure eepget is found
+	fi
+
+	if [ $(which eepget) ]; then
+		EEPTOOL="eepget"
+		EEPFETCHCMD="${EEPTOOL} -n 2 ${1} -o ${2} -p ${http_proxy}"
+	elif [ $(which wget) ]; then
+		EEPTOOL="wget"
+		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${1} -O ${2}"
+	elif [ $(which fetch) ]; then
+		EEPTOOL="fetch"
+		EEPFETCHCMD="${EEPTOOL} -q -o ${2} ${1}"
+	elif [ $(which curl) ]; then
+		EEPTOOL="curl"
+		EEPFETCHCMD="${EEPTOOL} -s --retry 2 -L ${1} -o ${2}"
+	else
+		echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
+		return 1
+	fi
+
+	if [ x${1} = "x" ]; then
+		echo "INFO: Detected $EEPTOOL"
+	else
+		only_verbose echo "INFO: Attempting to download $3 using ${EEPTOOL}."
+		$EEPFETCHCMD > /dev/null 2>&1
+		if [ $? -gt 0 ]; then
+			echo "ERROR: Failed to retrieve $3 from $1." >&2
 			return 1
 		fi
 	fi
@@ -306,13 +336,8 @@ download_news () {
 	check_permissions "news" "$TAHOENEWS"
 	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
-	only_verbose echo "INFO: Attempting to download NEWS file."
 	if [ $(echo $NEWSURI |egrep '^http:\/\/(.*).i2p') ]; then
-		if [ ! $(which wget) ]; then
-			echo "ERROR: wget is required for retrieving news from eepsites." >&2
-			return 1
-		fi
-		if  wget --quiet "$NEWSURI" -O "$TMPNEWS" > /dev/null 2>&1 ; then
+		if eep_get "${NEWSURI}/NEWS" "$TMPNEWS" "news"; then
 			print_news
 			return 0
 		else
@@ -320,6 +345,7 @@ download_news () {
 			return 1
 		fi
 	else
+		only_verbose echo "INFO: Attempting to download the NEWS file from the grid."
 		if "$TAHOE" get "$NEWSURI/NEWS" "$TMPNEWS" 2> /dev/null ; then
 			print_news
 			return 0
