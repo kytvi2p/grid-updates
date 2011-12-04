@@ -499,7 +499,7 @@ if [ ! $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ] && \
 	print_help
 	exit 1
 fi
-
+[ $OPT_REPAIR_SUBSCRIPTIONS ] && repair_subscriptions
 if [ $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ]; then
 	merge_list
 elif [ ! $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
@@ -509,9 +509,7 @@ elif [ $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
 	print_help
 	exit 1
 fi
-[ $OPT_REPAIR_SUBSCRIPTIONS ] && repair_subscriptions
 [ $OPT_DOWNLOAD_NEWS ] && download_news
-
 if [ $OPT_CHECK_VERSION ] && [ $OPT_DOWNLOAD_UPDATE ]; then
 	download_update
 elif [ $OPT_DOWNLOAD_UPDATE ]; then
