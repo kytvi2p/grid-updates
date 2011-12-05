@@ -103,7 +103,9 @@ SEE ALSO
 
 The *grid-updates* git repository: http://git.repo.i2p/w/grid-updates.git
 
-TODO: The *README* document?
+The README on the grid:
+
+    URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
 
 LICENSE
 =======
