@@ -5,7 +5,7 @@
 NAME
 ====
 
-grid-updates -- Helper Script for Tahoe-LAFS Nodes
+grid-updates - Helper Script for Tahoe-LAFS Nodes
 
 SYNOPSIS
 ========
