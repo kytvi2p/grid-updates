@@ -40,7 +40,7 @@ Authors
 =======
 
 * darrob [<darrob@mail.i2p>](mailto:darrob@mail.i2p)
-* KillYourTV [<killyourtv@mail.i2p>](killyourtv@mail.i2p)
+* KillYourTV [<killyourtv@mail.i2p>](mailto:killyourtv@mail.i2p)
 
 License
 =======
