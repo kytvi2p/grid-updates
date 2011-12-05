@@ -11,11 +11,11 @@ Bourne-compatible shell, Tahoe-LAFS
 Installation
 ------------
 
-Currently we distribute `grid-updates` as a simple shell script so all you need
-to do is move it to a location in your PATH or add it to your PATH.
+`grid-updates` is a shell script, so you can run it by calling it directly or
+adding it to your PATH.
 
-You can expect a convenient installation routine using `make` in the very near
-future and Debian packages a little further down the line.
+It is probably more conventient to run `make install` which will install the
+the script and all documentation to your system.
 
 Permissions
 -----------
