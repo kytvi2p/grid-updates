@@ -8,17 +8,17 @@ INSTALL= install
 INSTALL_DATA= $(INSTALL) -m 644
 
 install:
-	@-mkdir -p $(DESTDIR)/$(BINDIR) $(DESTDIR)/$(MANDIR)
-	@$(INSTALL) $(APP) $(DESTDIR)/$(BINDIR)
-	@$(INSTALL_DATA) man/grid-updates.1 $(DESTDIR)/$(MANDIR)
-	@echo "$(APP) successfully installed to $(PREFIX)"
+	$(INSTALL) -d $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
+	$(INSTALL) $(APP) $(DESTDIR)$(BINDIR)
+	$(INSTALL_DATA) man/grid-updates.1 $(DESTDIR)$(MANDIR)
+	@echo "$(APP) successfully installed to $(DESTDIR)$(PREFIX)"
 
 
 clean:
 	@-rm -f man/grid-updates.1
 
 man:
-	@pandoc -s -w man man/grid-updates.1.md -o man/grid-updates.1
+	pandoc -s -w man man/grid-updates.1.md -o man/grid-updates.1
 	@echo "Generated new manpage from markdown source."
 
 view: man
