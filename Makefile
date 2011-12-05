@@ -15,7 +15,6 @@ install:
 
 
 clean:
-	@-rm -f man/grid-updates.1
 
 man:
 	pandoc -s -w man man/grid-updates.1.md -o man/grid-updates.1

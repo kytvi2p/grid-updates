@@ -1,0 +1,136 @@
+.TH GRID-UPDATES 1 "December 2011" "User Commands"
+.SH NAME
+.PP
+grid-updates - Helper Script for Tahoe-LAFS Nodes
+.SH SYNOPSIS
+.PP
+\f[B]grid-updates\f[] [\f[I]OPTIONS\f[]] \f[I]ACTION\f[]
+.SH DESCRIPTION
+.PP
+\f[I]grid-updates\f[] is a script intended to help keep Tahoe-LAFS
+nodes' configurations up-to-date.
+It can retrieve updated lists of introducers as well as simple news
+updates.
+.SH ACTIONS
+.TP
+.B -m, --merge-introducers
+Merge your node's local introducers list with the subscription's.
+.RS
+.RE
+.TP
+.B -r, --replace-introducers
+Replace your node's local list of introducers with the master list.
+.RS
+.RE
+.TP
+.B -n, --download-news
+Retrieve news.
+These will be stored in [node directory]/NEWS and new contents will
+be printed to stdout.
+If you run this script as a cron job, the news will be emailed to
+you.
+.RS
+.RE
+.TP
+.B --check-version
+Check for a new version of this script on the grid.
+.RS
+.RE
+.TP
+.B --download-update \f[I][target_directory]\f[]
+Download a new version of this script from the grid to the
+specified directory (implies \f[B]--check-update\f[]).
+.RS
+.RE
+.TP
+.B -R, --repair-subscriptions
+Maintain or repair the health of the subscription service's URIs.
+.RS
+.RE
+.SH OPTIONS
+.TP
+.B -d \f[I]directory\f[], --node-directory \f[I]directory\f[]
+Specify the node directory (default: ~/.tahoe),
+.RS
+.RE
+.TP
+.B --list-uri \f[I]URI\f[]
+Override the default location of the introducers list.
+.RS
+.RE
+.TP
+.B --news-uri \f[I]URI\f[]
+Override the default location of the NEWS file,
+.RS
+.RE
+.TP
+.B --script-uri \f[I]URI\f[]
+Override the default location of script updates.
+.RS
+.RE
+.TP
+.B -v, --verbose
+Display more verbose output.
+.RS
+.RE
+.TP
+.B -V, --version
+Display version information.
+.RS
+.RE
+.TP
+.B -h, --help
+Print usage information.
+.RS
+.RE
+.SH NOTES
+.PP
+\f[I]URIs\f[], in this context, can be either Tahoe-LAFS
+directories like
+.PP
+\f[CR]
+      URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq
+\f[]
+.PP
+or regular Eepsite URLs like http://example.i2p/.
+.SH ERRORS
+.PP
+If the script repeatedly fails to retrieve a file from the grid,
+the share may be damaged.
+Try running \f[B]--repair-subscriptions\f[] which will attempt to
+deep-check the share.
+If that doesn't help, you will most likely have to find new URIs to
+subscribe to.
+Use \f[B]--check-version\f[] to see if there is a new version of
+\f[I]grid-updates\f[] available, which may already include new
+default URIs.
+You can also ask in #tahoe-lafs (on Irc2P) and check the DeepWiki
+or http://killyourtv.i2p.
+.SH FILES
+.PP
+\f[I]~/.tahoe/NEWS\f[]
+.PD 0
+.P
+.PD
+\f[I]~/.tahoe/introducers\f[]
+.SH BUGS
+.PP
+Please report bugs in #tahoe-lafs on Irc2p or via email (see
+below).
+.SH SEE ALSO
+.PP
+The \f[I]grid-updates\f[] git repository:
+http://git.repo.i2p/w/grid-updates.git
+.PP
+The README on the grid:
+.PP
+\f[CR]
+      URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
+\f[]
+.SH LICENSE
+.PP
+\f[I]grid-updates\f[] has been released into the public domain.
+This means that you can do whatever you please with it.
+.SH AUTHORS
+darrob <darrob@mail.i2p>, killyourtv <kytv@mail.i2p>.
+
