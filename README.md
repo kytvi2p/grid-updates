@@ -39,8 +39,8 @@ or the Tahoe grid ([URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2cs
 Authors
 =======
 
-* darrob [darrob@mail.i2p](mailto:darrob@mail.i2p)
-* KillYourTV [killyourtv@mail.i2p](killyourtv@mail.i2p)
+* darrob [<darrob@mail.i2p>](mailto:darrob@mail.i2p)
+* KillYourTV [<killyourtv@mail.i2p>](killyourtv@mail.i2p)
 
 License
 =======
