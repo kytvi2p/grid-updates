@@ -100,6 +100,7 @@ Options:
     --node-directory [directory]
     --list-uri [URI]            Override default location of introducers
                                 list
+    --no-proxy                  Disable proxy when downloading from non-tahoe URIs
     --news-uri [URI]            Override default location of news file
     --script-uri [URI]          Override default location of script updates
     -v, --verbose               Display more verbose output
@@ -153,7 +154,7 @@ pretty_print () {
 
 download_list () {
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
-	if [ $(echo $LISTURI |egrep '^http:\/\/(.*).i2p') ]; then
+	if [ $(echo $LISTURI |egrep '^http:') ]; then
 		if ! eep_get "${LISTURI}/introducers" "$TMPLIST" "subscriptions"; then
 			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
 			return 1
@@ -172,9 +173,17 @@ eep_get () {
 		PATH="${PATH}:${HOME}/i2p" # try to ensure eepget is found
 	fi
 
+	if [ $OPT_NOPROXY ]; then
+		unset http_proxy
+	fi
+
 	if [ $(which eepget) ]; then
 		EEPTOOL="eepget"
-		EEPFETCHCMD="${EEPTOOL} -n 2 ${1} -o ${2} -p ${http_proxy}"
+		if [ $OPT_NOPROXY ]; then
+			EEPFETCHCMD="${EEPTOOL} -n 2 ${1} -o ${2} -p :0"
+		else
+			EEPFETCHCMD="${EEPTOOL} -n 2 ${1} -o ${2} -p ${http_proxy}"
+		fi
 	elif [ $(which wget) ]; then
 		EEPTOOL="wget"
 		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${1} -O ${2}"
@@ -312,7 +321,7 @@ download_news () {
 	check_permissions "news" "$TAHOENEWS"
 	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
-	if [ $(echo $NEWSURI |egrep '^http:\/\/(.*).i2p') ]; then
+	if [ $(echo $NEWSURI |egrep '^http:') ]; then
 		if eep_get "${NEWSURI}/NEWS" "$TMPNEWS" "news"; then
 			print_news
 			return 0
@@ -337,14 +346,14 @@ check_uri () {
 	#Yes, this is very rudimentary checking,
 	# but it's better than nothing...isn't it?
 
-	if [ ! $(echo "$1" | grep '^URI:') ] && [ ! $(echo "$1" | egrep '^http\:\/\/(.*).i2p') ] ; then
+	if [ ! $(echo "$1" | grep '^URI:') ] && [ ! $(echo "$1" | egrep '^http:') ] ; then
 		echo "ERROR: "$1" is not a valid ${2}-uri." >&2
 		return 1
 	fi
 }
 
 check_version () {
-	if [ $(echo $SCRIPTURI |egrep '^http:\/\/(.*).i2p') ]; then
+	if [ $(echo $SCRIPTURI |egrep '^http:') ]; then
 		echo "ERROR: Script updates are not currently supported from eepSites." >&2
 		return 1
 	fi
@@ -466,6 +475,10 @@ while [ $# -gt 0 ] ; do
 			OPT_CHECK_VERSION=1
 			shift
 		;;
+		--no-proxy)
+			OPT_NOPROXY=1
+			shift
+			;;
 		--download-update)
 			if [ -z "$2" ]; then
 				only_verbose echo "INFO: No download directory specified. Using $PWD/."
