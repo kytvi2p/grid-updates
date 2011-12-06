@@ -47,7 +47,7 @@ OPTIONS
 =======
 
 -d *directory*, \--node-directory *directory*
-:   Specify the node directory (default: ~/.tahoe),
+:   Specify the node directory (default: *~/.tahoe*),
 
 \--list-uri *URI*
 :   Override the default location of the introducers list.
@@ -70,11 +70,9 @@ OPTIONS
 NOTES
 =====
 
-*URIs*, in this context, can be either Tahoe-LAFS directories like
-
-    URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq
-
-or regular Eepsite URLs like http://example.i2p/.
+*URIs*, in this context, can be either Tahoe-LAFS directories like  
+`URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq`  
+or regular FQDNs like `http://example.i2p/` or `http://www.example.com/`.
 
 ERRORS
 ======

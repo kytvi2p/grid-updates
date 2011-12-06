@@ -50,7 +50,7 @@ Maintain or repair the health of the subscription service's URIs.
 .SH OPTIONS
 .TP
 .B -d \f[I]directory\f[], --node-directory \f[I]directory\f[]
-Specify the node directory (default: ~/.tahoe),
+Specify the node directory (default: \f[I]~/.tahoe\f[]),
 .RS
 .RE
 .TP
@@ -86,13 +86,18 @@ Print usage information.
 .SH NOTES
 .PP
 \f[I]URIs\f[], in this context, can be either Tahoe-LAFS
-directories like
-.PP
-\f[CR]
-      URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq
-\f[]
-.PP
-or regular Eepsite URLs like http://example.i2p/.
+directories
+like
+.PD 0
+.P
+.PD
+\f[B]URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq\f[]
+.PD 0
+.P
+.PD
+or
+regular FQDNs like \f[B]http://example.i2p/\f[] or
+\f[B]http://www.example.com/\f[].
 .SH ERRORS
 .PP
 If the script repeatedly fails to retrieve a file from the grid,
