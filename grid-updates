@@ -202,7 +202,11 @@ eep_get () {
 	if [ x${1} = "x" ]; then
 		echo "INFO: Detected $EEPTOOL"
 	else
-		only_verbose echo "INFO: Attempting to download $3 using ${EEPTOOL}."
+		if [ $OPT_NOPROXY ]; then
+			only_verbose echo "INFO: Attempting to download $3 using ${EEPTOOL} (no proxy)."
+		else
+			only_verbose echo "INFO: Attempting to download $3 using ${EEPTOOL} (proxy ${http_proxy})."
+		fi
 		$EEPFETCHCMD > /dev/null 2>&1
 		if [ $? -gt 0 ]; then
 			echo "ERROR: Failed to retrieve $3 from $1." >&2
