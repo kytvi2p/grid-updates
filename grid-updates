@@ -15,7 +15,7 @@
 # For more information see the README.md and INSTALL.md files.
 
 # This script's version:
-VERSION='0.2'
+VERSION='0.2-git'
 
 ############################### Configuration #################################
 # Default location of the Tahoe-LAFS node:
@@ -168,7 +168,7 @@ download_list () {
 }
 
 eep_get () {
-	if [ -d "${HOME}/i2p" ] && [ ! $(echo ${PATH} | grep \/i2p) ]; then
+	if [ -x "${HOME}/i2p/eepget" ] && [ ! $(echo ${PATH} | grep \/i2p) ]; then
 		PATH="${PATH}:${HOME}/i2p" # try to ensure eepget is found
 	fi
 
