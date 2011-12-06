@@ -242,13 +242,13 @@ merge_list () {
 		download_list
 		backup_list
 		cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
-			| grep '^pb://' | sort -u > "$TMPLIST2"
+			| grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$' | sort -u > "$TMPLIST2"
 		if diff -N "$TMPLIST2" "$INTRODUCER_LIST" > /dev/null 2>&1 ; then
 			only_verbose echo "INFO: No new introducers found."
 			return 0
 		else
 			cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
-				| grep '^pb://' | sort -u > "$INTRODUCER_LIST"  # merge
+				| grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$'  | sort -u > "$INTRODUCER_LIST"  # merge
 			only_verbose echo "INFO: Success: the list has been retrieved and merged. (Changes will take effect upon restart of the node.)"
 		fi
 
