@@ -100,7 +100,8 @@ Options:
     --node-directory [directory]
     --list-uri [URI]            Override default location of introducers
                                 list
-    --no-proxy                  Disable proxy when downloading from non-tahoe URIs
+    --no-proxy                  Disable proxy when downloading from non-tahoe
+                                URIs
     --news-uri [URI]            Override default location of news file
     --script-uri [URI]          Override default location of script updates
     -v, --verbose               Display more verbose output
