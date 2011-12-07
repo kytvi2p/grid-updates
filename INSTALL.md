@@ -15,7 +15,11 @@ Installation
 adding it to your PATH.
 
 It is probably more conventient to run `make install` which will install the
-the script and all documentation to your system.
+the script and a man page to your system.
+
+If you run Debian it is advisable to build a deb package instead: `fakeroot
+debian/rules binary`. This will build a package that you can install using
+`dpkg`. It will include the script and all documentation.
 
 Permissions
 -----------
