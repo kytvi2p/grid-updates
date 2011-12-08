@@ -325,10 +325,44 @@ print_news () {
 	fi
 }
 
-check_pubhtml_permissions () {
+make_newshtml_placeholder () {
+cat << EOF
+<html><head></head><body><small>
+	<p>
+		This space if for news items downloaded by
+		<tt><strong>grid-updates</strong></tt>.
+	</p>
+	<p>
+		Please run <tt>grid-updates --download-news</tt> to download the latest
+		news files from the Tahoe-LAFS grid. See the README and man page for
+		more information.
+	</p>
+	<p>
+		If you haven't installed <tt>grid-updates</tt> already, please consider
+		doing so.
+		You can obtain it from the following locations:
+		<ul>
+			<li><a href="http://git.repo.i2p/w/grid-updates.git">http://git.repo.i2p/w/grid-updates.git</a></li>
+			<li>
+				<a href='http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Amjozenx3522pxtqyruekcx7mh4%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/'>URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a</a>
+			</li>
+		</ul>
+	</p>
+</small></body></html>
+EOF
+}
+
+check_newshtml_exists () {
 	TAHOE_CFG="$TAHOE_NODE_DIR/tahoe.cfg"
 	WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\s*=\s*//' $TAHOE_CFG)"
 	PUB_HTML_DIR="$TAHOE_NODE_DIR/$WEB_STATIC"
+	if [ ! -e $PUB_HTML_DIR/NEWS.html ]; then
+		check_pubhtml_permissions
+		make_newshtml_placeholder > $PUB_HTML_DIR/NEWS.html
+	fi
+}
+
+check_pubhtml_permissions () {
 	if [ ! $WEB_STATIC ]; then
 		echo "Error: could not find 'web.static' option in $TAHOE_CFG." >&2
 		return 1
@@ -352,9 +386,7 @@ download_news () {
 	TMP_NEWS_DIR=$(mktemp -d $LOCKDIR/grid-update.XXXX)
 	TMP_NEWS_PLAIN="$TMP_NEWS_DIR/NEWS"
 	OLD_NEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
-
 	check_pubhtml_permissions
-
 	if [ $(echo $NEWSURI |egrep '^http:') ]; then
 		if eep_get "${NEWSURI}/NEWS.tgz" "$TMP_NEWS_DIR/NEWS.tgz" "news"; then
 			tar xf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
@@ -444,6 +476,9 @@ export http_proxy
 # some of those variables will not be initialized--and that's OK.
 # We'll do our own checking from this point forward.
 set +u
+
+# Always check NEWS.html exists. Create a placeholder if it doesn't.
+check_newshtml_exists
 
 while [ $# -gt 0 ] ; do
 	case $1 in
