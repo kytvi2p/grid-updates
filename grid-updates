@@ -389,7 +389,7 @@ download_news () {
 	check_pubhtml_permissions
 	if [ $(echo $NEWSURI |egrep '^http:') ]; then
 		if eep_get "${NEWSURI}/NEWS.tgz" "$TMP_NEWS_DIR/NEWS.tgz" "news"; then
-			tar xf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
+			tar xzf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
 			print_news
 			return 0
 		else
@@ -399,7 +399,7 @@ download_news () {
 	else
 		only_verbose echo "INFO: Attempting to download the NEWS.tgz file from the grid."
 		if "$TAHOE" get "$NEWSURI/NEWS.tgz" "$TMP_NEWS_DIR/NEWS.tgz" 2> /dev/null ; then
-			tar xf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
+			tar xzf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
 			print_news
 			return 0
 		else
