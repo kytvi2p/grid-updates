@@ -1,3 +1,10 @@
+2011-12-08 (version 0.3)
+
+	* New installation methods (`make install` and deb package)
+	* New --no-proxy option to bypass the HTTP proxy
+	* Updated documentation, including a man page
+	* Various minor improvements
+
 2011-12-04 (version 0.2)
 
 	* Various bug fixes (also checked for BSD compatibility)
