@@ -354,7 +354,7 @@ EOF
 
 check_newshtml_exists () {
 	TAHOE_CFG="$TAHOE_NODE_DIR/tahoe.cfg"
-	WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\s*=\s*//' $TAHOE_CFG)"
+	WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\ *=\ *//' $TAHOE_CFG)"
 	PUB_HTML_DIR="$TAHOE_NODE_DIR/$WEB_STATIC"
 	if [ ! -e $PUB_HTML_DIR/NEWS.html ]; then
 		check_pubhtml_permissions
