@@ -304,30 +304,60 @@ repair_subscriptions () {
 
 print_news () {
 	# if new NEWS...
-	if ! diff -N "$TAHOENEWS" "$TMPNEWS" > /dev/null ; then
+	if ! diff -N "$TAHOE_NEWS" "$TMP_NEWS_PLAIN" > /dev/null ; then
 		# move old news aside
-		if [ -e "$TAHOENEWS" ]; then
-			cp -f "$TAHOENEWS" "$OLDNEWS"
+		if [ -e "$TAHOE_NEWS" ]; then
+			cp -f "$TAHOE_NEWS" "$OLD_NEWS"
 		fi
 		# put new news into place
-		cp -f "$TMPNEWS" "$TAHOENEWS" > /dev/null
+		cp -f "$TMP_NEWS_PLAIN" "$TAHOE_NEWS" > /dev/null
 		# print
 		diff --ignore-all-space --ignore-blank-lines --new-file \
-		        "$OLDNEWS" "$TAHOENEWS" | sed -e '/^>/!d' -e 's/^>\ //'
+			"$OLD_NEWS" "$TAHOE_NEWS" | sed -e '/^>/!d' -e 's/^>\ //'
+		# Copy HTML version into place
+		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
 		return 0
 	else
 		only_verbose echo "INFO: There are no news."
+		# Copy HTML version into place
+		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
 		return 0
 	fi
 }
 
+check_pubhtml_permissions () {
+	TAHOE_CFG="$TAHOE_NODE_DIR/tahoe.cfg"
+	WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\s*=\s*//' $TAHOE_CFG)"
+	PUB_HTML_DIR="$TAHOE_NODE_DIR/$WEB_STATIC"
+	if [ ! $WEB_STATIC ]; then
+		echo "Error: could not find 'web.static' option in $TAHOE_CFG." >&2
+		return 1
+	fi
+	if [ ! -r $TAHOE_CFG ]; then
+		echo "Error: cannot read $TAHOE_CFG." >&2
+		return 1
+	fi
+	if [ ! -w "$PUB_HTML_DIR" ]; then
+		if ! mkdir $PUB_HTML_DIR ; then
+			echo "Error: cannot write to or create $PUB_HTML_DIR." >&2
+			return 1
+		fi
+	fi
+}
+
 download_news () {
-	TAHOENEWS="$TAHOE_NODE_DIR/NEWS"
-	check_permissions "news" "$TAHOENEWS"
-	TMPNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
-	OLDNEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
+	TAHOE_NEWS="$TAHOE_NODE_DIR/NEWS"
+	check_permissions "news" "$TAHOE_NEWS"
+	TMP_NEWS_TGZ=$(mktemp $LOCKDIR/grid-update.XXXX)
+	TMP_NEWS_DIR=$(mktemp -d $LOCKDIR/grid-update.XXXX)
+	TMP_NEWS_PLAIN="$TMP_NEWS_DIR/NEWS"
+	OLD_NEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
+
+	check_pubhtml_permissions
+
 	if [ $(echo $NEWSURI |egrep '^http:') ]; then
-		if eep_get "${NEWSURI}/NEWS" "$TMPNEWS" "news"; then
+		if eep_get "${NEWSURI}/NEWS.tgz" "$TMP_NEWS_DIR/NEWS.tgz" "news"; then
+			tar xf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
 			print_news
 			return 0
 		else
@@ -335,8 +365,9 @@ download_news () {
 			return 1
 		fi
 	else
-		only_verbose echo "INFO: Attempting to download the NEWS file from the grid."
-		if "$TAHOE" get "$NEWSURI/NEWS" "$TMPNEWS" 2> /dev/null ; then
+		only_verbose echo "INFO: Attempting to download the NEWS.tgz file from the grid."
+		if "$TAHOE" get "$NEWSURI/NEWS.tgz" "$TMP_NEWS_DIR/NEWS.tgz" 2> /dev/null ; then
+			tar xf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
 			print_news
 			return 0
 		else
