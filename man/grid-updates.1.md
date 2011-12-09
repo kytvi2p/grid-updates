@@ -29,9 +29,10 @@ ACTIONS
 :   Replace your node's local list of introducers with the master list.
 
 -n, \--download-news
-:   Retrieve news. These will be stored in [node directory]/NEWS and new
+:   Retrieve news. These will be stored in [node directory] and new
 	contents will be printed to stdout. If you run this script as a cron job,
-	the news will be emailed to you.
+	the news will be emailed to you. Furthermore, an HTML version is placed
+	into the node's web server's */static* directory.
 
 \--check-version
 :   Check for a new version of this script on the grid.
@@ -53,7 +54,7 @@ OPTIONS
 :   Override the default location of the introducers list.
 
 \--news-uri *URI*
-:   Override the default location of the NEWS file,
+:   Override the default location of the NEWS.tgz file.
 
 \--script-uri *URI*
 :   Override the default location of script updates.
@@ -89,6 +90,7 @@ FILES
 =====
 
 *~/.tahoe/NEWS*  
+*~/.tahoe/public_html/NEWS.html*  
 *~/.tahoe/introducers*
 
 BUGS

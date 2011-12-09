@@ -25,10 +25,12 @@ Replace your node's local list of introducers with the master list.
 .TP
 .B -n, --download-news
 Retrieve news.
-These will be stored in [node directory]/NEWS and new contents will
-be printed to stdout.
+These will be stored in [node directory] and new contents will be
+printed to stdout.
 If you run this script as a cron job, the news will be emailed to
 you.
+Furthermore, an HTML version is placed into the node's web server's
+\f[I]/static\f[] directory.
 .RS
 .RE
 .TP
@@ -60,7 +62,7 @@ Override the default location of the introducers list.
 .RE
 .TP
 .B --news-uri \f[I]URI\f[]
-Override the default location of the NEWS file,
+Override the default location of the NEWS.tgz file.
 .RS
 .RE
 .TP
@@ -114,6 +116,10 @@ or http://killyourtv.i2p.
 .SH FILES
 .PP
 \f[I]~/.tahoe/NEWS\f[]
+.PD 0
+.P
+.PD
+\f[I]~/.tahoe/public_html/NEWS.html\f[]
 .PD 0
 .P
 .PD
