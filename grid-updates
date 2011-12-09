@@ -431,7 +431,7 @@ check_version () {
 	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -r -t- -k2,2 -n | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
 		LATEST_AVAILABLE_VERSION=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
-		if [ $(uname -s |tr [A-Z] [a-z]) != "linux" ]; then
+		if [ $(uname -s |tr \[A-Z\] \[a-z\]) != "linux" ]; then
 			NEWEST_VERSION=$(echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -t- -k2,2 -n | head -n 1)
 		else
 			NEWEST_VERSION=$(/bin/echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -t- -k2,2 -n | head -n 1)
