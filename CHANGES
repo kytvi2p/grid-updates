@@ -1,3 +1,9 @@
+2011-12-09 (version 0.4)
+
+	* New news format: NEWS.tgz. The NEWS tarball contains the old plain text
+	  NEWS as well as an html version which will be placed into the Tahoe-LAFS
+	  web server's web.static directory.
+
 2011-12-08 (version 0.3)
 
 	* New installation methods (`make install` and deb package)

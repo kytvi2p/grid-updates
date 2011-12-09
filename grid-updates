@@ -15,7 +15,7 @@
 # For more information see the README.md and INSTALL.md files.
 
 # This script's version:
-VERSION='0.3'
+VERSION='0.4'
 
 ############################### Configuration #################################
 # Default location of the Tahoe-LAFS node:
