@@ -15,7 +15,7 @@
 # For more information see the README.md and INSTALL.md files.
 
 # This script's version:
-VERSION='0.4'
+VERSION='0.4-git'
 
 ############################### Configuration #################################
 # Default location of the Tahoe-LAFS node:
@@ -32,6 +32,16 @@ only_verbose () {
 	if [ $OPT_VERBOSE ]; then
 		$@
 	fi
+}
+
+pretty_print () {
+	while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
+}
+
+checking_failed ()
+{
+	echo "ERROR: failed to check $1 share." >&2
+	return 1
 }
 
 # Stop multiple instances from running simultaneously
@@ -61,7 +71,6 @@ else
                echo "ERROR: Another instance of `basename $0` is active with PID ${OTHERPID}" >&2
                exit ${ENO_LOCKFAIL}
        fi
-
        if ! kill -0 ${OTHERPID} >/dev/null 2>&1; then
                #stale lock, removing it and restarting
                only_verbose echo "INFO: Removing stale PID ${OTHERPID}" >&2
@@ -121,6 +130,12 @@ EOF
 TAHOE=$(which tahoe)
 [ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
 
+# Abort if any variables aren't initialized to try to prevent any surprises
+set -o nounset  # same as set -u
+set -e          # abort if there are any uncaught errors along the way
+
+### checks ###
+
 check_tahoe_node () {
 	if [ -d $TAHOE_NODE_DIR ]; then
 		if [ ! -e $TAHOE_NODE_DIR/node.url ]; then
@@ -134,10 +149,6 @@ check_tahoe_node () {
 	fi
 }
 
-# Abort if any variables aren't initialized to try to prevent any surprises
-set -o nounset  # same as set -u
-set -e          # abort if there are any uncaught errors along the way
-
 check_permissions () {
 	if [ ! -w $TAHOE_NODE_DIR ]; then
 		echo "ERROR: Need write permissions to "$TAHOE_NODE_DIR" to be able to update "$1"" >&2
@@ -149,23 +160,13 @@ check_permissions () {
 	fi
 }
 
-pretty_print () {
-	while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
-}
-
-download_list () {
-	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
-	if [ $(echo $LISTURI |egrep '^http:') ]; then
-		if ! eep_get "${LISTURI}/introducers" "$TMPLIST" "subscriptions"; then
-			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
-			return 1
-		fi
-	else
-		only_verbose echo "INFO: Attempting to download introducers list from the grid."
-		if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
-			echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
-			return 1
-		fi
+check_uri () {
+	# Tahoe URIs will start with URI:
+	#Yes, this is very rudimentary checking,
+	# but it's better than nothing...isn't it?
+	if [ ! $(echo "$1" | grep '^URI:') ] && [ ! $(echo "$1" | egrep '^http:') ] ; then
+		echo "ERROR: "$1" is not a valid ${2}-uri." >&2
+		return 1
 	fi
 }
 
@@ -173,11 +174,9 @@ eep_get () {
 	if [ -x "${HOME}/i2p/eepget" ] && [ ! $(echo ${PATH} | grep \/i2p) ]; then
 		PATH="${PATH}:${HOME}/i2p" # try to ensure eepget is found
 	fi
-
 	if [ $OPT_NOPROXY ]; then
 		unset http_proxy
 	fi
-
 	if [ $(which eepget) ]; then
 		EEPTOOL="eepget"
 		if [ $OPT_NOPROXY ]; then
@@ -198,7 +197,6 @@ eep_get () {
 		echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
 		return 1
 	fi
-
 	if [ x${1} = "x" ]; then
 		echo "INFO: Detected $EEPTOOL"
 	else
@@ -210,6 +208,24 @@ eep_get () {
 		$EEPFETCHCMD > /dev/null 2>&1
 		if [ $? -gt 0 ]; then
 			echo "ERROR: Failed to retrieve $3 from $1." >&2
+			return 1
+		fi
+	fi
+}
+
+#### introducers ####
+
+download_list () {
+	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
+	if [ $(echo $LISTURI |egrep '^http:') ]; then
+		if ! eep_get "${LISTURI}/introducers" "$TMPLIST" "subscriptions"; then
+			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
+			return 1
+		fi
+	else
+		only_verbose echo "INFO: Attempting to download introducers list from the grid."
+		if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
+			echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 			return 1
 		fi
 	fi
@@ -251,7 +267,6 @@ merge_list () {
 				| grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$'  | sort -u > "$INTRODUCER_LIST"  # merge
 			only_verbose echo "INFO: Success: the list has been retrieved and merged. (Changes will take effect upon restart of the node.)"
 		fi
-
 		return 0
 	fi
 }
@@ -274,54 +289,32 @@ replace_list () {
 	return 0
 }
 
-checking_failed ()
-{
-	echo "ERROR: failed to check $1 share." >&2
-	return 1
-}
+#### news ####
 
-deep_check () {
-	if [ $OPT_VERBOSE ]; then
-		"$TAHOE" deep-check -v --repair --add-lease "$1" 2>/dev/null >&1 | pretty_print
-	else
-		"$TAHOE" deep-check --repair --add-lease "$1" >/dev/null 2>&1
+check_pubhtml_permissions () {
+	if [ ! $WEB_STATIC ]; then
+		echo "Error: could not find 'web.static' option in $TAHOE_CFG." >&2
+		return 1
+	fi
+	if [ ! -r $TAHOE_CFG ]; then
+		echo "Error: cannot read $TAHOE_CFG." >&2
+		return 1
+	fi
+	if [ ! -w "$PUB_HTML_DIR" ]; then
+		if ! mkdir $PUB_HTML_DIR ; then
+			echo "Error: cannot write to or create $PUB_HTML_DIR." >&2
+			return 1
+		fi
 	fi
 }
 
-repair_subscriptions () {
-	check_tahoe_node
-
-	only_verbose echo "INFO: Beginning to check subscription shares."
-	only_verbose echo "INFO: Checking subscription share (1/3)."
-	deep_check "$LISTURI" || checking_failed "subscriptions"
-
-	only_verbose echo "INFO: Checking NEWS share (2/3)."
-	deep_check "$NEWSURI" || checking_failed "news"
-
-	only_verbose echo "INFO: Checking scripts share (3/3)."
-	deep_check "$SCRIPTURI" || checking_failed "scripts"
-}
-
-print_news () {
-	# if new NEWS...
-	if ! diff -N "$TAHOE_NEWS" "$TMP_NEWS_PLAIN" > /dev/null ; then
-		# move old news aside
-		if [ -e "$TAHOE_NEWS" ]; then
-			cp -f "$TAHOE_NEWS" "$OLD_NEWS"
-		fi
-		# put new news into place
-		cp -f "$TMP_NEWS_PLAIN" "$TAHOE_NEWS" > /dev/null
-		# print
-		diff --ignore-all-space --ignore-blank-lines --new-file \
-			"$OLD_NEWS" "$TAHOE_NEWS" | sed -e '/^>/!d' -e 's/^>\ //'
-		# Copy HTML version into place
-		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
-		return 0
-	else
-		only_verbose echo "INFO: There are no news."
-		# Copy HTML version into place
-		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
-		return 0
+check_newshtml_exists () {
+	TAHOE_CFG="$TAHOE_NODE_DIR/tahoe.cfg"
+	WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\ *=\ *//' $TAHOE_CFG)"
+	PUB_HTML_DIR="$TAHOE_NODE_DIR/$WEB_STATIC"
+	if [ ! -e $PUB_HTML_DIR/NEWS.html ]; then
+		check_pubhtml_permissions
+		make_newshtml_placeholder > $PUB_HTML_DIR/NEWS.html
 	fi
 }
 
@@ -352,30 +345,26 @@ cat << EOF
 EOF
 }
 
-check_newshtml_exists () {
-	TAHOE_CFG="$TAHOE_NODE_DIR/tahoe.cfg"
-	WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\ *=\ *//' $TAHOE_CFG)"
-	PUB_HTML_DIR="$TAHOE_NODE_DIR/$WEB_STATIC"
-	if [ ! -e $PUB_HTML_DIR/NEWS.html ]; then
-		check_pubhtml_permissions
-		make_newshtml_placeholder > $PUB_HTML_DIR/NEWS.html
-	fi
-}
-
-check_pubhtml_permissions () {
-	if [ ! $WEB_STATIC ]; then
-		echo "Error: could not find 'web.static' option in $TAHOE_CFG." >&2
-		return 1
-	fi
-	if [ ! -r $TAHOE_CFG ]; then
-		echo "Error: cannot read $TAHOE_CFG." >&2
-		return 1
-	fi
-	if [ ! -w "$PUB_HTML_DIR" ]; then
-		if ! mkdir $PUB_HTML_DIR ; then
-			echo "Error: cannot write to or create $PUB_HTML_DIR." >&2
-			return 1
+print_news () {
+	# if new NEWS...
+	if ! diff -N "$TAHOE_NEWS" "$TMP_NEWS_PLAIN" > /dev/null ; then
+		# move old news aside
+		if [ -e "$TAHOE_NEWS" ]; then
+			cp -f "$TAHOE_NEWS" "$OLD_NEWS"
 		fi
+		# put new news into place
+		cp -f "$TMP_NEWS_PLAIN" "$TAHOE_NEWS" > /dev/null
+		# print
+		diff --ignore-all-space --ignore-blank-lines --new-file \
+			"$OLD_NEWS" "$TAHOE_NEWS" | sed -e '/^>/!d' -e 's/^>\ //'
+		# Copy HTML version into place
+		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
+		return 0
+	else
+		only_verbose echo "INFO: There are no news."
+		# Copy HTML version into place
+		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
+		return 0
 	fi
 }
 
@@ -409,16 +398,28 @@ download_news () {
 	fi
 }
 
-check_uri () {
-	# Tahoe URIs will start with URI:
-	#Yes, this is very rudimentary checking,
-	# but it's better than nothing...isn't it?
+#### Tahoe deep-check ####
 
-	if [ ! $(echo "$1" | grep '^URI:') ] && [ ! $(echo "$1" | egrep '^http:') ] ; then
-		echo "ERROR: "$1" is not a valid ${2}-uri." >&2
-		return 1
+deep_check () {
+	if [ $OPT_VERBOSE ]; then
+		"$TAHOE" deep-check -v --repair --add-lease "$1" 2>/dev/null >&1 | pretty_print
+	else
+		"$TAHOE" deep-check --repair --add-lease "$1" >/dev/null 2>&1
 	fi
 }
+
+repair_subscriptions () {
+	check_tahoe_node
+	only_verbose echo "INFO: Beginning to check subscription shares."
+	only_verbose echo "INFO: Checking subscription share (1/3)."
+	deep_check "$LISTURI" || checking_failed "subscriptions"
+	only_verbose echo "INFO: Checking NEWS share (2/3)."
+	deep_check "$NEWSURI" || checking_failed "news"
+	only_verbose echo "INFO: Checking scripts share (3/3)."
+	deep_check "$SCRIPTURI" || checking_failed "scripts"
+}
+
+#### version / update check ####
 
 check_version () {
 	if [ $(echo $SCRIPTURI |egrep '^http:') ]; then
@@ -455,12 +456,10 @@ download_update () {
 		echo "ERROR: $UPDATE_DOWNLOAD_DIR is not a directory." >&2
 		exit 1
 	fi
-
 	if [ ! -w $UPDATE_DOWNLOAD_DIR ]; then
 		echo "ERROR: Cannot write to download directory $UPDATE_DOWNLOAD_DIR." >&2
 		exit 1
 	fi
-
 	if check_version; then
 		only_verbose echo "INFO: New version available: $LATEST_AVAILABLE_VERSION."
 		only_verbose echo "INFO: Attempting to download new version."
