@@ -429,7 +429,7 @@ check_version () {
 	LC_ALL=C # make sure sort order is what we expect
 	only_verbose echo "INFO: Attempting to check for new version."
 	# sort -V not on FreeBSD. These sort parameters were taken from http://stackoverflow.com/a/4046149
-	LATEST_VERSION_FILENAME=$(tahoe ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -r -t- -k2,2 -n | head -n 1)
+	LATEST_VERSION_FILENAME=$("$TAHOE" ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -r -t- -k2,2 -n | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
 		LATEST_AVAILABLE_VERSION=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
 		if [ $(uname -s |tr \[A-Z\] \[a-z\]) != "linux" ]; then
@@ -463,7 +463,7 @@ download_update () {
 	if check_version; then
 		only_verbose echo "INFO: New version available: $LATEST_AVAILABLE_VERSION."
 		only_verbose echo "INFO: Attempting to download new version."
-		if tahoe get $SCRIPTURI/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
+		if "$TAHOE" get $SCRIPTURI/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
 			echo "Update found (version $LATEST_AVAILABLE_VERSION) and downloaded to $UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME."
 		fi
 	else
