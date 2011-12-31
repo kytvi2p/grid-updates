@@ -255,7 +255,7 @@ parse_config_files () {
 ### checks ###
 
 check_tahoe_node () {
-	if [ -d $TAHOE_NODE_DIR ]; then
+	if [ -d "$TAHOE_NODE_DIR" ]; then
 		if [ ! -e $TAHOE_NODE_DIR/node.url ]; then
 			echo "ERROR: Cannot find $TAHOE_NODE_DIR/node.url. Not a valid tahoe node." >&2
 			exit 1
@@ -611,9 +611,6 @@ export http_proxy
 # We'll do our own checking from this point forward.
 set +u
 
-# Always check NEWS.html exists. Create a placeholder if it doesn't.
-check_newshtml_exists
-
 while [ $# -gt 0 ] ; do
 	case $1 in
 		# Options
@@ -727,6 +724,13 @@ done
 
 # Parse config files
 parse_config_files
+
+# Always check for valid Tahoe node directory.
+# If this stays we can remove a bunch of later checks.
+check_tahoe_node
+
+# Always check NEWS.html exists. Create a placeholder if it doesn't.
+check_newshtml_exists
 
 if [ $OPT_MERGE_LIST ] || [ $OPT_REPLACE_LIST ] || \
 [ $OPT_REPAIR_SUBSCRIPTIONS ] || [ $OPT_DOWNLOAD_NEWS ] || \
