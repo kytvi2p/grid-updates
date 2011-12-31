@@ -337,8 +337,8 @@ download_list () {
 		fi
 		filter_furls $DLLIST | sort -u > "$TMPLIST"
 	else
-		only_verbose echo "INFO: Attempting to download introducers list from the grid."
-		if ! "$TAHOE" get "$LISTURI"/introducers "$DLLIST" 2> /dev/null ; then
+		only_verbose echo "INFO: Attempting to download introducers list from the grid ($LISTURI)."
+		if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
 			echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 			return 1
 		fi
@@ -499,7 +499,7 @@ download_news () {
 			return 1
 		fi
 	else
-		only_verbose echo "INFO: Attempting to download the NEWS.tgz file from the grid."
+		only_verbose echo "INFO: Attempting to download the NEWS.tgz file from the grid ($NEWSURI)."
 		if "$TAHOE" get "$NEWSURI/NEWS.tgz" "$TMP_NEWS_DIR/NEWS.tgz" 2> /dev/null ; then
 			tar xzf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
 			print_news
@@ -541,7 +541,8 @@ check_version () {
 		return 1
 	fi
 	LC_ALL=C # make sure sort order is what we expect
-	only_verbose echo "INFO: Attempting to check for new version."
+	only_verbose echo "INFO: Attempting to check for new version (in $SCRIPTURI)."
+	# sort -V not on FreeBSD. These sort parameters were taken from http://stackoverflow.com/a/4046149
 	LATEST_VERSION_FILENAME=$("$TAHOE" ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -r -V | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
 		LATEST_AVAILABLE_VERSION=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
