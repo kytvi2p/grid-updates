@@ -26,7 +26,7 @@ DEFAULT_LISTURI='URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4m
 DEFAULT_NEWSURI='URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q'
 # Default location (directory) of script releases:
 DEFAULT_SCRIPTURI='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
-
+DEFAULT_HTTP_PROXY='127.0.0.1:4444'
 ###############################################################################
 
 [ -z "$XDG_CONFIG_HOME" ] && XDG_CONFIG_HOME="$HOME/.config"
@@ -198,10 +198,6 @@ set -e          # abort if there are any uncaught errors along the way
 
 ### config files ###
 
-# TODO
-# - node dir
-# - http_proxy
-
 read_config_file () {
 	PARSED_LISTURI=$(grep "^LISTURI" $CONFIG_FILE |
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
@@ -211,6 +207,8 @@ read_config_file () {
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
 	PARSED_TAHOE_NODE_DIR=$(grep "^TAHOE_NODE_DIR" $CONFIG_FILE |
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
+	PARSED_HTTP_PROXY=$(grep "^HTTP_PROXY" $CONFIG_FILE |
+		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)/\1/')
 	if [ -z $LISTURI ] && [ -n $PARSED_LISTURI ]; then
 		LISTURI="$PARSED_LISTURI"
 	fi
@@ -222,6 +220,9 @@ read_config_file () {
 	fi
 	if [ -z $TAHOE_NODE_DIR ] && [ -n $PARSED_TAHOE_NODE_DIR ]; then
 		TAHOE_NODE_DIR="$PARSED_TAHOE_NODE_DIR"
+	fi
+	if [ -z $http_proxy ] && [ -n $PARSED_HTTP_PROXY ]; then
+		http_proxy="$PARSED_HTTP_PROXY"
 	fi
 	return 0
 }
@@ -249,6 +250,7 @@ parse_config_files () {
 	[ -z $NEWSURI ] && NEWSURI="$DEFAULT_NEWSURI"
 	[ -z $SCRIPTURI ] && SCRIPTURI="$DEFAULT_SCRIPTURI"
 	[ -z $TAHOE_NODE_DIR ] && TAHOE_NODE_DIR="$DEFAULT_TAHOE_NODE_DIR"
+	[ -z $http_proxy ] && http_proxy="$DEFAULT_HTTP_PROXY"
 	return 0
 }
 
@@ -603,10 +605,6 @@ download_update () {
 	fi
 }
 
-# Useful constants
-: ${http_proxy:="127.0.0.1:4444"}
-export http_proxy
-
 # some of those variables will not be initialized--and that's OK.
 # We'll do our own checking from this point forward.
 set +u
@@ -724,6 +722,8 @@ done
 
 # Parse config files
 parse_config_files
+
+export http_proxy
 
 # Always check for valid Tahoe node directory.
 # If this stays we can remove a bunch of later checks.
