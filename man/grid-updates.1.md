@@ -59,6 +59,9 @@ OPTIONS
 \--script-uri *URI*
 :   Override the default location of script updates.
 
+\--no-proxy
+:   Disable proxy when downloading from non-tahoe URIs
+
 -v, \--verbose
 :   Display more verbose output.
 
