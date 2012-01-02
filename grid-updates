@@ -198,19 +198,29 @@ set -e          # abort if there are any uncaught errors along the way
 
 ### config files ###
 
-read_config_file () {
+# TODO: HTTP_PROXY = none or NO_PROXY = yes ?
+
+parse_config_item () {
+	OPTION=$1
+	if grep -q "^$OPTION" $CONFIG_FILE ; then
+		# XXX: are these regex's too broad?
+		PARSED_OPTION=$(grep "^$OPTION" $CONFIG_FILE | sed -e 's/^\w\+[\ \t]*=[\ \t]*\(.*\)$/\1/')
+		if [ -z $PARSED_OPTION ]; then
+			echo "WARNING: Illegal value for '$OPTION' in $CONFIG_FILE. Ignoring it."
+		else
+			export PARSED_$OPTION="$PARSED_OPTION"
+		fi
+	fi
+	unset PARSED_OPTION
+}
+
+parse_config_file () {
 	# Parse option if available
-	# XXX: are these regex's too broad?
-	PARSED_LISTURI=$(grep "^LISTURI" $CONFIG_FILE |
-		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
-	PARSED_NEWSURI=$(grep "^NEWSURI" $CONFIG_FILE |
-		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
-	PARSED_SCRIPTURI=$(grep "^SCRIPTURI" $CONFIG_FILE |
-		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
-	PARSED_TAHOE_NODE_DIR=$(grep "^TAHOE_NODE_DIR" $CONFIG_FILE |
-		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
-	PARSED_HTTP_PROXY=$(grep "^HTTP_PROXY" $CONFIG_FILE |
-		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)/\1/')
+	parse_config_item "LISTURI"
+	parse_config_item "NEWSURI"
+	parse_config_item "SCRIPTURI"
+	parse_config_item "TAHOE_NODE_DIR" # XXX properly understand variables in paths ($HOME/~)
+	parse_config_item "HTTP_PROXY"
 	# Set parsed value if option is still unset
 	if [ -z $LISTURI ] && [ -n $PARSED_LISTURI ]; then
 		LISTURI="$PARSED_LISTURI"
@@ -230,12 +240,12 @@ read_config_file () {
 	return 0
 }
 
-parse_config_files () {
+read_config_files () {
 	# Parse specified config file (--config)
 	if [ $OPT_CONFIG_FILE ] ; then
 		CONFIG_FILE="$SPECIFIED_CONFIG_FILE"
 		if [ -f "$CONFIG_FILE" ]; then
-			read_config_file
+			parse_config_file
 		else
 			echo "ERROR: Config file $CONFIG_FILE not found."
 			exit 1
@@ -244,11 +254,11 @@ parse_config_files () {
 	# Parse files in standard locations if available
 	if [ -f $XDG_CONFIG_HOME/grid-updates/grid-updates.conf ]; then
 		CONFIG_FILE="$XDG_CONFIG_HOME/grid-updates/grid-updates.conf"
-		read_config_file
+		parse_config_file
 	fi
 	if [ -f $XDG_CONFIG_DIRS/grid-updates.conf ]; then
 		CONFIG_FILE="$XDG_CONFIG_DIRS/grid-updates.conf"
-		read_config_file
+		parse_config_file
 	fi
 	# Apply default values where necessary
 	[ -z $LISTURI ] && LISTURI="$DEFAULT_LISTURI"
@@ -730,7 +740,7 @@ done
 ### Tasks and checks to be run before any action ###
 
 # Parse config files
-parse_config_files
+read_config_files
 
 export http_proxy
 
