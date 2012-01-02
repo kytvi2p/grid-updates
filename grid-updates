@@ -255,12 +255,12 @@ read_config_files () {
 		fi
 	fi
 	# Parse files in standard locations if available
-	if [ -f $XDG_CONFIG_HOME/grid-updates/grid-updates.conf ]; then
-		CONFIG_FILE="$XDG_CONFIG_HOME/grid-updates/grid-updates.conf"
+	if [ -f $XDG_CONFIG_HOME/grid-updates/config ]; then
+		CONFIG_FILE="$XDG_CONFIG_HOME/grid-updates/config"
 		parse_config_file
 	fi
-	if [ -f $XDG_CONFIG_DIRS/grid-updates/grid-updates.conf ]; then
-		CONFIG_FILE="$XDG_CONFIG_DIRS/grid-updates/grid-updates.conf"
+	if [ -f $XDG_CONFIG_DIRS/grid-updates/config ]; then
+		CONFIG_FILE="$XDG_CONFIG_DIRS/grid-updates/config"
 		parse_config_file
 	fi
 	# Apply default values where necessary
