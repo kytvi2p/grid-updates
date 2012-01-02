@@ -581,30 +581,32 @@ while [ $# -gt 0 ] ; do
 	esac
 done
 
-if [ ! $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ] && \
-[ ! $OPT_REPAIR_SUBSCRIPTIONS ] && [ ! $OPT_DOWNLOAD_NEWS ] && \
-[ ! $OPT_CHECK_VERSION ] && [ ! $OPT_DOWNLOAD_UPDATE ]; then
+if [ $OPT_MERGE_LIST ] || [ $OPT_REPLACE_LIST ] || \
+[ $OPT_REPAIR_SUBSCRIPTIONS ] || [ $OPT_DOWNLOAD_NEWS ] || \
+[ $OPT_CHECK_VERSION ] || [ $OPT_DOWNLOAD_UPDATE ];
+then
+	[ $OPT_REPAIR_SUBSCRIPTIONS ] && repair_subscriptions
+	if [ $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ]; then
+		merge_list
+	elif [ ! $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
+		replace_list
+	elif [ $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
+		echo "ERROR: --merge-introducers and --replace-introducers are mutually exclusive." >&2
+		print_help
+		exit 1
+	fi
+	[ $OPT_DOWNLOAD_NEWS ] && download_news
+	if [ $OPT_CHECK_VERSION ] && [ $OPT_DOWNLOAD_UPDATE ]; then
+		download_update
+	elif [ $OPT_DOWNLOAD_UPDATE ]; then
+		download_update
+	elif [ $OPT_CHECK_VERSION ]; then
+		check_version
+	fi
+else
 	echo "ERROR: You need to specify an action." >&2
 	print_help
 	exit 1
-fi
-[ $OPT_REPAIR_SUBSCRIPTIONS ] && repair_subscriptions
-if [ $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ]; then
-	merge_list
-elif [ ! $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
-	replace_list
-elif [ $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
-	echo "ERROR: --merge-introducers and --replace-introducers are mutually exclusive." >&2
-	print_help
-	exit 1
-fi
-[ $OPT_DOWNLOAD_NEWS ] && download_news
-if [ $OPT_CHECK_VERSION ] && [ $OPT_DOWNLOAD_UPDATE ]; then
-	download_update
-elif [ $OPT_DOWNLOAD_UPDATE ]; then
-	download_update
-elif [ $OPT_CHECK_VERSION ]; then
-	check_version
 fi
 
 exit 0
