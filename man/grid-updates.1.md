@@ -88,7 +88,7 @@ SCRIPTURI = *URI*
 HTTP_PROXY = *address*
 :    (The default is 127.0.0.1:4444)
 NO_PROXY = *yes*/*no*
-:    Do not use a proxy (yes) for HTTP URI's.
+:    Same as \--no-proxy option above.
 
 NOTES
 =====
@@ -119,8 +119,8 @@ FILES
 *~/.tahoe/NEWS*  
 *~/.tahoe/public_html/NEWS.html*  
 *~/.tahoe/introducers*  
-*\$XDG_CONFIG_HOME/grid-updates/grid-updates.conf* (most commonly ~/.config)  
-*\$XDG_CONFIG_DIRS/grid-updates/grid-updates.conf* (most commonly /etc/xdg)  
+*\$XDG_CONFIG_HOME/grid-updates/config* (most commonly ~/.config)  
+*\$XDG_CONFIG_DIRS/grid-updates/config* (most commonly /etc/xdg)  
 
 BUGS
 ====
