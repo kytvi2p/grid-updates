@@ -17,9 +17,9 @@
 # This script's version:
 VERSION='0.4.1-git'
 
-############################### Configuration #################################
+################################## DEFAULTS ###################################
 # Default location of the Tahoe-LAFS node:
-#TAHOE_NODE_DIR="$HOME/.tahoe"
+DEFAULT_TAHOE_NODE_DIR="$HOME/.tahoe"
 # Default location (directory) of the subscription list:
 DEFAULT_LISTURI='URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua'
 # Default location (directory) of the NEWS file:
@@ -209,9 +209,12 @@ read_config_file () {
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
 	PARSED_SCRIPTURI=$(grep "^SCRIPTURI" $CONFIG_FILE |
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
+	PARSED_TAHOE_NODE_DIR=$(grep "^TAHOE_NODE_DIR" $CONFIG_FILE |
+		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*)$/\1/')
 	[ -n "$PARSED_LISTURI" ] && LISTURI="$PARSED_LISTURI" || LISTURI="$DEFAULT_LISTURI"
 	[ -n "$PARSED_NEWSURI" ] && NEWSURI="$PARSED_NEWSURI" || NEWSURI="$DEFAULT_NEWSURI"
 	[ -n "$PARSED_SCRIPTURI" ] && SCRIPTURI="$PARSED_SCRIPTURI" || SCRIPTURI="$DEFAULT_SCRIPTURI"
+	[ -n "$PARSED_TAHOE_NODE_DIR" ] && TAHOE_NODE_DIR="$PARSED_TAHOE_NODE_DIR" || TAHOE_NODE_DIR="$DEFAULT_TAHOE_NODE_DIR"
 	return 0
 }
 
