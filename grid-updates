@@ -200,12 +200,13 @@ set -e          # abort if there are any uncaught errors along the way
 
 read_config_file () {
 	# Parse option if available
+	# XXX: are these regex's too broad?
 	PARSED_LISTURI=$(grep "^LISTURI" $CONFIG_FILE |
-		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
+		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
 	PARSED_NEWSURI=$(grep "^NEWSURI" $CONFIG_FILE |
-		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
+		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
 	PARSED_SCRIPTURI=$(grep "^SCRIPTURI" $CONFIG_FILE |
-		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
+		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
 	PARSED_TAHOE_NODE_DIR=$(grep "^TAHOE_NODE_DIR" $CONFIG_FILE |
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
 	PARSED_HTTP_PROXY=$(grep "^HTTP_PROXY" $CONFIG_FILE |
