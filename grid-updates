@@ -198,8 +198,6 @@ set -e          # abort if there are any uncaught errors along the way
 
 ### config files ###
 
-# TODO: HTTP_PROXY = none or NO_PROXY = yes ?
-
 parse_config_item () {
 	OPTION=$1
 	if grep -q "^$OPTION" $CONFIG_FILE ; then
@@ -222,6 +220,7 @@ parse_config_file () {
 	parse_config_item "SCRIPTURI"
 	parse_config_item "TAHOE_NODE_DIR" # XXX properly understand variables in paths ($HOME/~)
 	parse_config_item "HTTP_PROXY"
+	parse_config_item "NO_PROXY"
 	# Set parsed value if option is still unset
 	if [ -z $LISTURI ] && [ -n $PARSED_LISTURI ]; then
 		LISTURI="$PARSED_LISTURI"
@@ -237,6 +236,9 @@ parse_config_file () {
 	fi
 	if [ -z $http_proxy ] && [ -n $PARSED_HTTP_PROXY ]; then
 		http_proxy="$PARSED_HTTP_PROXY"
+	fi
+	if [ "$PARSED_NO_PROXY" = "yes" ]; then
+		OPT_NOPROXY=1
 	fi
 	return 0
 }
