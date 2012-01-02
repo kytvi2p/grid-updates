@@ -71,6 +71,25 @@ OPTIONS
 -h, \--help
 :   Print usage information.
 
+CONFIG FILES
+============
+
+*grid-updates* will look for configuration files in $XDG_CONFIG_HOME and
+$XDG_CONFIG_DIRS.
+
+Accepted options are:
+
+LISTURI = *URI*
+:    Same as \--list-uri option above
+NEWSURI = *URI*
+:    Same as \--news-uri option above
+SCRIPTURI = *URI*
+:    Same as \--script-uri option above
+HTTP_PROXY = *address*
+:    (The default is 127.0.0.1:4444)
+NO_PROXY = *yes*/*no*
+:    Do not use a proxy (yes) for HTTP URI's.
+
 NOTES
 =====
 
@@ -99,7 +118,9 @@ FILES
 
 *~/.tahoe/NEWS*  
 *~/.tahoe/public_html/NEWS.html*  
-*~/.tahoe/introducers*
+*~/.tahoe/introducers*  
+*\$XDG_CONFIG_HOME/grid-updates/grid-updates.conf* (most commonly ~/.config)  
+*\$XDG_CONFIG_DIRS/grid-updates/grid-updates.conf* (most commonly /etc/xdg)  
 
 BUGS
 ====

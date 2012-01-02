@@ -90,6 +90,37 @@ Display version information.
 Print usage information.
 .RS
 .RE
+.SH CONFIG FILES
+.PP
+\f[I]grid-updates\f[] will look for configuration files in
+$XDG_CONFIG_HOME and $XDG_CONFIG_DIRS.
+.PP
+Accepted options are:
+.TP
+.B LISTURI = \f[I]URI\f[]
+Same as --list-uri option above
+.RS
+.RE
+.TP
+.B NEWSURI = \f[I]URI\f[]
+Same as --news-uri option above
+.RS
+.RE
+.TP
+.B SCRIPTURI = \f[I]URI\f[]
+Same as --script-uri option above
+.RS
+.RE
+.TP
+.B HTTP_PROXY = \f[I]address\f[]
+(The default is 127.0.0.1:4444)
+.RS
+.RE
+.TP
+.B NO_PROXY = \f[I]yes\f[]/\f[I]no\f[]
+Do not use a proxy for HTTP URI's.
+.RS
+.RE
 .SH NOTES
 .PP
 \f[I]URIs\f[], in this context, can be either Tahoe-LAFS
@@ -132,6 +163,17 @@ information.
 .P
 .PD
 \f[I]~/.tahoe/introducers\f[]
+.PD 0
+.P
+.PD
+\f[I]$XDG_CONFIG_HOME/grid-updates/grid-updates.conf\f[]
+(commonly
+~/.config)
+.PD 0
+.P
+.PD
+\f[I]$XDG_CONFIG_DIRS/grid-updates/grid-updates.conf\f[]
+(commonly /etc/xdg)
 .SH BUGS
 .PP
 Please report bugs in #tahoe-lafs on Irc2p or via email (see
