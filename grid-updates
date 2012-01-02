@@ -109,10 +109,10 @@ Options:
     --node-directory [directory]
     --list-uri [URI]            Override default location of introducers
                                 list
-    --no-proxy                  Disable proxy when downloading from non-tahoe
-                                URIs
     --news-uri [URI]            Override default location of news file
     --script-uri [URI]          Override default location of script updates
+    --no-proxy                  Disable proxy when downloading from non-tahoe
+                                URIs
     -v, --verbose               Display more verbose output
     -V, --version               Display version information
     -h, --help                  Print this help text
