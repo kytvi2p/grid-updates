@@ -199,6 +199,7 @@ set -e          # abort if there are any uncaught errors along the way
 ### config files ###
 
 read_config_file () {
+	# Parse option if available
 	PARSED_LISTURI=$(grep "^LISTURI" $CONFIG_FILE |
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
 	PARSED_NEWSURI=$(grep "^NEWSURI" $CONFIG_FILE |
@@ -209,6 +210,7 @@ read_config_file () {
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)$/\1/')
 	PARSED_HTTP_PROXY=$(grep "^HTTP_PROXY" $CONFIG_FILE |
 		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(.*\)/\1/')
+	# Set parsed value if option is still unset
 	if [ -z $LISTURI ] && [ -n $PARSED_LISTURI ]; then
 		LISTURI="$PARSED_LISTURI"
 	fi
@@ -228,6 +230,7 @@ read_config_file () {
 }
 
 parse_config_files () {
+	# Parse specified config file (--config)
 	if [ $OPT_CONFIG_FILE ] ; then
 		CONFIG_FILE="$SPECIFIED_CONFIG_FILE"
 		if [ -f "$CONFIG_FILE" ]; then
@@ -237,6 +240,7 @@ parse_config_files () {
 			exit 1
 		fi
 	fi
+	# Parse files in standard locations if available
 	if [ -f $XDG_CONFIG_HOME/grid-updates/grid-updates.conf ]; then
 		CONFIG_FILE="$XDG_CONFIG_HOME/grid-updates/grid-updates.conf"
 		read_config_file
@@ -609,6 +613,8 @@ download_update () {
 # We'll do our own checking from this point forward.
 set +u
 
+### CLI option evaluation ###
+
 while [ $# -gt 0 ] ; do
 	case $1 in
 		# Options
@@ -720,6 +726,8 @@ while [ $# -gt 0 ] ; do
 	esac
 done
 
+### Tasks and checks to be run before any action ###
+
 # Parse config files
 parse_config_files
 
@@ -732,11 +740,15 @@ check_tahoe_node
 # Always check NEWS.html exists. Create a placeholder if it doesn't.
 check_newshtml_exists
 
+### Run selected actions ###
+
+# Check if an obligatory option has been specified:
 if [ $OPT_MERGE_LIST ] || [ $OPT_REPLACE_LIST ] || \
 [ $OPT_REPAIR_SUBSCRIPTIONS ] || [ $OPT_DOWNLOAD_NEWS ] || \
 [ $OPT_CHECK_VERSION ] || [ $OPT_DOWNLOAD_UPDATE ];
 then
 	[ $OPT_REPAIR_SUBSCRIPTIONS ] && repair_subscriptions
+	# Make sure no conflicting options have been specified:
 	if [ $OPT_MERGE_LIST ] && [ ! $OPT_REPLACE_LIST ]; then
 		merge_list
 	elif [ ! $OPT_MERGE_LIST ] && [ $OPT_REPLACE_LIST ]; then
@@ -747,6 +759,8 @@ then
 		exit 1
 	fi
 	[ $OPT_DOWNLOAD_NEWS ] && download_news
+	# Only run download_update if both --check-version and --download-update
+	# have been specified:
 	if [ $OPT_CHECK_VERSION ] && [ $OPT_DOWNLOAD_UPDATE ]; then
 		download_update
 	elif [ $OPT_DOWNLOAD_UPDATE ]; then
