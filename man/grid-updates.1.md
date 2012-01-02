@@ -82,12 +82,17 @@ ERRORS
 ======
 
 If the script repeatedly fails to retrieve a file from the grid, the share may
-be damaged. Try running `--repair-subscriptions` which will attempt to
-deep-check the share. If that doesn't help, you will most likely have to find
-new URIs to subscribe to. Use `--check-version` to see if there is a new
-version of *grid-updates* available, which may already include new default
-URIs.  You can also ask in #tahoe-lafs (on Irc2P) and check the DeepWiki or
-http://killyourtv.i2p.
+be damaged.  Run `--repair-subscriptions` which will attempt to deep-check the
+share.
+
+If that doesn't help, you will most likely have to find new URIs to subscribe
+to.
+
+Use `--check-version` to see if there is a new version of *grid-updates*
+available, which may already include new default URIs.
+
+Finally, you can check on IRC, mailing lists and Wikis for updated
+information.
 
 FILES
 =====
@@ -109,6 +114,8 @@ The *grid-updates* git repository: http://git.repo.i2p/w/grid-updates.git
 The README on the grid:
 
     URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
+
+Information about Tahoe-LAFS for I2P and the I2P grid: http://killyourtv.i2p
 
 LICENSE
 =======

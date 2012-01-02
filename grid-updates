@@ -87,7 +87,7 @@ fi
 print_help () {
 cat << EOF
 
-Usage: $0 [OPTIONS] [ACTION]
+Usage: $0 [OPTIONS] [ACTIONS]
 
 Actions:
     -m, --merge-introducers     Merge your local introducers list with the
@@ -119,10 +119,8 @@ Options:
 
 Errors:
     If the script repeatedly fails to retrieve a file from the grid, the share
-    may be damaged.  Try running --repair-subscriptions which will try to
-    repair it.  If that doesn't help, you will most likely have to find a new
-    URI to subscribe to.  Ask in #tahoe-lafs on Irc2P, check the DeepWiki
-    and/or http://killyourtv.i2p.
+    may be damaged.  See the ERRORS section in the man page (\`man
+    grid-updates\`) for solutions.
 
 EOF
 }
