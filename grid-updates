@@ -204,7 +204,8 @@ parse_config_item () {
 	OPTION=$1
 	if grep -q "^$OPTION" $CONFIG_FILE ; then
 		# XXX: are these regex's too broad?
-		PARSED_OPTION=$(grep "^$OPTION" $CONFIG_FILE | sed -e 's/^\w\+[\ \t]*=[\ \t]*\(.*\)$/\1/')
+		PARSED_OPTION=$(grep "^$OPTION" $CONFIG_FILE |
+			sed -e s/[\"\']//g -e 's/^\w\+[\ \t]*=[\ \t]*\(.*\)$/\1/')
 		if [ -z $PARSED_OPTION ]; then
 			echo "WARNING: Illegal value for '$OPTION' in $CONFIG_FILE. Ignoring it."
 		else
