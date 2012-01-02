@@ -485,6 +485,7 @@ check_newshtml_exists
 
 while [ $# -gt 0 ] ; do
 	case $1 in
+		# Options
 		--node-directory|-d)
 			if [ -z "$2" ]; then
 				echo "ERROR: Tahoe node directory not specified." >&2
@@ -494,7 +495,7 @@ while [ $# -gt 0 ] ; do
 			TAHOE_NODE_DIR=$2
 			shift 2
 			check_tahoe_node
-		;;
+			;;
 		--list-uri)
 			if [ -z "$2" ]; then
 				echo "ERROR: list-uri not specified." >&2
@@ -504,7 +505,7 @@ while [ $# -gt 0 ] ; do
 			LISTURI=$2
 			shift 2
 			check_uri "$LISTURI" "list"
-		;;
+			;;
 		--news-uri)
 			if [ -z "$2" ]; then
 				echo "ERROR: news-uri not specified." >&2
@@ -514,7 +515,7 @@ while [ $# -gt 0 ] ; do
 			NEWSURI=$2
 			shift 2
 			check_uri "$NEWSURI" "news"
-		;;
+			;;
 		--script-uri)
 			if [ -z "$2" ]; then
 				echo "ERROR: script-uri not specified." >&2
@@ -524,33 +525,34 @@ while [ $# -gt 0 ] ; do
 			SCRIPTURI=$2
 			shift 2
 			check_uri "$SCRIPTURI" "script"
-		;;
+			;;
+		--no-proxy)
+			OPT_NOPROXY=1
+			shift
+			;;
+		--verbose|-v)
+			OPT_VERBOSE=1
+			shift
+			;;
+		# Actions
 		--merge-introducers|-m)
 			OPT_MERGE_LIST=1
 			shift
-		;;
+			;;
 		--replace-introducers|-r)
 			OPT_REPLACE_LIST=1
 			shift
-		;;
+			;;
 		--repair-subscriptions|-R)
 			OPT_REPAIR_SUBSCRIPTIONS=1
 			shift
-		;;
+			;;
 		--download-news|-n)
 			OPT_DOWNLOAD_NEWS=1
 			shift
-		;;
-		--version|-V)
-			echo "$(basename $0) version: $VERSION"
-			exit 0
-		;;
+			;;
 		--check-version)
 			OPT_CHECK_VERSION=1
-			shift
-		;;
-		--no-proxy)
-			OPT_NOPROXY=1
 			shift
 			;;
 		--download-update)
@@ -564,20 +566,20 @@ while [ $# -gt 0 ] ; do
 				OPT_DOWNLOAD_UPDATE=1
 				shift 2
 			fi
-		;;
-		--verbose|-v)
-			OPT_VERBOSE=1
-			shift
-		;;
+			;;
+		--version|-V)
+			echo "$(basename $0) version: $VERSION"
+			exit 0
+			;;
 		--help|-h)
 			print_help
 			exit
-		;;
+			;;
 		*)
 			echo "ERROR: Unknown command." >&2
 			print_help
 			exit 1
-		;;
+			;;
 	esac
 done
 
