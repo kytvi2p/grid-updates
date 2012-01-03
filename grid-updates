@@ -165,14 +165,14 @@ Actions:
     --check-version             Check for a new version of this script on the
                                 grid
     --download-update           Download a new version of this script from the
-        [target directory]      grid (implies --check-version)
-    -R, --repair-subscriptions  Maintain or repair the health of the subscription
-                                service's URI
+      [target directory]        grid (implies --check-version)
+    -R, --repair-subscriptions  Maintain or repair the health of the
+                                subscription service's URI
 Options:
     -c [config file],           Specify a grid-updates config file
-    --config [config file]
+      --config [config file]
     -d [directory],             Specify the node directory (default: ~/.tahoe)
-    --node-directory [directory]
+      --node-directory [directory]
     --list-uri [URI]            Override default location of introducers
                                 list
     --news-uri [URI]            Override default location of news file
