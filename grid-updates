@@ -204,11 +204,11 @@ parse_config_item () {
 		# XXX: are these regex's too broad?
 		PARSED_OPTION=$(grep --max-count=1 "^$OPTION" $CONFIG_FILE |
 			sed -e s/[\"\']//g -e 's/^\w\+[\ \t]*=[\ \t]*\(.*\)$/\1/')
-		if [ -z $PARSED_OPTION ]; then
+		if [ -z "$PARSED_OPTION" ]; then
 			echo "WARNING: Illegal value for '$OPTION' in $CONFIG_FILE. Ignoring it."
 		else
 			eval "PARSED_$OPTION=$PARSED_OPTION"
-			export $PARSED_$OPTION
+			export "PARSED_$OPTION"
 		fi
 	fi
 	unset PARSED_OPTION
@@ -289,7 +289,7 @@ check_tahoe_node () {
 }
 
 check_permissions () {
-	if [ ! -w $TAHOE_NODE_DIR ]; then
+	if [ ! -w "$TAHOE_NODE_DIR" ]; then
 		echo "ERROR: Need write permissions to "$TAHOE_NODE_DIR" to be able to update "$1"" >&2
 		exit 1
 	fi
