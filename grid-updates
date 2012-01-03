@@ -214,18 +214,21 @@ eep_get () {
 #### introducers ####
 
 download_list () {
+	DLLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ $(echo $LISTURI |egrep '^http:') ]; then
-		if ! eep_get "${LISTURI}/introducers" "$TMPLIST" "subscriptions"; then
+		if ! eep_get "${LISTURI}/introducers" "$DLLIST" "subscriptions"; then
 			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
 			return 1
 		fi
+		grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$' $DLLIST | sort -u > "$TMPLIST"
 	else
 		only_verbose echo "INFO: Attempting to download introducers list from the grid."
-		if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
+		if ! "$TAHOE" get "$LISTURI"/introducers "$DLLIST" 2> /dev/null ; then
 			echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 			return 1
 		fi
+		grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$' $DLLIST | sort -u > "$TMPLIST"
 	fi
 }
 
