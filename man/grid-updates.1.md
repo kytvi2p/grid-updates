@@ -47,6 +47,9 @@ ACTIONS
 OPTIONS
 =======
 
+-c *config file*, \--config *config file*
+:   Specify a grid-updates config file. See `CONFIG FILES` section below.
+
 -d *directory*, \--node-directory *directory*
 :   Specify the node directory (default: *~/.tahoe*),
 

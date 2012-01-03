@@ -169,6 +169,8 @@ Actions:
     -R, --repair-subscriptions  Maintain or repair the health of the subscription
                                 service's URI
 Options:
+    -c [config file],           Specify a grid-updates config file
+    --config [config file]
     -d [directory],             Specify the node directory (default: ~/.tahoe)
     --node-directory [directory]
     --list-uri [URI]            Override default location of introducers
