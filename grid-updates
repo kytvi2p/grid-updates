@@ -746,6 +746,9 @@ done
 # Parse config files
 read_config_files
 
+# Debug output (should probably be removed again)
+only_verbose echo "INFO: Using Tahoe node dir: $TAHOE_NODE_DIR"
+
 export http_proxy
 
 # Always check for valid Tahoe node directory.
