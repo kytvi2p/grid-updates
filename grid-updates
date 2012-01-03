@@ -213,6 +213,10 @@ eep_get () {
 
 #### introducers ####
 
+filter_furls () {
+	grep --no-filename -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$' $@
+}
+
 download_list () {
 	DLLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
@@ -221,14 +225,14 @@ download_list () {
 			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
 			return 1
 		fi
-		grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$' $DLLIST | sort -u > "$TMPLIST"
+		filter_furls $DLLIST | sort -u > "$TMPLIST"
 	else
 		only_verbose echo "INFO: Attempting to download introducers list from the grid."
 		if ! "$TAHOE" get "$LISTURI"/introducers "$DLLIST" 2> /dev/null ; then
 			echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 			return 1
 		fi
-		grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$' $DLLIST | sort -u > "$TMPLIST"
+		filter_furls $DLLIST | sort -u > "$TMPLIST"
 	fi
 }
 
@@ -258,14 +262,12 @@ merge_list () {
 		check_permissions "the subscription list" "$INTRODUCER_LIST"
 		download_list
 		backup_list
-		cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
-			| grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$' | sort -u > "$TMPLIST2"
+		filter_furls "$INTRODUCER_LIST.bak" "$TMPLIST" | sort -u > "$TMPLIST2"
 		if diff -N "$TMPLIST2" "$INTRODUCER_LIST" > /dev/null 2>&1 ; then
 			only_verbose echo "INFO: No new introducers found."
 			return 0
 		else
-			cat "$INTRODUCER_LIST.bak" "$TMPLIST" \
-				| grep -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$'  | sort -u > "$INTRODUCER_LIST"  # merge
+		filter_furls "$INTRODUCER_LIST.bak" "$TMPLIST" | sort -u > "$INTRODUCER_LIST" # merge
 			only_verbose echo "INFO: Success: the list has been retrieved and merged. (Changes will take effect upon restart of the node.)"
 		fi
 		return 0
