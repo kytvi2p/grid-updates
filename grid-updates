@@ -223,7 +223,7 @@ parse_config_file () {
 	parse_config_item "SCRIPTURI"
 	parse_config_item "TAHOE_NODE_DIR"
 	parse_config_item "HTTP_PROXY"
-	parse_config_item "NO_PROXY"
+	parse_config_item "USE_PROXY"
 	# Set parsed value if option is still unset
 	if [ -z $LISTURI ] && [ -n $PARSED_LISTURI ]; then
 		LISTURI="$PARSED_LISTURI"
@@ -240,7 +240,7 @@ parse_config_file () {
 	if [ -z $http_proxy ] && [ -n $PARSED_HTTP_PROXY ]; then
 		http_proxy="$PARSED_HTTP_PROXY"
 	fi
-	if [ "$PARSED_NO_PROXY" = "yes" ]; then
+	if [ "$PARSED_USE_PROXY" = "no" ]; then
 		OPT_NOPROXY=1
 	fi
 	return 0

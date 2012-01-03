@@ -90,8 +90,8 @@ SCRIPTURI = *URI*
 :    Same as \--script-uri option above
 HTTP_PROXY = *address*
 :    (The default is 127.0.0.1:4444)
-NO_PROXY = *yes*/*no*
-:    Same as \--no-proxy option above.
+USE_PROXY = *yes*/*no*
+:    "USE_PROXY = no" equals the \--no-proxy option above. Default is *yes*.
 
 NOTES
 =====
