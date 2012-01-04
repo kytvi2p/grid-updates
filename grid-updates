@@ -200,6 +200,9 @@ eep_get () {
 		return 1
 	fi
 	if [ x${DL_REMOTE_LOCATION} = "x" ]; then
+		# We'll only arrive here if eep_get is called
+		# without any parameters. For potential future
+		# use.
 		echo "INFO: Detected $EEPTOOL"
 	else
 		if [ $OPT_NOPROXY ]; then
