@@ -1,3 +1,10 @@
+2012-01-04 (version 0.4.1)
+
+	* Disable eepget until bug http://trac.i2p2.i2p/ticket/576 is fixed.
+	* Another BSD bugfix
+	* Various minor code and documentation clean-ups
+	* Change default NEWS URI
+
 2011-12-09 (version 0.4)
 
 	* New news format: NEWS.tgz. The NEWS tarball contains the old plain text
