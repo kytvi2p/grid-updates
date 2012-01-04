@@ -71,6 +71,11 @@ Override the default location of script updates.
 .RS
 .RE
 .TP
+.B --no-proxy
+Disable proxy when downloading from non-tahoe URIs
+.RS
+.RE
+.TP
 .B -v, --verbose
 Display more verbose output.
 .RS
@@ -104,15 +109,18 @@ regular FQDNs like \f[B]http://example.i2p/\f[] or
 .PP
 If the script repeatedly fails to retrieve a file from the grid,
 the share may be damaged.
-Try running \f[B]--repair-subscriptions\f[] which will attempt to
+Run \f[B]--repair-subscriptions\f[] which will attempt to
 deep-check the share.
+.PP
 If that doesn't help, you will most likely have to find new URIs to
 subscribe to.
+.PP
 Use \f[B]--check-version\f[] to see if there is a new version of
 \f[I]grid-updates\f[] available, which may already include new
 default URIs.
-You can also ask in #tahoe-lafs (on Irc2P) and check the DeepWiki
-or http://killyourtv.i2p.
+.PP
+Finally, you can check on IRC, mailing lists and Wikis for updated
+information.
 .SH FILES
 .PP
 \f[I]~/.tahoe/NEWS\f[]
@@ -138,6 +146,9 @@ The README on the grid:
 \f[CR]
       URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
 \f[]
+.PP
+Information about Tahoe-LAFS for I2P and the I2P grid:
+http://killyourtv.i2p
 .SH LICENSE
 .PP
 \f[I]grid-updates\f[] has been released into the public domain.
