@@ -23,7 +23,7 @@ man:
 	pandoc -s -w man man/grid-updates.1.md -o man/grid-updates.1
 	@echo "Generated new manpage from markdown source."
 
-view: man
+viewman: man
 	@man ./man/grid-updates.1
 
 html:
@@ -47,7 +47,8 @@ tahoehtml:
 	@echo "Generated HTML documentation (with links to Tahoe locations) from Markdown sources."
 
 help:
-	@echo "Type 'make man' to compile the manpage (requires 'pandoc')".
 	@echo "Type 'make install' to install grid-updates on your system."
+	@echo "Type 'make man' to compile the manpage (requires 'pandoc')".
+	@echo "Type 'make html' to compile HTML versions of the documentation."
 
-.PHONY: man view clean install help html tahoehtml default
+.PHONY: man viewman clean install help html tahoehtml default
