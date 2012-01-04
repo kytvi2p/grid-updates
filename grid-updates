@@ -169,6 +169,9 @@ check_uri () {
 }
 
 eep_get () {
+	DL_REMOTE_LOCATION="$1"
+	DL_TARGET_LOCATION="$2"
+	DL_REMOTE_NAME="$3"
 	if [ -x "${HOME}/i2p/eepget" ] && [ ! $(echo ${PATH} | grep \/i2p) ]; then
 		PATH="${PATH}:${HOME}/i2p" # try to ensure eepget is found
 	fi
@@ -178,34 +181,34 @@ eep_get () {
 	if [ $(which eepget) ]; then
 		EEPTOOL="eepget"
 		if [ $OPT_NOPROXY ]; then
-			EEPFETCHCMD="${EEPTOOL} -n 2 ${1} -o ${2} -p :0"
+			EEPFETCHCMD="${EEPTOOL} -n 2 ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION} -p :0"
 		else
-			EEPFETCHCMD="${EEPTOOL} -n 2 ${1} -o ${2} -p ${http_proxy}"
+			EEPFETCHCMD="${EEPTOOL} -n 2 ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION} -p ${http_proxy}"
 		fi
 	elif [ $(which wget) ]; then
 		EEPTOOL="wget"
-		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${1} -O ${2}"
+		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${DL_REMOTE_LOCATION} -O ${DL_TARGET_LOCATION}"
 	elif [ $(which fetch) ]; then
 		EEPTOOL="fetch"
-		EEPFETCHCMD="${EEPTOOL} -q -o ${2} ${1}"
+		EEPFETCHCMD="${EEPTOOL} -q -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
 	elif [ $(which curl) ]; then
 		EEPTOOL="curl"
-		EEPFETCHCMD="${EEPTOOL} -s --retry 2 -L ${1} -o ${2}"
+		EEPFETCHCMD="${EEPTOOL} -s --retry 2 -L ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION}"
 	else
 		echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
 		return 1
 	fi
-	if [ x${1} = "x" ]; then
+	if [ x${DL_REMOTE_LOCATION} = "x" ]; then
 		echo "INFO: Detected $EEPTOOL"
 	else
 		if [ $OPT_NOPROXY ]; then
-			only_verbose echo "INFO: Attempting to download $3 using ${EEPTOOL} (no proxy)."
+			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} (no proxy)."
 		else
-			only_verbose echo "INFO: Attempting to download $3 using ${EEPTOOL} (proxy ${http_proxy})."
+			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} (proxy ${http_proxy})."
 		fi
 		$EEPFETCHCMD > /dev/null 2>&1
 		if [ $? -gt 0 ]; then
-			echo "ERROR: Failed to retrieve $3 from $1." >&2
+			echo "ERROR: Failed to retrieve $DL_REMOTE_NAME from $1." >&2
 			return 1
 		fi
 	fi
