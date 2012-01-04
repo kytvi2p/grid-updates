@@ -438,14 +438,13 @@ check_version () {
 	fi
 	LC_ALL=C # make sure sort order is what we expect
 	only_verbose echo "INFO: Attempting to check for new version."
-	# sort -V not on FreeBSD. These sort parameters were taken from http://stackoverflow.com/a/4046149
-	LATEST_VERSION_FILENAME=$("$TAHOE" ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -r -t- -k2,2 -n | head -n 1)
+	LATEST_VERSION_FILENAME=$("$TAHOE" ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -r -V | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
 		LATEST_AVAILABLE_VERSION=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
 		if [ $(uname -s |tr \[A-Z\] \[a-z\]) != "linux" ]; then
-			NEWEST_VERSION=$(echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -t- -k2,2 -n | head -n 1)
+			NEWEST_VERSION=$(echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -V | head -n 1)
 		else
-			NEWEST_VERSION=$(/bin/echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -t- -k2,2 -n | head -n 1)
+			NEWEST_VERSION=$(/bin/echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -V | head -n 1)
 		fi
 		if [ "$VERSION" != "$NEWEST_VERSION" ]; then
 			# Only print if not called via --download-update
