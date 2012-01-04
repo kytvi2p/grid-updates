@@ -172,13 +172,14 @@ eep_get () {
 	DL_REMOTE_LOCATION="$1"
 	DL_TARGET_LOCATION="$2"
 	DL_REMOTE_NAME="$3"
-	if [ -x "${HOME}/i2p/eepget" ] && [ ! $(echo ${PATH} | grep \/i2p) ]; then
-		PATH="${PATH}:${HOME}/i2p" # try to ensure eepget is found
-	fi
+	# TODO re-enable eepget once I2P ticket #576 is fixed
+	#if [ -x "${HOME}/i2p/eepget" ] && [ ! $(echo ${PATH} | grep \/i2p) ]; then
+	#	PATH="${PATH}:${HOME}/i2p" # try to ensure eepget is found
+	#fi
 	if [ $OPT_NOPROXY ]; then
 		unset http_proxy
 	fi
-	if [ $(which eepget) ]; then
+	if [ $(which eepgetDISABLED) ]; then
 		EEPTOOL="eepget"
 		if [ $OPT_NOPROXY ]; then
 			EEPFETCHCMD="${EEPTOOL} -n 2 ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION} -p :0"
