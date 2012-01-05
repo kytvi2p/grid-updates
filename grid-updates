@@ -44,6 +44,39 @@ checking_failed ()
 	return 1
 }
 
+# http://unix.derkeiler.com/Newsgroups/comp.unix.shell/2005-06/1079.html
+run () {
+	j=1
+	while eval "\${pipestatus_$j+:} false"; do
+		unset pipestatus_$j
+		j=$(($j+1))
+	done
+	j=1 com= k=1 l=
+	for a; do
+		if [ "x$a" = 'x|' ]; then
+			com="$com { $l "'3>&-
+				echo "pipestatus_'$j'=$?" >&3
+					} 4>&- |'
+			j=$(($j+1)) l=
+		else
+			l="$l \"\$$k\""
+		fi
+		k=$(($k+1))
+	done
+	com="$com $l"' 3>&- >&4 4>&-
+			echo "pipestatus_'$j'=$?"'
+	exec 4>&1
+	eval "$(exec 3>&1; eval "$com")"
+	exec 4>&-
+	j=1
+	while eval "\${pipestatus_$j+:} false"; do
+		eval "[ \$pipestatus_$j -eq 0 ]" || return 1
+		j=$(($j+1))
+	done
+	return 0
+}
+
+
 # Stop multiple instances from running simultaneously
 if [ -w /var/lock ]; then  # the default lock directory in Linux
         LOCKDIR="/var/lock/grid-updates.lck"
@@ -412,7 +445,8 @@ download_news () {
 
 deep_check () {
 	if [ $OPT_VERBOSE ]; then
-		"$TAHOE" deep-check -v --repair --add-lease "$1" 2>&1 | pretty_print
+		run "$TAHOE" deep-check -v --repair --add-lease "$1" 2>/dev/null >&1 \| pretty_print
+		return $pipestatus_1 # return exit value of `tahoe deep-check`
 	else
 		"$TAHOE" deep-check --repair --add-lease "$1" >/dev/null 2>&1
 	fi
