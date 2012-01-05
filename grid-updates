@@ -412,7 +412,7 @@ download_news () {
 
 deep_check () {
 	if [ $OPT_VERBOSE ]; then
-		"$TAHOE" deep-check -v --repair --add-lease "$1" 2>/dev/null >&1 | pretty_print
+		"$TAHOE" deep-check -v --repair --add-lease "$1" 2>&1 | pretty_print
 	else
 		"$TAHOE" deep-check --repair --add-lease "$1" >/dev/null 2>&1
 	fi
