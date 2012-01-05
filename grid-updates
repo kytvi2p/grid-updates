@@ -15,7 +15,7 @@
 # For more information see the README.md and INSTALL.md files.
 
 # This script's version:
-VERSION='0.4.1'
+VERSION='0.4.1-git'
 
 ############################### Configuration #################################
 # Default location of the Tahoe-LAFS node:
@@ -76,6 +76,33 @@ run () {
 	return 0
 }
 
+version_to_decimal () {
+	echo "$@" | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3); }';
+}
+
+
+if [ -z $I2P ]; then
+	if [ -e /usr/share/i2p/lib/i2p.jar ]; then
+		I2P="/usr/share/i2p"
+	elif [ -e $HOME/i2p/lib/i2p.jar ]; then
+		I2P="$HOME/i2p"
+	else
+		I2P="nfc"
+	fi
+fi
+
+if [ ! $I2P = "nfc"  ]; then
+	I2PVERSION=$(java -cp $I2P/lib/i2p.jar net.i2p.CoreVersion | awk -F' ' '/version/{print $4}') > /dev/null 2>&1
+	if [ $(version_to_decimal $I2PVERSION) -gt $(version_to_decimal 0.8.12) ]; then
+		FIXED_EEP="true"
+	elif [ $(version_to_decimal $I2PVERSION) -eq $(version_to_decimal 0.8.12) ] && [ "$I2P" = "/usr/share/i2p" ] ; then
+		FIXED_EEP="true"
+	else
+		FIXED_EEP="false"
+	fi
+fi
+
+EEPGET="java -jar $I2P/lib/i2p.jar net.util.EepGet"
 
 # Stop multiple instances from running simultaneously
 if [ -w /var/lock ]; then  # the default lock directory in Linux
@@ -205,15 +232,11 @@ eep_get () {
 	DL_REMOTE_LOCATION="$1"
 	DL_TARGET_LOCATION="$2"
 	DL_REMOTE_NAME="$3"
-	# TODO re-enable eepget once I2P ticket #576 is fixed
-	#if [ -x "${HOME}/i2p/eepget" ] && [ ! $(echo ${PATH} | grep \/i2p) ]; then
-	#	PATH="${PATH}:${HOME}/i2p" # try to ensure eepget is found
-	#fi
 	if [ $OPT_NOPROXY ]; then
 		unset http_proxy
 	fi
-	if [ $(which eepgetDISABLED) ]; then
-		EEPTOOL="eepget"
+	if [ "$FIXED_EEP" = "true"  ]; then
+		EEPTOOL="$EEPGET"
 		if [ $OPT_NOPROXY ]; then
 			EEPFETCHCMD="${EEPTOOL} -n 2 ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION} -p :0"
 		else
@@ -232,11 +255,16 @@ eep_get () {
 		echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
 		return 1
 	fi
+
 	if [ x${DL_REMOTE_LOCATION} = "x" ]; then
 		# We'll only arrive here if eep_get is called
 		# without any parameters. For potential future
 		# use.
-		echo "INFO: Detected $EEPTOOL"
+		echo "Detected $EEPTOOL"
+		if [ ! -z $I2PVERSION ]; then
+			echo "I2PVERSION: $I2PVERSION"
+			echo "FIXED_EEP: $FIXED_EEP"
+		fi
 	else
 		if [ $OPT_NOPROXY ]; then
 			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} (no proxy)."
@@ -612,6 +640,7 @@ while [ $# -gt 0 ] ; do
 			;;
 		--version|-V)
 			echo "$(basename $0) version: $VERSION"
+			eep_get
 			exit 0
 			;;
 		--help|-h)
