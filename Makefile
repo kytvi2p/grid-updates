@@ -56,10 +56,15 @@ release: html
 	@gzip -9 $(RELEASE_BASENAME).tar
 	@rm -r $(RELEASE_BASENAME)
 
+news:
+	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS | pandoc -s --template=News/pandoc-template.html -w html -r markdown > News/NEWS.html
+	@tar --directory News -c NEWS NEWS.html | gzip -9 > News/NEWS.tgz
+	@rm News/NEWS.html
+
 help:
 	@echo "Type 'make install' to install grid-updates on your system."
 	@echo "Type 'make man' to compile the manpage (requires 'pandoc')".
 	@echo "Type 'make html' to compile HTML versions of the documentation."
 	@echo "Type 'make release' to create a release tarball."
 
-.PHONY: man viewman clean install help html tahoehtml default
+.PHONY: man viewman clean install help html tahoehtml news default
