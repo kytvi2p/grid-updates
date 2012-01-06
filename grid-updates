@@ -224,6 +224,7 @@ parse_config_file () {
 	parse_config_item "TAHOE_NODE_DIR"
 	parse_config_item "HTTP_PROXY"
 	parse_config_item "USE_PROXY"
+	parse_config_item "DOWNLOAD_TOOL"
 	# Set parsed value if option is still unset
 	if [ -z $LISTURI ] && [ -n $PARSED_LISTURI ]; then
 		LISTURI="$PARSED_LISTURI"
@@ -242,6 +243,9 @@ parse_config_file () {
 	fi
 	if [ "$PARSED_USE_PROXY" = "no" ]; then
 		OPT_NOPROXY=1
+	fi
+	if [ -z $EEPTOOL ] && [ -n $PARSED_DOWNLOAD_TOOL ]; then
+		EEPTOOL="$PARSED_DOWNLOAD_TOOL"
 	fi
 	return 0
 }
