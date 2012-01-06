@@ -1,3 +1,12 @@
+TBA (version 0.5)
+
+	* Re-enabled eepget for I2P versions > 0.8.12
+	* Support for configuration files
+	* New --download-tool option
+	* Include Atom news feed
+	* Change default LIST URI to a commented introducers list
+	* Various improvements and bugfixes (not yet BSD compatible again)
+
 2012-01-04 (version 0.4.1)
 
 	* Disable eepget until bug http://trac.i2p2.i2p/ticket/576 is fixed.
