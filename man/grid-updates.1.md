@@ -62,6 +62,9 @@ OPTIONS
 \--script-uri *URI*
 :   Override the default location of script updates.
 
+\--download-tool *[eepget|wget|fetch|curl]*
+:   Specifiy the desired download tool. Without this option *grid-updates* will try to find the best available tool automatically.
+
 \--no-proxy
 :   Disable proxy when downloading from non-tahoe URIs
 
@@ -90,6 +93,8 @@ SCRIPTURI = *URI*
 :    Same as \--script-uri option above
 HTTP_PROXY = *address*
 :    (The default is 127.0.0.1:4444)
+DOWNLOAD_TOOL = *name*
+:    Same as \--download-tool option above
 USE_PROXY = *yes*/*no*
 :    "USE_PROXY = no" equals the \--no-proxy option above. Default is *yes*.
 

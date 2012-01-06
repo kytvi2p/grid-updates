@@ -77,6 +77,13 @@ Override the default location of script updates.
 .RS
 .RE
 .TP
+.B --download-tool \f[I][eepget|wget|fetch|curl]\f[]
+Specifiy the desired download tool.
+Without this option \f[I]grid-updates\f[] will try to find the best
+available tool automatically.
+.RS
+.RE
+.TP
 .B --no-proxy
 Disable proxy when downloading from non-tahoe URIs
 .RS
@@ -120,6 +127,11 @@ Same as --script-uri option above
 .TP
 .B HTTP_PROXY = \f[I]address\f[]
 (The default is 127.0.0.1:4444)
+.RS
+.RE
+.TP
+.B DOWNLOAD_TOOL = \f[I]name\f[]
+Same as --download-tool option above
 .RS
 .RE
 .TP

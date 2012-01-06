@@ -177,6 +177,7 @@ Options:
                                 list
     --news-uri [URI]            Override default location of news file
     --script-uri [URI]          Override default location of script updates
+    --download-tool [name]      Manually specify download tool for HTTP fetches
     --no-proxy                  Disable proxy when downloading from non-tahoe
                                 URIs
     -v, --verbose               Display more verbose output
