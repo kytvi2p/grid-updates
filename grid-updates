@@ -318,25 +318,36 @@ eep_get () {
 	if [ $OPT_NOPROXY ]; then
 		unset http_proxy
 	fi
-	if [ "$FIXED_EEP" = "true"  ]; then
-		EEPTOOL="$EEPGET"
-		if [ $OPT_NOPROXY ]; then
-			EEPFETCHCMD="${EEPTOOL} -n 2 ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION} -p :0"
-		else
-			EEPFETCHCMD="${EEPTOOL} -n 2 ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION} -p ${http_proxy}"
-		fi
-	elif [ $(which wget) ]; then
-		EEPTOOL="wget"
-		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${DL_REMOTE_LOCATION} -O ${DL_TARGET_LOCATION}"
-	elif [ $(which fetch) ]; then
-		EEPTOOL="fetch"
-		EEPFETCHCMD="${EEPTOOL} -q -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
-	elif [ $(which curl) ]; then
-		EEPTOOL="curl"
-		EEPFETCHCMD="${EEPTOOL} -s --retry 2 -L ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION}"
+	if [ -n "$EEPTOOL" ]; then
+		# Check user-specified download tool is valid
+		case "$EEPTOOL" in
+			"eepget"|"wget"|"fetch"|"curl")
+				# pass
+				;;
+			*)
+				echo "ERROR: Unknown download tool."
+				return 1
+				;;
+		esac
 	else
-		echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
-		return 1
+		# Find available download tools
+		if [ "$FIXED_EEP" = "true"  ]; then EEPTOOL="$EEPGET"
+		elif [ $(which wget) ]; then EEPTOOL="wget"
+		elif [ $(which fetch) ]; then EEPTOOL="fetch"
+		elif [ $(which curl) ]; then EEPTOOL="curl"
+		else
+			echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
+			return 1
+		fi
+	fi
+
+	# Configure download tool command
+	if [ "$EEPTOOL" = "wget" ]; then
+		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${DL_REMOTE_LOCATION} -O ${DL_TARGET_LOCATION}"
+	elif [ "$EEPTOOL" = "fetch" ]; then
+		EEPFETCHCMD="${EEPTOOL} -q -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
+	elif [ "$EEPTOOL" = "curl" ]; then
+		EEPFETCHCMD="${EEPTOOL} -s --retry 2 -L ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION}"
 	fi
 
 	if [ x${DL_REMOTE_LOCATION} = "x" ]; then
@@ -684,6 +695,15 @@ while [ $# -gt 0 ] ; do
 			SCRIPTURI=$2
 			shift 2
 			check_uri "$SCRIPTURI" "script"
+			;;
+		--download-tool)
+			if [ -z "$2" ]; then
+				echo "ERROR: download-tool not specified." >&2
+				print_help
+				exit 1
+			fi
+			EEPTOOL="$2"
+			shift 2
 			;;
 		--no-proxy)
 			OPT_NOPROXY=1
