@@ -21,7 +21,7 @@ VERSION='0.4.1-git'
 # Default location of the Tahoe-LAFS node:
 #TAHOE_NODE_DIR="$HOME/.tahoe"
 # Default location (directory) of the subscription list:
-LISTURI='URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq'
+LISTURI='URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua'
 # Default location (directory) of the NEWS file:
 NEWSURI='URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q'
 # Default location (directory) of script releases:
