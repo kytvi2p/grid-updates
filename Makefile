@@ -19,7 +19,7 @@ install:
 
 
 clean:
-	@rm -f README.html INSTALL.html MAN.html
+	@rm -f README.html INSTALL.html MAN.html News/NEWS.html News/NEWS.tgz
 
 man:
 	pandoc -s -w man man/grid-updates.1.md -o man/grid-updates.1
@@ -59,7 +59,6 @@ release: html
 news:
 	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS | pandoc -s --template=News/pandoc-template.html -w html -r markdown > News/NEWS.html
 	@tar --directory News -c NEWS NEWS.html | gzip -9 > News/NEWS.tgz
-	@rm News/NEWS.html
 
 help:
 	@echo "Type 'make install' to install grid-updates on your system."
