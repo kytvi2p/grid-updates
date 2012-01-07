@@ -529,11 +529,13 @@ print_news () {
 			"$OLD_NEWS" "$TAHOE_NEWS" | sed -e '/^>/!d' -e 's/^>\ //'
 		# Copy HTML version into place
 		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
+		cp -f $TMP_NEWS_DIR/NEWS.atom $PUB_HTML_DIR/NEWS.atom
 		return 0
 	else
 		only_verbose echo "INFO: There are no news."
 		# Copy HTML version into place
 		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
+		cp -f $TMP_NEWS_DIR/NEWS.atom $PUB_HTML_DIR/NEWS.atom
 		return 0
 	fi
 }
