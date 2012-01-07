@@ -58,7 +58,7 @@ release: html
 
 news:
 	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS | pandoc -s --template=News/pandoc-template.html -w html -r markdown > News/NEWS.html
-	@sed -e "s/REPLACEDATE/$$(date +%FT%T%:z)/" -e "s/REPLACEID/urn:uuid$$(uuid)/" News/NEWS.atom.template > News/NEWS.atom
+	@sed -e "s/REPLACEUPDATED/$$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$$(date -Ru)/" -e "s/REPLACEID/urn:uuid$$(uuid)/" News/NEWS.atom.template > News/NEWS.atom
 	@tar --directory News -c NEWS NEWS.html NEWS.atom | gzip -9 > News/NEWS.tgz
 
 help:
