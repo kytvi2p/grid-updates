@@ -21,11 +21,12 @@ VERSION='0.4.1-git'
 # Default location of the Tahoe-LAFS node:
 #TAHOE_NODE_DIR="$HOME/.tahoe"
 # Default location (directory) of the subscription list:
-LISTURI='URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua'
+DEFAULT_LISTURI='URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua'
 # Default location (directory) of the NEWS file:
-NEWSURI='URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q'
+DEFAULT_NEWSURI='URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q'
 # Default location (directory) of script releases:
-SCRIPTURI='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
+DEFAULT_SCRIPTURI='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
+
 ###############################################################################
 
 only_verbose () {
@@ -191,6 +192,47 @@ TAHOE=$(which tahoe)
 # Abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
 set -e          # abort if there are any uncaught errors along the way
+
+### config files ###
+
+# TODO
+# - node dir
+# - http_proxy
+
+read_config_file () {
+	PARSED_LISTURI=$(grep "^LISTURI" $CONFIG_FILE |
+		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
+	PARSED_NEWSURI=$(grep "^NEWSURI" $CONFIG_FILE |
+		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
+	PARSED_SCRIPTURI=$(grep "^SCRIPTURI" $CONFIG_FILE |
+		sed -e 's/^\w\+[\ \t]\?=[\ \t]\?\(URI:.*\)$/\1/')
+	[ -n "$PARSED_LISTURI" ] && LISTURI="$PARSED_LISTURI" || LISTURI="$DEFAULT_LISTURI"
+	[ -n "$PARSED_NEWSURI" ] && NEWSURI="$PARSED_NEWSURI" || NEWSURI="$DEFAULT_NEWSURI"
+	[ -n "$PARSED_SCRIPTURI" ] && SCRIPTURI="$PARSED_SCRIPTURI" || SCRIPTURI="$DEFAULT_SCRIPTURI"
+	return 0
+}
+
+parse_config_files () {
+	if [ -f $HOME/.config/grid-updates/grid-updates.conf ]; then
+		# TODO: XDG_CONFIG_HOME?
+		CONFIG_FILE="$HOME/.config/grid-updates/grid-updates.conf"
+		read_config_file
+	fi
+	if [ -f /etc/grid-updates.conf ]; then
+		CONFIG_FILE="/etc/grid-updates.conf"
+		read_config_file
+	fi
+	if [ $OPT_CONFIG_FILE ] ; then
+		CONFIG_FILE="$SPECIFIED_CONFIG_FILE"
+		if [ -f "$CONFIG_FILE" ]; then
+			read_config_file
+		else
+			echo "ERROR: Config file $CONFIG_FILE not found."
+			exit 1
+		fi
+	fi
+	return 0
+}
 
 ### checks ###
 
@@ -557,6 +599,16 @@ check_newshtml_exists
 while [ $# -gt 0 ] ; do
 	case $1 in
 		# Options
+		--config|-c)
+			if [ -z "$2" ]; then
+				echo "ERROR: config file not specified." >&2
+				print_help
+				exit 1
+			fi
+			OPT_CONFIG_FILE=1
+			SPECIFIED_CONFIG_FILE="$2"
+			shift 2
+			;;
 		--node-directory|-d)
 			if [ -z "$2" ]; then
 				echo "ERROR: Tahoe node directory not specified." >&2
@@ -654,6 +706,9 @@ while [ $# -gt 0 ] ; do
 			;;
 	esac
 done
+
+# Parse config files
+parse_config_files
 
 if [ $OPT_MERGE_LIST ] || [ $OPT_REPLACE_LIST ] || \
 [ $OPT_REPAIR_SUBSCRIPTIONS ] || [ $OPT_DOWNLOAD_NEWS ] || \
