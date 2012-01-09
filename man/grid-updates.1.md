@@ -15,9 +15,10 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-*grid-updates* is a script intended to help keep Tahoe-LAFS nodes'
-configurations up-to-date.  It can retrieve updated lists of introducers as
-well as simple news updates.
+*grid-updates* is a shell script intended to help keep Tahoe-LAFS nodes'
+configurations up-to-date.  It can retrieve lists of introducers as well as
+news feeds from the Tahoe grid.  This is useful for any public grid that
+relies solely on volunteers.
 
 ACTIONS
 =======
@@ -29,10 +30,7 @@ ACTIONS
 :   Replace your node's local list of introducers with the master list.
 
 -n, \--download-news
-:   Retrieve news. These will be stored in [node directory] and new
-	contents will be printed to stdout. If you run this script as a cron job,
-	the news will be emailed to you. Furthermore, an HTML version is placed
-	into the node's web server's */static* directory.
+:   Retrieve the news feed.  See the **NEWS** section below.
 
 \--check-version
 :   Check for a new version of this script on the grid.
@@ -48,7 +46,7 @@ OPTIONS
 =======
 
 -c *config file*, \--config *config file*
-:   Specify a grid-updates config file. See `CONFIG FILES` section below.
+:   Specify a grid-updates config file. See **CONFIG FILES** section below.
 
 -d *directory*, \--node-directory *directory*
 :   Specify the node directory (default: *~/.tahoe*),
@@ -63,7 +61,8 @@ OPTIONS
 :   Override the default location of script updates.
 
 \--download-tool *[eepget|wget|fetch|curl]*
-:   Specifiy the desired download tool. Without this option *grid-updates* will try to find the best available tool automatically.
+:   Specifiy the desired download tool. Without this option *grid-updates* will
+    try to find the best available tool automatically.
 
 \--no-proxy
 :   Disable proxy when downloading from non-tahoe URIs
@@ -121,12 +120,28 @@ available, which may already include new default URIs.
 Finally, you can check on IRC, mailing lists and Wikis for updated
 information.
 
+NEWS
+====
+
+If you choose to download the news feed, *grid-updates* will place a plain text
+version of it in your node's directory and print it to stdout.
+
+Furthermore, it will place an HTML version of it in your node's web server's
+*/static* directory, so you can access it at
+http://127.0.0.1:3456/static/NEWS.html.
+
+The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used by a
+regular feed reader to check for *grid-updates* news.  (Please note, however,
+that you cannot "refresh" the feed with a regular news reader.  These files
+have to always be fetched by *grid-updates* first.)
+
 FILES
 =====
 
+*~/.tahoe/introducers*  
 *~/.tahoe/NEWS*  
 *~/.tahoe/public_html/NEWS.html*  
-*~/.tahoe/introducers*  
+*~/.tahoe/public_html/NEWS.atom*  
 *\$XDG_CONFIG_HOME/grid-updates/config* (most commonly ~/.config)  
 *\$XDG_CONFIG_DIRS/grid-updates/config* (most commonly /etc/xdg)  
 

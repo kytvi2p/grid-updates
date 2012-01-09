@@ -158,10 +158,8 @@ Actions:
                                 subscription's
     -r, --replace-introducers   Replace your local list of introducers with the
                                 master list
-    -n, --download-news         Retrieve news regarding the I2P grid.  These
-                                will be stored in [node directory]/NEWS.
-                                If you run this script as a cron job, the
-                                news will also be emailed to you.
+    -n, --download-news         Retrieve news feed with news relevant to a
+                                particular Tahoe-LAFS grid
     --check-version             Check for a new version of this script on the
                                 grid
     --download-update           Download a new version of this script from the
@@ -173,13 +171,12 @@ Options:
       --config [config file]
     -d [directory],             Specify the node directory (default: ~/.tahoe)
       --node-directory [directory]
-    --list-uri [URI]            Override default location of introducers
-                                list
+    --list-uri [URI]            Override default location of introducers list
     --news-uri [URI]            Override default location of news file
     --script-uri [URI]          Override default location of script updates
     --download-tool [name]      Manually specify download tool for HTTP fetches
-    --no-proxy                  Disable proxy when downloading from non-tahoe
-                                URIs
+    --no-proxy                  Disable proxy (when downloading from non-Tahoe
+                                URIs)
     -v, --verbose               Display more verbose output
     -V, --version               Display version information
     -h, --help                  Print this help text

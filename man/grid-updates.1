@@ -24,13 +24,8 @@ Replace your node's local list of introducers with the master list.
 .RE
 .TP
 .B -n, --download-news
-Retrieve news.
-These will be stored in [node directory] and new contents will be
-printed to stdout.
-If you run this script as a cron job, the news will be emailed to
-you.
-Furthermore, an HTML version is placed into the node's web server's
-\f[I]/static\f[] directory.
+Retrieve the news feed.
+See the \f[B]NEWS\f[] section below.
 .RS
 .RE
 .TP
@@ -53,7 +48,7 @@ Maintain or repair the health of the subscription service's URIs.
 .TP
 .B -c \f[I]config file\f[], --config \f[I]config file\f[]
 Specify a grid-updates config file.
-See \f[B]CONFIG\ FILES\f[] section below.
+See \f[B]CONFIG FILES\f[] section below.
 .RS
 .RE
 .TP
@@ -171,8 +166,29 @@ default URIs.
 .PP
 Finally, you can check on IRC, mailing lists and Wikis for updated
 information.
+.SH NEWS
+.PP
+If you choose to download the news feed, \f[I]grid-updates\f[] will
+place a plain text version of it in your node's directory and print
+it to stdout.
+.PP
+Furthermore, it will place an HTML version of it in your node's web
+server's \f[I]/static\f[] directory, so you can access it at
+http://127.0.0.1:3456/static/NEWS.html.
+.PP
+The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be
+used by a regular feed reader to check for \f[I]grid-updates\f[]
+news.
+(Please note, however, that you cannot \[lq]refresh\[rq] the feed
+with a regular news reader.
+These files have to always be fetched by \f[I]grid-updates\f[]
+first.)
 .SH FILES
 .PP
+\f[I]~/.tahoe/introducers\f[]
+.PD 0
+.P
+.PD
 \f[I]~/.tahoe/NEWS\f[]
 .PD 0
 .P
@@ -181,7 +197,7 @@ information.
 .PD 0
 .P
 .PD
-\f[I]~/.tahoe/introducers\f[]
+\f[I]~/.tahoe/public_html/NEWS.atom\f[]
 .PD 0
 .P
 .PD
