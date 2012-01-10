@@ -14,8 +14,8 @@ will ensure the best possible connectivity for everyone.
 Download
 ========
 
-grid-updates is available from its [git repository] ([git mirror])
-or the [Tahoe grid][^2].
+grid-updates is available from its [git repository] ([git mirror 1],
+[git-mirror 2]) or the [Tahoe grid][^2].
 
 Installation
 ============
@@ -79,8 +79,9 @@ For Bug reports and support join [#tahoe-lafs] on Irc2P or send an email.
       [killyourtv.i2p](http://killyourtv.i2p/tahoe-lafs/scripts/)
 
 [Tahoe-LAFS]: http://www.tahoe-lafs.org "The Least-Authority File System"
-[git repository]: http://git.repo.i2p/w/grid-updates.git "git repository"
-[git mirror]: http://killyourtv.i2p/tahoe-lafs/grid-updates/ "Alternative download location"
+[git repository]: http://darrob.i2p/grid-updates/grid-updates.git "Git repository"
+[git mirror 1]: http://git.repo.i2p/w/grid-updates.git "Git mirror 1"
+[git mirror 2]: http://killyourtv.i2p/tahoe-lafs/grid-updates/ "Git mirror 2"
 [Tahoe grid]: http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Amjozenx3522pxtqyruekcx7mh4%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/ "Tahoe share"
 [INSTALL.md]: INSTALL.md
 [man page]: man/grid-updates.1.md
