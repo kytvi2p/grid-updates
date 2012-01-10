@@ -29,13 +29,13 @@ node's directory (typically `~/.tahoe`).  It will update your introducers file
 (if you ask it to) and make a backup of it.
 
 If you also fetch the news file, the script will write a plain text version to
-`~/.tahoe/NEWS` and place an HTML version into your Tahoe node's `web.static`
-directory (typically  `~/.tahoe/public_html`). You can view NEWS.html in your
-node's [/static] directory, or (using a patched Tahoe WebUI) right on your
-node's [front page].
+`~/.tahoe/NEWS`.  It will also place an HTML version and an Atom news feed into
+your Tahoe node's `web.static` directory (typically  `~/.tahoe/public_html`).
+You can view NEWS.html and NEWS.atom in your node's [/static] directory, or
+(using a patched Tahoe WebUI) right on your node's [front page].
 
 
 [README.md]: README.md
 [man page]: man/grid-updates.1.md
-[/static]: http://127.0.0.1:3456/static/NEWS.html
+[/static]: http://127.0.0.1:3456/static/
 [front page]: http://127.0.0.1:3456
