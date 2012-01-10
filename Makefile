@@ -6,7 +6,7 @@ MANDIR ?= $(PREFIX)/share/man/man1
 APP= grid-updates
 INSTALL= install
 INSTALL_DATA= $(INSTALL) -m 644
-PANDOC= pandoc -s -r markdown -w html
+PANDOC= pandoc -s -r markdown -w html --email-obfuscation=none
 TAHOE_DIR= http://127.0.0.1:3456/uri/URI%3ADIR2%3Anocmjemmatpn5yr4cfthvdvlxi%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a
 VERSION= $$(git tag | tail -n 1)
 RELEASE_BASENAME= grid-updates-$(VERSION)
@@ -57,7 +57,7 @@ release: html
 	@rm -r $(RELEASE_BASENAME)
 
 news:
-	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS | pandoc -s --template=News/pandoc-template.html -w html -r markdown > News/NEWS.html
+	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS | pandoc -s --template=News/pandoc-template.html -w html -r markdown --email-obfuscation=none > News/NEWS.html
 	@sed -e "s/REPLACEUPDATED/$$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$$(date -Ru)/" -e "s/REPLACEID/urn:uuid$$(uuid)/" News/NEWS.atom.template > News/NEWS.atom
 	@tar --directory News -c NEWS NEWS.html NEWS.atom | gzip -9 > News/NEWS.tgz
 
