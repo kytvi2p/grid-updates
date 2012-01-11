@@ -6,6 +6,7 @@ MANDIR ?= $(PREFIX)/share/man/man1
 APP= grid-updates
 INSTALL= install
 INSTALL_DATA= $(INSTALL) -m 644
+MAN= man/grid-updates.1
 PANDOC= pandoc -s -r markdown -w html --email-obfuscation=none
 TAHOE_DIR= http://127.0.0.1:3456/uri/URI%3ADIR2%3Anocmjemmatpn5yr4cfthvdvlxi%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a
 VERSION= $$(git tag | tail -n 1)
@@ -14,7 +15,7 @@ RELEASE_BASENAME= grid-updates-$(VERSION)
 install:
 	$(INSTALL) -d $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
 	$(INSTALL) $(APP) $(DESTDIR)$(BINDIR)
-	$(INSTALL_DATA) man/grid-updates.1 $(DESTDIR)$(MANDIR)
+	$(INSTALL_DATA) $(MAN) $(DESTDIR)$(MANDIR)
 	@echo "$(APP) successfully installed to $(DESTDIR)$(PREFIX)"
 
 
@@ -22,11 +23,11 @@ clean:
 	@rm -f README.html INSTALL.html MAN.html News/NEWS.html News/NEWS.tgz News/NEWS.atom
 
 man:
-	pandoc -s -w man man/grid-updates.1.md -o man/grid-updates.1
+	pandoc -s -w man man/grid-updates.1.md -o $(MAN)
 	@echo "Generated new manpage from markdown source."
 
 viewman: man
-	@man ./man/grid-updates.1
+	@man ./$(MAN)
 
 html:
 	@sed -e 's;\(INSTALL\)\.md;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' README.md \
@@ -57,8 +58,10 @@ release: html
 	@rm -r $(RELEASE_BASENAME)
 
 news:
-	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS | pandoc -s --template=News/pandoc-template.html -w html -r markdown --email-obfuscation=none > News/NEWS.html
-	@sed -e "s/REPLACEUPDATED/$$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$$(date -Ru)/" -e "s/REPLACEID/urn:uuid$$(uuid)/" News/NEWS.atom.template > News/NEWS.atom
+	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS |
+		pandoc -s --template=News/pandoc-template.html -w html -r markdown --email-obfuscation=none > News/NEWS.html
+	@sed -e "s/REPLACEUPDATED/$$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$$(date -Ru)/" \
+		-e "s/REPLACEID/urn:uuid$$(uuid)/" News/NEWS.atom.template > News/NEWS.atom
 	@tar --directory News -c NEWS NEWS.html NEWS.atom | gzip -9 > News/NEWS.tgz
 
 help:
