@@ -130,20 +130,20 @@ Furthermore, it will place an HTML version of it in your node's web server's
 */static* directory, so you can access it at
 http://127.0.0.1:3456/static/NEWS.html.
 
-The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used by a
-regular feed reader to check for *grid-updates* news.  (Please note, however,
-that you cannot "refresh" the feed with a regular news reader.  These files
-have to always be fetched by *grid-updates* first.)
+The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used by
+regular feed readers to check for *grid-updates* news.  (Please note, however,
+that you cannot "refresh" the feed with regular news readers.  These files have
+to always be fetched by *grid-updates* first.)
 
 FILES
 =====
 
-*~/.tahoe/introducers*  
-*~/.tahoe/NEWS*  
-*~/.tahoe/public_html/NEWS.html*  
-*~/.tahoe/public_html/NEWS.atom*  
-*\$XDG_CONFIG_HOME/grid-updates/config* (most commonly ~/.config)  
-*\$XDG_CONFIG_DIRS/grid-updates/config* (most commonly /etc/xdg)  
+* ~/.tahoe/introducers*  
+* ~/.tahoe/NEWS*  
+* ~/.tahoe/public_html/NEWS.html*  
+* ~/.tahoe/public_html/NEWS.atom*  
+* \$XDG_CONFIG_HOME/grid-updates/config* (most commonly ~/.config)  
+* \$XDG_CONFIG_DIRS/grid-updates/config* (most commonly /etc/xdg)  
 
 BUGS
 ====
@@ -153,7 +153,10 @@ Please report bugs in #tahoe-lafs on Irc2p or via email (see below).
 SEE ALSO
 ========
 
-The *grid-updates* git repository: http://git.repo.i2p/w/grid-updates.git
+The *grid-updates* Git repositories:
+
+* http://darrob.i2p/grid-updates/  
+* http://git.repo.i2p/w/grid-updates.git  
 
 The README on the grid:
 

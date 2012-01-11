@@ -7,10 +7,12 @@ grid-updates - Helper Script for Tahoe-LAFS Nodes
 \f[B]grid-updates\f[] [\f[I]OPTIONS\f[]] \f[I]ACTION\f[]
 .SH DESCRIPTION
 .PP
-\f[I]grid-updates\f[] is a script intended to help keep Tahoe-LAFS
-nodes' configurations up-to-date.
-It can retrieve updated lists of introducers as well as simple news
-updates.
+\f[I]grid-updates\f[] is a shell script intended to help keep
+Tahoe-LAFS nodes' configurations up-to-date.
+It can retrieve lists of introducers as well as news feeds from the
+Tahoe grid.
+This is useful for any public grid that relies solely on
+volunteers.
 .SH ACTIONS
 .TP
 .B -m, --merge-introducers
@@ -177,45 +179,60 @@ server's \f[I]/static\f[] directory, so you can access it at
 http://127.0.0.1:3456/static/NEWS.html.
 .PP
 The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be
-used by a regular feed reader to check for \f[I]grid-updates\f[]
+used by regular feed readers to check for \f[I]grid-updates\f[]
 news.
 (Please note, however, that you cannot \[lq]refresh\[rq] the feed
-with a regular news reader.
+with regular news readers.
 These files have to always be fetched by \f[I]grid-updates\f[]
 first.)
 .SH FILES
-.PP
-\f[I]~/.tahoe/introducers\f[]
+.IP \[bu] 2
+~/.tahoe/introducers*
 .PD 0
 .P
 .PD
-\f[I]~/.tahoe/NEWS\f[]
+
+.IP \[bu] 2
+~/.tahoe/NEWS*
 .PD 0
 .P
 .PD
-\f[I]~/.tahoe/public_html/NEWS.html\f[]
+
+.IP \[bu] 2
+~/.tahoe/public_html/NEWS.html*
 .PD 0
 .P
 .PD
-\f[I]~/.tahoe/public_html/NEWS.atom\f[]
+
+.IP \[bu] 2
+~/.tahoe/public_html/NEWS.atom*
 .PD 0
 .P
 .PD
-\f[I]$XDG_CONFIG_HOME/grid-updates/config\f[]
-(most commonly
+
+.IP \[bu] 2
+$XDG_CONFIG_HOME/grid-updates/config* (most commonly
 ~/.config)
 .PD 0
 .P
 .PD
-\f[I]$XDG_CONFIG_DIRS/grid-updates/config\f[]
-(most commonly /etc/xdg)
+
+.IP \[bu] 2
+$XDG_CONFIG_DIRS/grid-updates/config* (most commonly /etc/xdg)
 .SH BUGS
 .PP
 Please report bugs in #tahoe-lafs on Irc2p or via email (see
 below).
 .SH SEE ALSO
 .PP
-The \f[I]grid-updates\f[] git repository:
+The \f[I]grid-updates\f[] Git repositories:
+.IP \[bu] 2
+http://darrob.i2p/grid-updates/
+.PD 0
+.P
+.PD
+
+.IP \[bu] 2
 http://git.repo.i2p/w/grid-updates.git
 .PP
 The README on the grid:
