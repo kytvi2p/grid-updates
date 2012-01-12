@@ -54,11 +54,11 @@ release: html
 	@mkdir $(RELEASE_BASENAME)
 	@mv INSTALL.html README.html MAN.html $(RELEASE_BASENAME)/
 	@tar rf $(RELEASE_BASENAME).tar $(RELEASE_BASENAME)
-	@gzip -9 $(RELEASE_BASENAME).tar
-	@rm -r $(RELEASE_BASENAME)
+	@gzip -c -9 $(RELEASE_BASENAME).tar > $(RELEASE_BASENAME).tgz
+	@rm -r $(RELEASE_BASENAME) $(RELEASE_BASENAME).tar
 
 news:
-	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS |
+	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS | \
 		pandoc -s --template=News/pandoc-template.html -w html -r markdown --email-obfuscation=none > News/NEWS.html
 	@sed -e "s/REPLACEUPDATED/$$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$$(date -Ru)/" \
 		-e "s/REPLACEID/urn:uuid$$(uuid)/" News/NEWS.atom.template > News/NEWS.atom
