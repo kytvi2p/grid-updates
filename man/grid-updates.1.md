@@ -138,12 +138,12 @@ to always be fetched by *grid-updates* first.)
 FILES
 =====
 
-* ~/.tahoe/introducers*  
-* ~/.tahoe/NEWS*  
-* ~/.tahoe/public_html/NEWS.html*  
-* ~/.tahoe/public_html/NEWS.atom*  
-* \$XDG_CONFIG_HOME/grid-updates/config* (most commonly ~/.config)  
-* \$XDG_CONFIG_DIRS/grid-updates/config* (most commonly /etc/xdg)  
+* *~/.tahoe/introducers*  
+* *~/.tahoe/NEWS*  
+* *~/.tahoe/public_html/NEWS.html*  
+* *~/.tahoe/public_html/NEWS.atom*  
+* *\$XDG_CONFIG_HOME/grid-updates/config* (most commonly ~/.config)  
+* *\$XDG_CONFIG_DIRS/grid-updates/config* (most commonly /etc/xdg)  
 
 BUGS
 ====
