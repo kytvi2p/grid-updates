@@ -363,9 +363,9 @@ eep_get () {
 		fi
 	else
 		if [ $OPT_NOPROXY ]; then
-			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} (no proxy)."
+			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} from ${DL_REMOTE_LOCATION} (no proxy)."
 		else
-			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} (proxy ${http_proxy})."
+			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} from ${DL_REMOTE_LOCATION} (proxy ${http_proxy})."
 		fi
 		$EEPFETCHCMD > /dev/null 2>&1
 		if [ $? -gt 0 ]; then
