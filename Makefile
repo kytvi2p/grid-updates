@@ -54,7 +54,7 @@ release: html
 	@mkdir $(RELEASE_BASENAME)
 	@mv INSTALL.html README.html MAN.html $(RELEASE_BASENAME)/
 	@tar rf $(RELEASE_BASENAME).tar $(RELEASE_BASENAME)
-	@gzip -c -9 $(RELEASE_BASENAME).tar > $(RELEASE_BASENAME).tgz
+	@gzip -c -9 $(RELEASE_BASENAME).tar > ../$(RELEASE_BASENAME).tgz
 	@rm -r $(RELEASE_BASENAME) $(RELEASE_BASENAME).tar
 
 news:
