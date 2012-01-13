@@ -4,19 +4,20 @@ Priority: optional
 Maintainer: Kill Your TV <killyourtv@i2pmail.org>
 Build-Depends: pandoc
 Standards-Version: 3.9.2
-Vcs-Git: git://pull.git.repo.i2p/grid-updates.git
-Vcs-Browser: http://git.repo.i2p/w/grid-updates.git
+Vcs-Git: http://darrob.i2p/grid-updates/grid-updates.git
+Vcs-Browser: http://darrob.i2p/grid-updates/
 
 Package: grid-updates
 Architecture: all
 #Depends: dash | zsh | pdksh, ${misc:Depends}
 Recommends: i2p, i2p-tahoe-lafs
 Description: helper script for Tahoe-LAFS
- For nodes that support multiple introducers, grid-updates retrieves and installs
- an up-to-date list of introducers.
+ grid-updates attempts to keep Tahoe-LAFS nodes' configurations up-to-date and
+ thereby Tahoe grids as well connected as possible.  It can download lists of
+ introducers and display news feeds for grid-related news.
  .
- On public grids (especially the one on I2P) all nodes, even introducers, are
- run by volunteers and may disappear at any given time.  Maintaining a list of
- all known introducers and distributing it to all participants of the grid will
- ensure the best possible connectivity for everyone.
+ On some public grids all nodes, even introducers, are run by volunteers and
+ may disappear at any given time.  Maintaining a list of all known introducers
+ and distributing it to all participants of the grid will decrease the
+ possibility that the grid will get disconnected.
 
