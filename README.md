@@ -15,7 +15,7 @@ Download
 ========
 
 grid-updates is available from its [git repository] ([git mirror 1],
-[git-mirror 2]) or the [Tahoe grid][^2].
+[git mirror 2]) or the [Tahoe grid][^2].
 
 Installation
 ============
