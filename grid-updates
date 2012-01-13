@@ -239,9 +239,16 @@ parse_config_file () {
 	if [ -z $http_proxy ] && [ -n $PARSED_HTTP_PROXY ]; then
 		http_proxy="$PARSED_HTTP_PROXY"
 	fi
-	if [ "$PARSED_USE_PROXY" = "no" ]; then
+	case $PARSED_USE_PROXY in
+		N*|n*|F*|f*)
 		OPT_NOPROXY=1
-	fi
+		;;
+	Y*|y*|T*|t*)
+		OPT_NOPROXY=0
+		;;
+	*)
+		;; # pass
+	esac
 	if [ -z $EEPTOOL ] && [ -n $PARSED_DOWNLOAD_TOOL ]; then
 		EEPTOOL="$PARSED_DOWNLOAD_TOOL"
 	fi
