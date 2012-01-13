@@ -3,6 +3,8 @@ default: help
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man/man1
+DATAROOTDIR ?= $(PREFIX)/share
+DATADIR= $(DATAROOTDIR)/$(APP)
 APP= grid-updates
 INSTALL= install
 INSTALL_DATA= $(INSTALL) -m 644
@@ -18,6 +20,10 @@ install:
 	$(INSTALL_DATA) $(MAN) $(DESTDIR)$(MANDIR)
 	@echo "$(APP) successfully installed to $(DESTDIR)$(PREFIX)"
 
+installpatch:
+	$(INSTALL) -d $(DATADIR)
+	$(INSTALL) etc/webui/patch-files.sh $(DATADIR)
+	$(INSTALL_DATA) etc/webui/tahoe.css.patch etc/webui/welcome.xhtml.patch $(DATADIR)
 
 clean:
 	@rm -f README.html INSTALL.html MAN.html News/NEWS.html News/NEWS.tgz News/NEWS.atom
@@ -70,4 +76,4 @@ help:
 	@echo "Type 'make html' to compile HTML versions of the documentation."
 	@echo "Type 'make release' to create a release tarball."
 
-.PHONY: man viewman clean install help html tahoehtml news default
+.PHONY: man viewman clean install help html tahoehtml news default installpatch
