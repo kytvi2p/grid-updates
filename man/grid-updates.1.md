@@ -1,6 +1,6 @@
 % GRID-UPDATES(1) User Commands
 % darrob <darrob@mail.i2p>, killyourtv <kytv@mail.i2p>
-% December 2011
+% January 2012
 
 NAME
 ====
@@ -23,6 +23,8 @@ relies solely on volunteers.
 ACTIONS
 =======
 
+-C *file*, --create-config *file*
+:   Generate a grid-updates config file. If *file* is not specified, *$XDG_HOME_CONFIG/grid-updates/config* will be used.  See **CONFIG FILES** section below.
 -m, \--merge-introducers
 :   Merge your node's local introducers list with the subscription's.
 

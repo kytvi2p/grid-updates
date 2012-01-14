@@ -154,6 +154,9 @@ cat << EOF
 Usage: $0 [OPTIONS] [ACTIONS]
 
 Actions:
+    -C [file],                  Create config file with default settings. If [file] is
+    --create-config [file]      not specified $XDG_CONFIG_HOME/grid-updates/config
+                                will be used.
     -m, --merge-introducers     Merge your local introducers list with the
                                 subscription's
     -r, --replace-introducers   Replace your local list of introducers with the
@@ -253,6 +256,39 @@ parse_config_file () {
 		EEPTOOL="$PARSED_DOWNLOAD_TOOL"
 	fi
 	return 0
+}
+
+create_config_file ()
+{
+	if [ "x$CONFIG_FILE" = "x" ]; then
+		mkdir -p "$XDG_CONFIG_HOME/grid-updates" || (echo "ERROR: Failed to create directory $XDG_CONFIG_HOME/grid-updates." >&2; exit 1)
+		CONFIG_FILE="$XDG_CONFIG_HOME/grid-updates/config"
+	fi
+	# TODO We should update the config file when options change or are added instead of failing outright.
+	# If the config file exists we just exit.
+	if [ ! -e "$CONFIG_FILE" ]; then
+		eep_get > /dev/null 2>&1
+		cat << EOF > $CONFIG_FILE || (echo "ERROR: Failed to create the file $CONFIG_FILE." >&2; exit 1)
+# grid-updates $VERSION config
+
+# If the tahoe node is not in a standard location, set the correct path here
+#TAHOE_NODE_DIR=$DEFAULT_TAHOE_NODE_DIR
+
+#LISTURI=$DEFAULT_LISTURI
+#NEWSURI=$DEFAULT_NEWSURI
+#SCRIPTURI=$DEFAULT_SCRIPTURI
+
+# These are only used when fetching from non-tahoe URIs
+#DOWNLOAD_TOOL="$EEPTOOL"
+#HTTP_PROXY=$DEFAULT_HTTP_PROXY
+#USE_PROXY=yes
+EOF
+		echo "Default config file created at $CONFIG_FILE."
+		exit 0
+	else
+		echo "ERROR: $CONFIG_FILE already exists." >&2
+		exit 1
+	fi
 }
 
 read_config_files () {
@@ -744,6 +780,18 @@ while [ $# -gt 0 ] ; do
 		--check-version)
 			OPT_CHECK_VERSION=1
 			shift
+			;;
+		--create-config|-C)
+			if [ "$2" = "-v" ]; then
+				# verbose doesn't make sense here so we'll just shift
+				shift 2
+			elif [ -z "$2" ]; then
+				shift
+			else
+				CONFIG_FILE="$2"
+				shift 2
+			fi
+			create_config_file
 			;;
 		--download-update)
 			if [ -z "$2" ]; then
