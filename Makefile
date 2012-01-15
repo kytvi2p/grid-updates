@@ -20,7 +20,7 @@ install:
 
 
 clean:
-	@rm -f README.html INSTALL.html MAN.html News/NEWS.html News/NEWS.tgz News/NEWS.atom
+	@rm -f README.html INSTALL.html MAN.html
 
 man:
 	pandoc -s -w man man/grid-updates.1.md -o $(MAN)
@@ -57,17 +57,10 @@ release: html
 	@gzip -c -9 $(RELEASE_BASENAME).tar > ../$(RELEASE_BASENAME).tgz
 	@rm -r $(RELEASE_BASENAME) $(RELEASE_BASENAME).tar
 
-news:
-	@sed -e '3,$$!d' -e '/^-\+$$/s/-/=/g' News/NEWS | \
-		pandoc -s --template=News/pandoc-template.html -w html -r markdown --email-obfuscation=none > News/NEWS.html
-	@sed -e "s/REPLACEUPDATED/$$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$$(date -Ru)/" \
-		-e "s/REPLACEID/urn:uuid$$(uuid)/" News/NEWS.atom.template > News/NEWS.atom
-	@tar --directory News -c NEWS NEWS.html NEWS.atom | gzip -9 > News/NEWS.tgz
-
 help:
 	@echo "Type 'make install' to install grid-updates on your system."
 	@echo "Type 'make man' to compile the manpage (requires 'pandoc')".
 	@echo "Type 'make html' to compile HTML versions of the documentation."
 	@echo "Type 'make release' to create a release tarball."
 
-.PHONY: man viewman clean install help html tahoehtml news default
+.PHONY: man viewman clean install help html tahoehtml default
