@@ -157,9 +157,6 @@ cat << EOF
 Usage: $0 [OPTIONS] [ACTIONS]
 
 Actions:
-    -C [file],                  Create config file with default settings. If [file] is
-    --create-config [file]      not specified $XDG_CONFIG_HOME/grid-updates/config
-                                will be used.
     -m, --merge-introducers     Merge your local introducers list with the
                                 subscription's
     -r, --replace-introducers   Replace your local list of introducers with the
@@ -172,6 +169,13 @@ Actions:
       [target directory]        grid (implies --check-version)
     -R, --repair-subscriptions  Maintain or repair the health of the
                                 subscription service's URI
+    --make-news [Markdown file] Create a grid-updates-compatible NEWS.tgz file.
+    -C [file],                  Create config file with default settings. If [file] is
+      --create-config [file]    not specified $XDG_CONFIG_HOME/grid-updates/config
+                                will be used.
+    --patch-tahoe               Patch the Tahoe web console to display
+                                grid-updates news in an Iframe
+    --undo-patch-tahoe          Restore the original Tahoe web console
 Options:
     -c [config file],           Specify a grid-updates config file
       --config [config file]

@@ -36,8 +36,10 @@ make sure your Tahoe-LAFS node will know about as many introducers as possible.
 
 If you also want to receive the news feed, add the `--download-news` action.
 It will fetch and display (email if run by a cron job) the news feed from the
-grid.  It will also allow you to few the news your browser and to be notified
-of news by an Atom news feed in a regular feed reader.  This is recommended.
+grid.  It will also allow you to view the news your browser (using
+--patch-tahoe even in Tahoe's web console) and to be notified of news by a
+regular news reader using an Atom news feed.  Following the grid-updates news
+is recommended.
 
 The list, news and script installation files are stored on the grid itself and
 -- like all other shares -- need maintenance and repairs[^3].  If you can,

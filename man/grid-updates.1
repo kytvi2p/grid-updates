@@ -7,11 +7,12 @@ grid-updates - Helper Script for Tahoe-LAFS Nodes
 \f[B]grid-updates\f[] [\f[I]OPTIONS\f[]] \f[I]ACTION\f[]
 .SH DESCRIPTION
 .PP
-\f[I]grid-updates\f[] is a shell script intended to help keep Tahoe-LAFS
-nodes' configurations up-to-date.
+\f[I]grid-updates\f[] is a shell script intended to help keep
+Tahoe-LAFS nodes' configurations up-to-date.
 It can retrieve lists of introducers as well as news feeds from the
 Tahoe grid.
-This is useful for any public grid that relies solely on volunteers.
+This is useful for any public grid that relies solely on
+volunteers.
 .SH ACTIONS
 .TP
 .B -C \f[I]file\f[], \[em]create-config \f[I]file\f[]
@@ -44,13 +45,31 @@ Check for a new version of this script on the grid.
 .RE
 .TP
 .B --download-update \f[I][target_directory]\f[]
-Download a new version of this script from the grid to the specified
-directory (implies \f[C]--check-update\f[]).
+Download a new version of this script from the grid to the
+specified directory (implies \f[B]--check-update\f[]).
 .RS
 .RE
 .TP
 .B -R, --repair-subscriptions
 Maintain or repair the health of the subscription service's URIs.
+.RS
+.RE
+.TP
+.B --make-news \f[I]file\f[]
+Create a \f[I]grid-updates\f[]-compatible NEWS.tgz file from a
+Markdown source file.
+.RS
+.RE
+.TP
+.B --patch-tahoe
+Patch the Tahoe-LAFS web console to display the grid-updates news
+feed in an Iframe.
+.RS
+.RE
+.TP
+.B --undo-patch-tahoe
+Remove the grid-updates patch to the Tahoe web console and restore
+its original version.
 .RS
 .RE
 .SH OPTIONS
@@ -146,79 +165,91 @@ Default is \f[I]yes\f[].
 .RE
 .SH NOTES
 .PP
-\f[I]URIs\f[], in this context, can be either Tahoe-LAFS directories
+\f[I]URIs\f[], in this context, can be either Tahoe-LAFS
+directories
 like
 .PD 0
 .P
 .PD
-\f[C]URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq\f[]
+\f[B]URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq\f[]
 .PD 0
 .P
 .PD
-or regular FQDNs like \f[C]http://example.i2p/\f[] or
-\f[C]http://www.example.com/\f[].
+or
+regular FQDNs like \f[B]http://example.i2p/\f[] or
+\f[B]http://www.example.com/\f[].
 .SH ERRORS
 .PP
-If the script repeatedly fails to retrieve a file from the grid, the
-share may be damaged.
-Run \f[C]--repair-subscriptions\f[] which will attempt to deep-check the
-share.
+If the script repeatedly fails to retrieve a file from the grid,
+the share may be damaged.
+Run \f[B]--repair-subscriptions\f[] which will attempt to
+deep-check the share.
 .PP
 If that doesn't help, you will most likely have to find new URIs to
 subscribe to.
 .PP
-Use \f[C]--check-version\f[] to see if there is a new version of
-\f[I]grid-updates\f[] available, which may already include new default
-URIs.
+Use \f[B]--check-version\f[] to see if there is a new version of
+\f[I]grid-updates\f[] available, which may already include new
+default URIs.
 .PP
 Finally, you can check on IRC, mailing lists and Wikis for updated
 information.
 .SH NEWS
 .PP
 If you choose to download the news feed, \f[I]grid-updates\f[] will
-place a plain text version of it in your node's directory and print it
-to stdout.
+place a plain text version of it in your node's directory and print
+it to stdout.
 .PP
 Furthermore, it will place an HTML version of it in your node's web
 server's \f[I]/static\f[] directory, so you can access it at
 http://127.0.0.1:3456/static/NEWS.html.
 .PP
-The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used
-by regular feed readers to check for \f[I]grid-updates\f[] news.
-(Please note, however, that you cannot \[lq]refresh\[rq] the feed with
-regular news readers.
-These files have to always be fetched by \f[I]grid-updates\f[] first.)
+The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be
+used by regular feed readers to check for \f[I]grid-updates\f[]
+news.
+(Please note, however, that you cannot \[lq]refresh\[rq] the feed
+with regular news readers.
+These files have to always be fetched by \f[I]grid-updates\f[]
+first.)
 .SH FILES
 .IP \[bu] 2
 \f[I]~/.tahoe/introducers\f[]
 .PD 0
 .P
 .PD
+
 .IP \[bu] 2
 \f[I]~/.tahoe/NEWS\f[]
 .PD 0
 .P
 .PD
+
 .IP \[bu] 2
 \f[I]~/.tahoe/public_html/NEWS.html\f[]
 .PD 0
 .P
 .PD
+
 .IP \[bu] 2
 \f[I]~/.tahoe/public_html/NEWS.atom\f[]
 .PD 0
 .P
 .PD
+
 .IP \[bu] 2
-\f[I]$XDG_CONFIG_HOME/grid-updates/config\f[] (most commonly ~/.config)
+\f[I]$XDG_CONFIG_HOME/grid-updates/config\f[] (most commonly
+~/.config)
 .PD 0
 .P
 .PD
+
 .IP \[bu] 2
-\f[I]$XDG_CONFIG_DIRS/grid-updates/config\f[] (most commonly /etc/xdg)
+\f[I]$XDG_CONFIG_DIRS/grid-updates/config\f[] (most commonly
+/etc/xdg)
 .SH BUGS
 .PP
-Please report bugs in #tahoe-lafs on Irc2p or via email (see below).
+Please report bugs in #tahoe-lafs on Irc2p or via email (see
+below).
 .SH SEE ALSO
 .PP
 The \f[I]grid-updates\f[] Git repositories:
@@ -227,16 +258,15 @@ http://darrob.i2p/grid-updates/
 .PD 0
 .P
 .PD
+
 .IP \[bu] 2
 http://git.repo.i2p/w/grid-updates.git
 .PP
 The README on the grid:
-.IP
-.nf
-\f[C]
-URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
+.PP
+\f[CR]
+      URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
 \f[]
-.fi
 .PP
 Information about Tahoe-LAFS for I2P and the I2P grid:
 http://killyourtv.i2p
@@ -246,3 +276,4 @@ http://killyourtv.i2p
 This means that you can do whatever you please with it.
 .SH AUTHORS
 darrob <darrob@mail.i2p>, killyourtv <kytv@mail.i2p>.
+

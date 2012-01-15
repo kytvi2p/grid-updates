@@ -44,6 +44,18 @@ ACTIONS
 -R, \--repair-subscriptions
 :   Maintain or repair the health of the subscription service's URIs.
 
+\--make-news *file*
+:   Create a *grid-updates*-compatible NEWS.tgz file from a Markdown source
+    file.
+
+\--patch-tahoe
+:   Patch the Tahoe-LAFS web console to display the grid-updates news feed in
+    an Iframe.
+
+\--undo-patch-tahoe
+:   Remove the grid-updates patch to the Tahoe web console and restore its
+    original version.
+
 OPTIONS
 =======
 
