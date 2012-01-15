@@ -9,8 +9,9 @@ INSTALL= install
 INSTALL_DATA= install -m 644
 
 build:
-	# There's only a manpage to compile
-	make man
+	# There's only a manpage to compile.
+	# (This is unnesscary as long as we include a compiled version.)
+	#make man
 
 clean:
 	rm -rf *~ debian/tmp debian/*~ debian/files* debian/substvars
