@@ -18,11 +18,9 @@ install:
 	$(INSTALL) -d $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
 	$(INSTALL) $(APP) $(DESTDIR)$(BINDIR)
 	$(INSTALL_DATA) $(MAN) $(DESTDIR)$(MANDIR)
-	@echo "$(APP) successfully installed to $(DESTDIR)$(PREFIX)"
-
-installpatch:
 	$(INSTALL) -d $(DATADIR)
-	$(INSTALL_DATA) etc/webui/tahoe.css.patch etc/webui/welcome.xhtml.patch $(DATADIR)
+	$(INSTALL_DATA) etc/css.patch etc/xhtml.patch NEWS.atom.template pandoc-template.html $(DATADIR)
+	@echo "$(APP) successfully installed to $(DESTDIR)$(PREFIX)"
 
 clean:
 	@rm -f README.html INSTALL.html MAN.html
