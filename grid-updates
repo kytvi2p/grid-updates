@@ -15,7 +15,7 @@
 # For more information see the README.md and INSTALL.md files.
 
 # This script's version:
-VERSION='0.5'
+VERSION='0.5-git'
 
 ################################## DEFAULTS ###################################
 # Default location of the Tahoe-LAFS node:
@@ -684,6 +684,28 @@ download_update () {
 	fi
 }
 
+### Make NEWS.tgz ###
+
+compile_news_tarball () {
+	# TODO install templates in /usr/share (use $DATADIR from webui branch)
+	# TODO upload?
+	NEWS_MARKDOWN_BASENAME="$(basename "$NEWS_MARKDOWN_SOURCE")"
+	NEWS_PANDOC_TEMPLATE=etc/News/pandoc-template.html
+	NEWS_ATOM_TEMPLATE=etc/News/NEWS.atom.template
+	# Work in temporary directory
+	NEWS_TMP_DIR=$(mktemp -d $LOCKDIR/grid-update.XXXX)
+	cp "$NEWS_MARKDOWN_SOURCE" "$NEWS_TMP_DIR"/NEWS
+	# Compile HTML
+	pandoc -s --template="$NEWS_PANDOC_TEMPLATE" -w html -r markdown \
+		--email-obfuscation=none --output "$NEWS_TMP_DIR"/NEWS.html \
+		"$NEWS_TMP_DIR"/NEWS
+	# Create Atom news feed file
+	sed -e "s/REPLACEUPDATED/$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$(date -Ru)/" \
+	-e "s/REPLACEID/urn:uuid$(uuid)/" "$NEWS_ATOM_TEMPLATE" > "$NEWS_TMP_DIR"/NEWS.atom
+	# Create in TGZ file in PWD
+	tar --directory "$NEWS_TMP_DIR" -c NEWS NEWS.html NEWS.atom | gzip -9 > NEWS.tgz
+}
+
 # some of those variables will not be initialized--and that's OK.
 # We'll do our own checking from this point forward.
 set +u
@@ -805,6 +827,16 @@ while [ $# -gt 0 ] ; do
 				shift 2
 			fi
 			;;
+		--make-news)
+			if [ -z "$2" ]; then
+				echo "ERROR: No Markdown source file specified." >&2
+				print_help
+				exit 1
+			fi
+			OPT_COMPILE_NEWS=1
+			NEWS_MARKDOWN_SOURCE="$2"
+			shift 2
+			;;
 		--version|-V)
 			echo "$(basename $0) version: $VERSION"
 			eep_get
@@ -844,7 +876,8 @@ check_newshtml_exists
 # Check if an obligatory option has been specified:
 if [ $OPT_MERGE_LIST ] || [ $OPT_REPLACE_LIST ] || \
 [ $OPT_REPAIR_SUBSCRIPTIONS ] || [ $OPT_DOWNLOAD_NEWS ] || \
-[ $OPT_CHECK_VERSION ] || [ $OPT_DOWNLOAD_UPDATE ];
+[ $OPT_CHECK_VERSION ] || [ $OPT_DOWNLOAD_UPDATE ] || \
+[ $OPT_COMPILE_NEWS ];
 then
 	[ $OPT_REPAIR_SUBSCRIPTIONS ] && repair_subscriptions
 	# Make sure no conflicting options have been specified:
@@ -866,6 +899,10 @@ then
 		download_update
 	elif [ $OPT_CHECK_VERSION ]; then
 		check_version
+	fi
+	if [ $OPT_COMPILE_NEWS ]; then
+		compile_news_tarball && \
+		echo "Success: created NEWS.tgz."
 	fi
 else
 	echo "ERROR: You need to specify an action." >&2
