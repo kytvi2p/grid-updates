@@ -656,15 +656,23 @@ find_webui_files () {
 
 webui_file_profile () {
 	FILE="$1"
+	# Find patches
+	BINDIR="$(dirname $0)"
+	if [ "$BINDIR" = "/usr/bin" ] || [ "$BINDIR" = "/usr/local/bin" ]; then
+		DATADIR="$(dirname $0)/../share/grid-updates"
+	else
+		# if script is run directly and not installed
+		DATADIR="$(dirname $0)/etc/webui"
+	fi
+	echo $DATADIR
 	if [ "$FILE" = "welcome.xhtml" ]; then
 		export FILE_PATH="$WELCOME"
-		# TODO find files in /usr/share and /usr/local/share
-		export PATCH_FILE=/usr/share/grid-updates/welcome.xhtml.patch
+		export PATCH_FILE=$DATADIR/welcome.xhtml.patch
 		export BACKUP_FILE=${FILE_PATH}.grid-updates.original
 		export ORIG_CHECKSUM=c5ffbc368f8142a7f25747d0cc69fee1dede919709f0f27fe9777f67bab74e3e
 	elif [ "$FILE" = "tahoe.css" ]; then
 		export FILE_PATH="$CSS"
-		export PATCH_FILE=/usr/share/grid-updates/tahoe.css.patch
+		export PATCH_FILE=$DATADIR/tahoe.css.patch
 		export BACKUP_FILE=${FILE_PATH}.grid-updates.original
 		export ORIG_CHECKSUM=76c58b765a9c1ee589783a56bc238af70bd7ca101b1db7189454970941223996
 	else
