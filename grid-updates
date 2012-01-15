@@ -27,6 +27,9 @@ DEFAULT_NEWSURI='URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ck
 # Default location (directory) of script releases:
 DEFAULT_SCRIPTURI='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
 DEFAULT_HTTP_PROXY='127.0.0.1:4444'
+# Web UI checksums of Tahoe-LAFS version 1.8.3:
+ORIGINAL_WEBUI_WELCOME_CHECKSUM="c5ffbc368f8142a7f25747d0cc69fee1dede919709f0f27fe9777f67bab74e3e"
+ORIGINAL_WEBUI_CSS_CHECKSUM="76c58b765a9c1ee589783a56bc238af70bd7ca101b1db7189454970941223996"
 ###############################################################################
 
 [ -z "$XDG_CONFIG_HOME" ] && XDG_CONFIG_HOME="$HOME/.config"
@@ -704,6 +707,135 @@ compile_news_tarball () {
 	-e "s/REPLACEID/urn:uuid$(uuid)/" "$NEWS_ATOM_TEMPLATE" > "$NEWS_TMP_DIR"/NEWS.atom
 	# Create in TGZ file in PWD
 	tar --directory "$NEWS_TMP_DIR" -c NEWS NEWS.html NEWS.atom | gzip -9 > NEWS.tgz
+
+### Tahoe patch ###
+
+find_webui_files () {
+	if [ "$TAHOE" = "/usr/bin/tahoe" ]; then
+		WELCOME="/usr/share/pyshared/allmydata/web/welcome.xhtml"
+		CSS="/usr/share/pyshared/allmydata/web/tahoe.css"
+	else
+		# This tries to find versions installed by the installer script.
+		WELCOME="$(dirname $(which tahoe))/../src/allmydata/web/welcome.xhtml"
+		CSS="$(dirname $(which tahoe))/../src/allmydata/web/tahoe.css"
+	fi
+}
+
+webui_file_profile () {
+	FILE="$1"
+	# Find patches
+	BINDIR="$(dirname $0)"
+	if [ "$BINDIR" = "/usr/bin" ] || [ "$BINDIR" = "/usr/local/bin" ]; then
+		DATADIR="$BINDIR/../share/grid-updates"
+	else
+		# if script is run directly and not installed
+		DATADIR="$BINDIR/etc/webui"
+	fi
+	echo $DATADIR
+	if [ "$FILE" = "welcome.xhtml" ]; then
+		export FILE_PATH="$WELCOME"
+		export PATCH_FILE=$DATADIR/welcome.xhtml.patch
+		export BACKUP_FILE=${FILE_PATH}.grid-updates.original
+		export ORIG_CHECKSUM=$ORIGINAL_WEBUI_WELCOME_CHECKSUM
+	elif [ "$FILE" = "tahoe.css" ]; then
+		export FILE_PATH="$CSS"
+		export PATCH_FILE=$DATADIR/tahoe.css.patch
+		export BACKUP_FILE=${FILE_PATH}.grid-updates.original
+		export ORIG_CHECKSUM=$ORIGINAL_WEBUI_CSS_CHECKSUM
+	else
+		echo "ERROR: unknown file name."
+		return 1
+	fi
+}
+
+check_webui_file_permissions () {
+	if [ -f "$FILE_PATH" ]; then
+		if [ ! -w "$FILE_PATH" ]; then
+			echo "ERROR: No permission to write to $FILE."
+			echo "       You may want run this command as the user who owns the Tahoe-LAFS installation."
+			return 1
+		else
+			echo "$FILE found and writable."
+		fi
+	else
+		echo "Not found: $FILE_PATH."
+		return 1
+	fi
+
+}
+
+check_if_webui_patchable () {
+	# Compare files
+	if [ "$(sha256sum $FILE_PATH | cut -d ' ' -f 1)" = "$ORIG_CHECKSUM" ]; then
+		echo "$FILE still unpatched (known checksum)."
+		# patch
+		return 0
+	else
+		if grep -q "grid-updates" $FILE_PATH ; then
+			# Check if patched by g-u.  (It could also differ because
+			# of a new version of Tahoe. This shouldn't continue if we
+			# don't understand why the file differs.)
+			#echo "$FILE has been patched by grid-updates before."
+			if [ -f "$BACKUP_FILE" ]; then
+				# check if backup exists
+				#echo "Backup exists (as expected)"
+				if [ "$(sha256sum $BACKUP_FILE | cut -d ' ' -f 1)" = $ORIG_CHECKSUM ]; then
+					#echo "Backup matches known checksum (as expected)."
+					restore_webui_backup
+					return 0
+				else
+					echo "Unknown checksum. Don't know what to do."
+					return 1
+				fi
+			fi
+		else
+			echo "ERROR: $FILE looks unexpected. Cannot apply patch."
+			return 1
+		fi
+	fi
+}
+
+make_webui_backup () {
+	if [ ! -f "$BACKUP_FILE" ]; then
+		cp "$FILE_PATH" "$BACKUP_FILE"
+	fi
+}
+
+restore_webui_backup () {
+	if [ -f "$BACKUP_FILE" ]; then
+		cp $BACKUP_FILE $FILE_PATH
+	else
+		echo "ERROR: Couldn't find original backup file $BACKUP_FILE."
+		return 1
+	fi
+}
+
+apply_webui_patch () {
+	patch "$FILE_PATH" < "$PATCH_FILE"
+}
+
+patch_webui_files () {
+	find_webui_files
+	for FILE in "welcome.xhtml" "tahoe.css" ; do
+		echo "--- Patching $FILE ---"
+		webui_file_profile $FILE
+		check_webui_file_permissions
+		check_if_webui_patchable
+		make_webui_backup
+		apply_webui_patch
+	done && echo -e "\nSuccess: Patches successfully applied."
+}
+
+restore_webui_files () {
+	find_webui_files
+	for FILE in "welcome.xhtml" "tahoe.css" ; do
+		echo "--- Restoring $FILE ---"
+		webui_file_profile $FILE
+		check_webui_file_permissions
+		restore_webui_backup
+	done \
+		&& echo -e "\nSuccess: Original Tahoe WebUI files restored." \
+		|| echo -e "\nERROR: Couldn't restore original WebUI files."
 }
 
 # some of those variables will not be initialized--and that's OK.
@@ -836,6 +968,13 @@ while [ $# -gt 0 ] ; do
 			OPT_COMPILE_NEWS=1
 			NEWS_MARKDOWN_SOURCE="$2"
 			shift 2
+		--patch-tahoe)
+			OPT_PATCH_TAHOE=1
+			shift
+			;;
+		--undo-patch-tahoe)
+			OPT_UNDO_PATCH_TAHOE=1
+			shift
 			;;
 		--version|-V)
 			echo "$(basename $0) version: $VERSION"
@@ -877,6 +1016,7 @@ check_newshtml_exists
 if [ $OPT_MERGE_LIST ] || [ $OPT_REPLACE_LIST ] || \
 [ $OPT_REPAIR_SUBSCRIPTIONS ] || [ $OPT_DOWNLOAD_NEWS ] || \
 [ $OPT_CHECK_VERSION ] || [ $OPT_DOWNLOAD_UPDATE ] || \
+[ $OPT_PATCH_TAHOE ] || [ $OPT_UNDO_PATCH_TAHOE ] || \
 [ $OPT_COMPILE_NEWS ];
 then
 	[ $OPT_REPAIR_SUBSCRIPTIONS ] && repair_subscriptions
@@ -903,6 +1043,16 @@ then
 	if [ $OPT_COMPILE_NEWS ]; then
 		compile_news_tarball && \
 		echo "Success: created NEWS.tgz."
+	fi
+	# Tahoe WebUI patch
+	if [ $OPT_PATCH_TAHOE ] && [ ! $OPT_UNDO_PATCH_TAHOE ]; then
+		patch_webui_files
+	elif [ ! $OPT_PATCH_TAHOE ] && [ $OPT_UNDO_PATCH_TAHOE ]; then
+		restore_webui_files
+	elif [ $OPT_PATCH_TAHOE ] && [ $OPT_UNDO_PATCH_TAHOE ]; then
+		echo "ERROR: --patch-tahoe and --undo-patch-tahoe are mutually exclusive." >&2
+		print_help
+		exit 1
 	fi
 else
 	echo "ERROR: You need to specify an action." >&2

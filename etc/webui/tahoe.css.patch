@@ -1,0 +1,31 @@
+111a112,141
+> /* grid-updates news section */
+> #grid-updates {
+>   width: 55%;
+>   font-size: 60%;
+>   color: white;
+>   text-align: center;
+>   background: white;
+>   border: .3em solid #3289b4;
+> }
+> #grid-updates h2 {
+>   background: #3289b4;
+>   border: 1px solid white;
+>   margin: 0;
+>   padding: .3em;
+> }
+> div.grid-updates{
+>   background: #58a1c3;
+>   border: 1px solid white;
+>   font-family: sans-serif;
+> }
+> a.grid-updates {
+>   color: white;
+> }
+> iframe#grid-updates {
+>   background-color: white;
+>   width: 98%;
+>   height: 25%;
+>   border: none;
+> }
+> 

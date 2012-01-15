@@ -3,6 +3,7 @@
 package = grid-updates
 docdir = debian/tmp/usr/share/doc/$(package)
 mandir = debian/tmp/usr/share/man/man1
+datadir = debian/tmp/usr/share/$(package)
 
 INSTALL= install
 INSTALL_DATA= install -m 644
@@ -30,6 +31,8 @@ binary-indep: build
 	$(INSTALL_DATA) CHANGES $(docdir)/changelog
 	cd $(docdir) && gzip -9 changelog changelog.Debian
 	gzip -r9 debian/tmp/usr/share/man
+	$(INSTALL) -d $(datadir)
+	$(INSTALL_DATA) etc/webui/tahoe.css.patch etc/webui/welcome.xhtml.patch $(datadir)
 	dpkg-gencontrol
 	chown -R 0:0 debian/tmp
 	chmod -R u+w,go=rX debian/tmp

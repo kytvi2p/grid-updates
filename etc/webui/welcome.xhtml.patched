@@ -1,0 +1,134 @@
+<html xmlns:n="http://nevow.com/ns/nevow/0.1"><head>
+  <title>Tahoe-LAFS - Welcome</title>
+  <link href="/webform_css" rel="stylesheet" type="text/css"/>
+  <link href="/tahoe_css" rel="stylesheet" type="text/css"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head><body>
+
+<h1>Welcome To Tahoe-LAFS!</h1>
+
+<div class="section" id="this-client">
+
+  <h2>This Client</h2>
+
+  <p>
+    <a href="status/">Recent Uploads and Downloads</a>,
+    <a href="statistics">Operational Statistics</a>
+  </p>
+
+  <table class="node-info table-headings-left">
+    <tr><th>My nickname:</th> <td class="nickname mine" n:render="string" n:data="my_nickname" /></tr>
+    <tr><th>My nodeid:</th> <td class="nodeid mine data-chars" n:render="string" n:data="my_nodeid" /></tr>
+    <tr><th>My versions:</th> <td n:render="string" n:data="version" /></tr>
+    <tr><th>Tahoe-LAFS code imported from:</th> <td n:render="string" n:data="import_path" /></tr>
+    <tr><th>Services running:</th> <td n:render="services" /></tr>
+  </table>
+
+</div>
+
+<!-- Begin grid-updates patch
+This div section imlements an Iframe which will display the grid-updates news
+feed on the Tahoe-LAFS web frontend. For more information on grid-updates see
+http://darrob.i2p/grid-updates,
+URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a
+and possibly your package manager.
+-->
+<div class="section" id="grid-updates">
+	<h2>Grid News</h2>
+	<iframe id="grid-updates" scrolling="auto" name="grid-updates-news" src="static/NEWS.html" />
+	<div class="grid-updates">
+		Please note: the above are <a class="grid-updates" href="static/NEWS.html">news</a>
+		retrieved by <a class="grid-updates"
+		href="http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Amjozenx3522pxtqyruekcx7mh4%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/"
+		>grid-updates</a>.
+		You need to run it regularly to update these news.
+	</div>
+</div>
+<!-- End grid-updates patch -->
+
+
+<div class="section" id="controls">
+<h2>Controls</h2>
+
+  <p>There are also controls for each directory on that directory's page.</p>
+
+  <div n:render="mkdir_form" />
+  <div n:render="view_form" />
+  <div n:render="upload_form" />
+  <div n:render="download_form" />
+</div>
+
+<h2>Connected Introducer(s)</h2>
+
+<div>
+<table n:render="sequence" n:data="introducers">
+  <tr n:pattern="header">
+    <td>Introducer FURL</td>
+    <td>Connected?</td>
+  </tr>
+  <tr n:pattern="item" n:render="introducers_row">
+    <td><tt><n:slot name="introducer_furl"/></tt></td>
+    <td><tt><n:slot name="connected"/></tt></td>
+  </tr>
+  <tr n:pattern="empty"><td>no introducers!</td></tr>
+</table>
+</div>
+
+
+
+<div class="section" id="grid">
+  <h2>Status of the Storage Grid</h2>
+
+  <div>
+    <n:attr name="class">connected-<n:invisible n:render="string" n:data="connected_to_helper" /></n:attr>
+    <div>Helper: <span n:render="string" n:data="helper_furl" /></div>
+    <div>Connected to helper?: <span n:render="string" n:data="connected_to_helper" /></div>
+  </div>
+
+  <p>Connected to <span n:render="string" n:data="connected_storage_servers" />
+     of <span n:render="string" n:data="known_storage_servers" /> known storage servers:</p>
+
+  <div>
+    <table class="services table-headings-top" n:render="sequence" n:data="services">
+      <tr n:pattern="header">
+        <th>Service Name</th>
+        <th class="nickname-and-peerid">
+            <div class="service-nickname">Nickname</div>
+            <div class="nodeid data-chars">PeerID</div></th>
+        <th>Connected?</th>
+        <th>Since</th>
+        <th>First Announced</th>
+        <th>Version</th>
+      </tr>
+      <tr n:pattern="item" n:render="service_row">
+        <td class="service-service-name"><n:slot name="service_name"/></td>
+        <td class="nickname-and-peerid">
+          <div class="nickname"><n:slot name="nickname"/></div>
+          <div class="nodeid data-chars"><n:slot name="peerid"/></div></td>
+        <td>
+          <n:attr name="class">service-connected connected-<n:slot name="connected-bool"/></n:attr>
+          <n:slot name="connected"/>
+        </td>
+        <td class="service-since">       <n:slot name="since"/></td>
+        <td class="service-announced">   <n:slot name="announced"/></td>
+        <td class="service-version">     <n:slot name="version"/></td>
+      </tr>
+      <tr n:pattern="empty"><td>no peers!</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="section" id="other-resources">
+  <h2>Other Resources</h2>
+
+  <div>Please visit the <a target="_blank" href="http://tahoe-lafs.org">Tahoe-LAFS home page</a> for
+  code updates and bug reporting.</div>
+
+  <div>The <a href="provisioning">provisioning tool</a> and <a
+  href="reliability">reliability calculator</a> may also be useful.</div>
+
+  <div n:render="incident_button" />
+
+</div>
+
+</body></html>
