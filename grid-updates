@@ -693,8 +693,8 @@ compile_news_tarball () {
 	# TODO install templates in /usr/share (use $DATADIR from webui branch)
 	# TODO upload?
 	NEWS_MARKDOWN_BASENAME="$(basename "$NEWS_MARKDOWN_SOURCE")"
-	NEWS_PANDOC_TEMPLATE=etc/News/pandoc-template.html
-	NEWS_ATOM_TEMPLATE=etc/News/NEWS.atom.template
+	NEWS_PANDOC_TEMPLATE="$DATADIR"/pandoc-template.html
+	NEWS_ATOM_TEMPLATE="$DATADIR"/NEWS.atom.template
 	# Work in temporary directory
 	NEWS_TMP_DIR=$(mktemp -d $LOCKDIR/grid-update.XXXX)
 	cp "$NEWS_MARKDOWN_SOURCE" "$NEWS_TMP_DIR"/NEWS
