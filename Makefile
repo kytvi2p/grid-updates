@@ -22,7 +22,6 @@ install:
 
 installpatch:
 	$(INSTALL) -d $(DATADIR)
-	$(INSTALL) etc/webui/patch-files.sh $(DATADIR)
 	$(INSTALL_DATA) etc/webui/tahoe.css.patch etc/webui/welcome.xhtml.patch $(DATADIR)
 
 clean:

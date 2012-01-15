@@ -32,7 +32,6 @@ binary-indep: build
 	cd $(docdir) && gzip -9 changelog changelog.Debian
 	gzip -r9 debian/tmp/usr/share/man
 	$(INSTALL) -d $(datadir)
-	$(INSTALL) etc/webui/patch-files.sh $(datadir)
 	$(INSTALL_DATA) etc/webui/tahoe.css.patch etc/webui/welcome.xhtml.patch $(datadir)
 	dpkg-gencontrol
 	chown -R 0:0 debian/tmp
