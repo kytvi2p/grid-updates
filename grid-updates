@@ -659,10 +659,10 @@ webui_file_profile () {
 	# Find patches
 	BINDIR="$(dirname $0)"
 	if [ "$BINDIR" = "/usr/bin" ] || [ "$BINDIR" = "/usr/local/bin" ]; then
-		DATADIR="$(dirname $0)/../share/grid-updates"
+		DATADIR="$BINDIR/../share/grid-updates"
 	else
 		# if script is run directly and not installed
-		DATADIR="$(dirname $0)/etc/webui"
+		DATADIR="$BINDIR/etc/webui"
 	fi
 	echo $DATADIR
 	if [ "$FILE" = "welcome.xhtml" ]; then
