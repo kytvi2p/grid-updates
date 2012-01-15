@@ -707,6 +707,7 @@ compile_news_tarball () {
 	-e "s/REPLACEID/urn:uuid$(uuid)/" "$NEWS_ATOM_TEMPLATE" > "$NEWS_TMP_DIR"/NEWS.atom
 	# Create in TGZ file in PWD
 	tar --directory "$NEWS_TMP_DIR" -c NEWS NEWS.html NEWS.atom | gzip -9 > NEWS.tgz
+}
 
 ### Tahoe patch ###
 
@@ -723,15 +724,6 @@ find_webui_files () {
 
 webui_file_profile () {
 	FILE="$1"
-	# Find patches
-	BINDIR="$(dirname $0)"
-	if [ "$BINDIR" = "/usr/bin" ] || [ "$BINDIR" = "/usr/local/bin" ]; then
-		DATADIR="$BINDIR/../share/grid-updates"
-	else
-		# if script is run directly and not installed
-		DATADIR="$BINDIR/etc/webui"
-	fi
-	echo $DATADIR
 	if [ "$FILE" = "welcome.xhtml" ]; then
 		export FILE_PATH="$WELCOME"
 		export PATCH_FILE=$DATADIR/welcome.xhtml.patch
@@ -968,6 +960,7 @@ while [ $# -gt 0 ] ; do
 			OPT_COMPILE_NEWS=1
 			NEWS_MARKDOWN_SOURCE="$2"
 			shift 2
+			;;
 		--patch-tahoe)
 			OPT_PATCH_TAHOE=1
 			shift
@@ -994,6 +987,16 @@ while [ $# -gt 0 ] ; do
 done
 
 ### Tasks and checks to be run before any action ###
+
+# Find data dir
+# TODO: What to do if nothing found?
+BINDIR="$(dirname $0)"
+if [ "$BINDIR" = "/usr/bin" ] || [ "$BINDIR" = "/usr/local/bin" ]; then
+	DATADIR="$BINDIR/../share/grid-updates"
+else
+	# if script is run directly and not installed
+	DATADIR="$BINDIR/etc"
+fi
 
 # Parse config files
 read_config_files
