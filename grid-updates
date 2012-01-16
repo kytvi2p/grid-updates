@@ -1053,7 +1053,10 @@ then
 		print_help
 		exit 1
 	fi
-	[ $OPT_DOWNLOAD_NEWS ] && download_news
+	if [ $OPT_DOWNLOAD_NEWS ]; then
+		download_news
+		check_if_patch_uptodate
+	fi
 	# Only run download_update if both --check-version and --download-update
 	# have been specified:
 	if [ $OPT_CHECK_VERSION ] && [ $OPT_DOWNLOAD_UPDATE ]; then
