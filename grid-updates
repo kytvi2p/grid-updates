@@ -657,15 +657,17 @@ check_version () {
 		if [ "$VERSION" != "$NEWEST_VERSION" ]; then
 			# Only print if not called via --download-update
 			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "New version available: $LATEST_AVAILABLE_VERSION."
-			return 0
+			export NEW_GU_VERSION_AVAILABLE=1
 		else
 			# Only print if not called via --download-update
 			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "No new version available."
-			return 1
+			export NEW_GU_VERSION_AVAILABLE=0
 		fi
 	else
 		echo "Error: Nothing found. This doesn't seem to be a download location for grid-updates." >&2
 	fi
+	# Also check Tahoe web console patch versions
+	check_if_patch_uptodate
 }
 
 download_update () {
@@ -677,7 +679,8 @@ download_update () {
 		echo "ERROR: Cannot write to download directory $UPDATE_DOWNLOAD_DIR." >&2
 		exit 1
 	fi
-	if check_version; then
+	check_version
+	if [ $NEW_GU_VERSION_AVAILABLE -eq 1 ]; then
 		only_verbose echo "INFO: New version available: $LATEST_AVAILABLE_VERSION."
 		only_verbose echo "INFO: Attempting to download new version."
 		if "$TAHOE" get $SCRIPTURI/$LATEST_VERSION_FILENAME "$UPDATE_DOWNLOAD_DIR/$LATEST_VERSION_FILENAME" 2> /dev/null ; then
@@ -782,6 +785,22 @@ check_if_webui_patchable () {
 			echo "ERROR: $FILE looks unexpected. Cannot apply patch."
 			return 1
 		fi
+	fi
+}
+
+check_if_patch_uptodate () {
+	#only_verbose echo "INFO: Checking for updates to the Tahoe web console patch."
+	find_webui_files
+	# It should suffice to check one of the files to be patched.
+	webui_file_profile welcome.xhtml
+	CURRENT_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$DATADIR/welcome.xhtml.patch" )
+	INSTALLED_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$FILE_PATH")
+	#echo $CURRENT_WEBUI_PATCH_VERSION
+	#echo $INSTALLED_WEBUI_PATCH_VERSION
+	if [ "$CURRENT_WEBUI_PATCH_VERSION" != "$INSTALLED_WEBUI_PATCH_VERSION" ]; then
+		echo "There seems to be an updated web console patch available. Run grid-updates --patch-tahoe again to install it."
+	#else
+	#	only_verbose echo "INFO: No update to the web console patch available."
 	fi
 }
 

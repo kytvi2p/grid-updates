@@ -109,7 +109,8 @@ th.nickname-and-peerid {
   padding-left: 0;
 }
 
-/* grid-updates news section */
+/* grid-updates news section
+VERSION=1.8.3-gu2 */
 #grid-updates {
   width: 55%;
   font-size: 60%;
