@@ -199,9 +199,6 @@ Errors:
 EOF
 }
 
-TAHOE=$(which tahoe)
-[ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
-
 # Abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
 set -e          # abort if there are any uncaught errors along the way
@@ -988,6 +985,9 @@ while [ $# -gt 0 ] ; do
 done
 
 ### Tasks and checks to be run before any action ###
+
+TAHOE=$(which tahoe)
+[ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
 
 # Find data dir
 # TODO: What to do if nothing found?
