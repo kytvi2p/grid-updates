@@ -748,13 +748,13 @@ check_webui_file_permissions () {
 	if [ -f "$FILE_PATH" ]; then
 		if [ ! -w "$FILE_PATH" ]; then
 			echo "ERROR: No permission to write to $FILE."
-			echo "       You may want run this command as the user who owns the Tahoe-LAFS installation."
+			echo "ERROR: You may want run this command as the user who owns the Tahoe-LAFS installation."
 			return 1
 		else
-			echo "$FILE found and writable."
+			only_verbose echo "$FILE found and writable."
 		fi
 	else
-		echo "Not found: $FILE_PATH."
+		echo "ERROR: Not found: $FILE_PATH."
 		return 1
 	fi
 
@@ -763,7 +763,7 @@ check_webui_file_permissions () {
 check_if_webui_patchable () {
 	# Compare files
 	if [ "$(sha256sum $FILE_PATH | cut -d ' ' -f 1)" = "$ORIG_CHECKSUM" ]; then
-		echo "$FILE still unpatched (known checksum)."
+		only_verbose echo "INFO: $FILE still unpatched (known checksum)."
 		# patch
 		return 0
 	else
@@ -771,16 +771,13 @@ check_if_webui_patchable () {
 			# Check if patched by g-u.  (It could also differ because
 			# of a new version of Tahoe. This shouldn't continue if we
 			# don't understand why the file differs.)
-			#echo "$FILE has been patched by grid-updates before."
 			if [ -f "$BACKUP_FILE" ]; then
 				# check if backup exists
-				#echo "Backup exists (as expected)"
 				if [ "$(sha256sum $BACKUP_FILE | cut -d ' ' -f 1)" = $ORIG_CHECKSUM ]; then
-					#echo "Backup matches known checksum (as expected)."
 					restore_webui_backup
 					return 0
 				else
-					echo "Unknown checksum. Don't know what to do."
+					echo "ERROR: $FILE looks unexpected. Cannot apply patch."
 					return 1
 				fi
 			fi
@@ -811,27 +808,27 @@ apply_webui_patch () {
 }
 
 patch_webui_files () {
+	only_verbose echo "INFO: Beginning to patch Tahoe web console."
 	find_webui_files
 	for FILE in "welcome.xhtml" "tahoe.css" ; do
-		echo "--- Patching $FILE ---"
 		webui_file_profile $FILE
 		check_webui_file_permissions
 		check_if_webui_patchable
 		make_webui_backup
 		apply_webui_patch
-	done && echo -e "\nSuccess: Patches successfully applied."
+	done && echo -e "Success: Patches successfully applied."
 }
 
 restore_webui_files () {
+	only_verbose echo "INFO: Beginning to restore original Tahoe web console."
 	find_webui_files
 	for FILE in "welcome.xhtml" "tahoe.css" ; do
-		echo "--- Restoring $FILE ---"
 		webui_file_profile $FILE
 		check_webui_file_permissions
 		restore_webui_backup
 	done \
-		&& echo -e "\nSuccess: Original Tahoe WebUI files restored." \
-		|| echo -e "\nERROR: Couldn't restore original WebUI files."
+		&& echo -e "Success: Original Tahoe WebUI files restored." \
+		|| echo -e "ERROR: Couldn't restore original WebUI files."
 }
 
 # some of those variables will not be initialized--and that's OK.
