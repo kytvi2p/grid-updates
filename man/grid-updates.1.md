@@ -138,11 +138,12 @@ NEWS
 ====
 
 If you choose to download the news feed, *grid-updates* will place a plain text
-version of it in your node's directory and print it to stdout.
+version of it in your node's directory and print it to stdout. This is intended
+to be sent by cron mail.
 
-Furthermore, it will place an HTML version of it in your node's web server's
-*/static* directory, so you can access it at
-http://127.0.0.1:3456/static/NEWS.html.
+There is also an HTML version of the news feed that you can view in a web
+browser. This is intended to be displayed on your Tahoe node's web console. You
+can prepare the console by running `grid-updates --patch-tahoe` once.
 
 The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used by
 regular feed readers to check for *grid-updates* news.  (Please note, however,
