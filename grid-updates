@@ -35,10 +35,10 @@ ORIGINAL_WEBUI_CSS_CHECKSUM="76c58b765a9c1ee589783a56bc238af70bd7ca101b1db718945
 [ -z "$XDG_CONFIG_HOME" ] && XDG_CONFIG_HOME="$HOME/.config"
 [ -z "$XDG_CONFIG_DIRS" ] && XDG_CONFIG_DIRS="/etc/xdg"
 
+### Various helper functions used throughout ###
+
 only_verbose () {
-	if [ $OPT_VERBOSE ]; then
-		$@
-	fi
+	if [ $OPT_VERBOSE ]; then $@ ; fi
 }
 
 pretty_print () {
@@ -51,8 +51,8 @@ checking_failed ()
 	return 1
 }
 
-# http://unix.derkeiler.com/Newsgroups/comp.unix.shell/2005-06/1079.html
 run () {
+	# http://unix.derkeiler.com/Newsgroups/comp.unix.shell/2005-06/1079.html
 	j=1
 	while eval "\${pipestatus_$j+:} false"; do
 		unset pipestatus_$j
@@ -87,6 +87,8 @@ version_to_decimal () {
 	echo "$@" | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3); }';
 }
 
+### Determine Eepget version ###
+# Necessary due to bug http://trac.i2p2.i2p/ticket/576
 
 if [ -z $I2P ]; then
 	if [ -e /usr/share/i2p/lib/i2p.jar ]; then
@@ -111,7 +113,8 @@ fi
 
 EEPGET="java -jar $I2P/lib/i2p.jar net.util.EepGet"
 
-# Stop multiple instances from running simultaneously
+### Stop multiple instances from running simultaneously ###
+
 if [ -w /var/lock ]; then  # the default lock directory in Linux
         LOCKDIR="/var/lock/grid-updates.lck"
 else
@@ -150,6 +153,10 @@ else
                exit ${ENO_LOCKFAIL}
        fi
 fi
+
+# Abort if any variables aren't initialized to try to prevent any surprises
+set -o nounset  # same as set -u
+set -e          # abort if there are any uncaught errors along the way
 
 print_help () {
 cat << EOF
@@ -198,10 +205,6 @@ Errors:
 
 EOF
 }
-
-# Abort if any variables aren't initialized to try to prevent any surprises
-set -o nounset  # same as set -u
-set -e          # abort if there are any uncaught errors along the way
 
 ### config files ###
 
@@ -422,7 +425,7 @@ eep_get () {
 	fi
 }
 
-#### introducers ####
+### introducers ###
 
 filter_furls () {
 	grep --no-filename -e '^pb://[a-zA-Z0-9-]\+@.\+/.\+$' $@
@@ -503,7 +506,7 @@ replace_list () {
 	return 0
 }
 
-#### news ####
+### news ###
 
 check_pubhtml_permissions () {
 	if [ ! $WEB_STATIC ]; then
@@ -614,7 +617,7 @@ download_news () {
 	fi
 }
 
-#### Tahoe deep-check ####
+### Tahoe deep-check ###
 
 deep_check () {
 	if [ $OPT_VERBOSE ]; then
@@ -636,7 +639,7 @@ repair_subscriptions () {
 	deep_check "$SCRIPTURI" || checking_failed "scripts"
 }
 
-#### version / update check ####
+### version / update check ###
 
 check_version () {
 	if [ $(echo $SCRIPTURI |egrep '^http:') ]; then
