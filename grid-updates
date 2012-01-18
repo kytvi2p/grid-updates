@@ -539,24 +539,25 @@ make_newshtml_placeholder () {
 cat << EOF
 <html><head></head><body><small>
 	<p>
-		This space if for news items downloaded by
-		<tt><strong>grid-updates</strong></tt>.
+		This space is for news items downloaded by
+		<code><strong>grid-updates</strong></code>.  Please run <code>grid-updates
+		--download-news</code> to download the latest news file from the
+		Tahoe-LAFS grid.
 	</p>
 	<p>
-		Please run <tt>grid-updates --download-news</tt> to download the latest
-		news files from the Tahoe-LAFS grid. See the README and man page for
-		more information.
-	</p>
-	<p>
-		If you haven't installed <tt>grid-updates</tt> already, please consider
-		doing so.
-		You can obtain it from the following locations:
+		If you haven't installed grid-updates already, please consider doing
+		so.  You can obtain it from the following locations:
 		<ul>
+			<li><a href="http://darrob.i2p/grid-updates/">http://darrob.i2p/grid-updates/</a></li>
 			<li><a href="http://git.repo.i2p/w/grid-updates.git">http://git.repo.i2p/w/grid-updates.git</a></li>
 			<li>
 				<a href='http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Amjozenx3522pxtqyruekcx7mh4%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/'>URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a</a>
 			</li>
 		</ul>
+	</p>
+	<p>
+		If you want to get rid of this area, run <code>grid-updates
+		--undo-tahoe-patch</code>.
 	</p>
 </small></body></html>
 EOF
