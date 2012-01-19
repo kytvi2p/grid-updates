@@ -1000,7 +1000,7 @@ while [ $# -gt 0 ] ; do
 			exit
 			;;
 		*)
-			echo "ERROR: Unknown command." >&2
+			echo "$0: invalid command -- '$1'" >&2
 			print_help
 			exit 1
 			;;
