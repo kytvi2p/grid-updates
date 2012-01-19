@@ -160,48 +160,42 @@ set -e          # abort if there are any uncaught errors along the way
 
 print_help () {
 cat << EOF
-
 Usage: $0 [OPTIONS] [ACTIONS]
 
 Actions:
-    -m, --merge-introducers     Merge your local introducers list with the
-                                subscription's
-    -r, --replace-introducers   Replace your local list of introducers with the
-                                master list
-    -n, --download-news         Retrieve news feed with news relevant to a
-                                particular Tahoe-LAFS grid
-    --check-version             Check for a new version of this script on the
-                                grid
-    --download-update           Download a new version of this script from the
-      [target directory]        grid (implies --check-version)
-    -R, --repair-subscriptions  Maintain or repair the health of the
-                                subscription service's URI
-    --make-news [Markdown file] Create a grid-updates-compatible NEWS.tgz file.
-    -C [file],                  Create config file with default settings. If [file] is
-      --create-config [file]    not specified $XDG_CONFIG_HOME/grid-updates/config
-                                will be used.
-    --patch-tahoe               Patch the Tahoe web console to display
-                                grid-updates news in an Iframe
-    --undo-patch-tahoe          Restore the original Tahoe web console
+  -m, --merge-introducers       Merge your local introducers list with the
+                                subscription's.
+  -r, --replace-introducers     Replace your local introducers list with the
+                                subscription's.
+  -n, --download-news           Retrieve grid-updates news feed.
+  -R, --repair-subscriptions    Maintain or repair the health of the
+                                subscription service's URIs.
+  -C [FILE],                    Create a config file with the default settings.
+    --create-config [FILE]
+  --patch-tahoe                 Patch the Tahoe web console to display the
+                                grid-updates news feed in an Iframe.
+  --undo-patch-tahoe            Restore the original Tahoe web console.
+  --make-news [Markdown FILE]   Create a grid-updates-compatible NEWS.tgz file.
+  --check-version               Check for a new version of grid-updates.
+  --download-update [DIRECTORY] Download a new version of grid-updates.
+
 Options:
-    -c [config file],           Specify a grid-updates config file
-      --config [config file]
-    -d [directory],             Specify the node directory (default: ~/.tahoe)
-      --node-directory [directory]
-    --list-uri [URI]            Override default location of introducers list
-    --news-uri [URI]            Override default location of news file
-    --script-uri [URI]          Override default location of script updates
-    --download-tool [name]      Manually specify download tool for HTTP fetches
-    --no-proxy                  Disable proxy (when downloading from non-Tahoe
-                                URIs)
-    -v, --verbose               Display more verbose output
-    -V, --version               Display version information
-    -h, --help                  Print this help text
+  -c FILE, --config FILE        Specify a grid-updates config file.
+  -d DIRECTORY,                 Specify the node directory.
+    --node-directory DIRECTORY
+  --list-uri URI                Override default location of introducers list.
+  --news-uri URI                Override default location of news file.
+  --script-uri URI              Override default location of script updates.
+  --download-tool NAME          Manually specify the tool for HTTP downloads.
+  --no-proxy                    Disable proxy for HTTP URI downloads.
+  -v, --verbose                 Display more verbose output.
+  -V, --version                 Display version information.
+  -h, --help                    Print this help text.
 
 Errors:
-    If the script repeatedly fails to retrieve a file from the grid, the share
-    may be damaged.  See the ERRORS section in the man page (\`man
-    grid-updates\`) for solutions.
+  If the script repeatedly fails to retrieve a file from the grid, the share may
+  be damaged.  See the ERRORS section in the man page (\`man grid-updates\`) for
+  solutions.
 
 EOF
 }
