@@ -1008,7 +1008,7 @@ TAHOE=$(which tahoe)
 
 # Find data dir
 # TODO: What to do if nothing found?
-BINDIR="$(dirname $0)"
+BINDIR="$(dirname $(which $0))"
 if [ "$BINDIR" = "/usr/bin" ] || [ "$BINDIR" = "/usr/local/bin" ]; then
 	DATADIR="$BINDIR/../share/grid-updates"
 else
