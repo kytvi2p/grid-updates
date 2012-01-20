@@ -8,7 +8,6 @@
 <h1>Welcome To Tahoe-LAFS!</h1>
 
 <div class="section" id="this-client">
-
   <h2>This Client</h2>
 
   <p>
@@ -108,7 +107,6 @@
   href="reliability">reliability calculator</a> may also be useful.</div>
 
   <div n:render="incident_button" />
-
 </div>
 
 </body></html>

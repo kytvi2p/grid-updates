@@ -1,8 +1,6 @@
-26a27
-> </div>
-27a29,46
+28a29,49
 > <!-- Begin grid-updates patch
-> VERSION=1.8.3-gu2
+> VERSION=1.8.3-gu3
 > This div section imlements an Iframe which will display the grid-updates news
 > feed on the Tahoe-LAFS web frontend. For more information on grid-updates see
 > http://darrob.i2p/grid-updates,
@@ -19,6 +17,6 @@
 > 		>grid-updates</a>.
 > 		You need to run it regularly to update these news.
 > 	</div>
-28a48,49
+> </div>
 > <!-- End grid-updates patch -->
 > 

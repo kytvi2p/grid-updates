@@ -28,7 +28,7 @@ DEFAULT_NEWSURI='URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ck
 DEFAULT_SCRIPTURI='URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
 DEFAULT_HTTP_PROXY='127.0.0.1:4444'
 # Web UI checksums of Tahoe-LAFS version 1.8.3:
-ORIGINAL_WEBUI_WELCOME_CHECKSUM="c5ffbc368f8142a7f25747d0cc69fee1dede919709f0f27fe9777f67bab74e3e"
+ORIGINAL_WEBUI_WELCOME_CHECKSUM="7c57343303b08d785a9301795b27a5552439c68987aab851576a311594b70367"
 ORIGINAL_WEBUI_CSS_CHECKSUM="76c58b765a9c1ee589783a56bc238af70bd7ca101b1db7189454970941223996"
 ###############################################################################
 
