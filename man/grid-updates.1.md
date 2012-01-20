@@ -23,8 +23,6 @@ relies solely on volunteers.
 ACTIONS
 =======
 
--C *file*, --create-config *file*
-:   Generate a grid-updates config file. If *file* is not specified, *$XDG_HOME_CONFIG/grid-updates/config* will be used.  See **CONFIG FILES** section below.
 -m, \--merge-introducers
 :   Merge your node's local introducers list with the subscription's.
 
@@ -34,19 +32,13 @@ ACTIONS
 -n, \--download-news
 :   Retrieve the news feed.  See the **NEWS** section below.
 
-\--check-version
-:   Check for a new version of this script on the grid.
-
-\--download-update *[target_directory]*
-:   Download a new version of this script from the grid to the specified
-    directory (implies `--check-update`).
-
 -R, \--repair-subscriptions
 :   Maintain or repair the health of the subscription service's URIs.
 
-\--make-news *file*
-:   Create a *grid-updates*-compatible NEWS.tgz file from a Markdown source
-    file.
+-C *[file]*, \--create-config *[file]*
+:   Generate a grid-updates config file. If *file* is not specified,
+	*$XDG_HOME_CONFIG/grid-updates/config* will be used.  See **CONFIG
+	FILES** section below.
 
 \--patch-tahoe
 :   Patch the Tahoe-LAFS web console to display the grid-updates news feed in
@@ -55,6 +47,17 @@ ACTIONS
 \--undo-patch-tahoe
 :   Remove the grid-updates patch to the Tahoe web console and restore its
     original version.
+
+\--make-news *file*
+:   Create a *grid-updates*-compatible NEWS.tgz file from a Markdown source
+    file.
+
+\--check-version
+:   Check for a new version of this script on the grid.
+
+\--download-update *[target_directory]*
+:   Download a new version of this script from the grid to the specified
+    directory (implies `--check-update`).
 
 OPTIONS
 =======
@@ -74,7 +77,7 @@ OPTIONS
 \--script-uri *URI*
 :   Override the default location of script updates.
 
-\--download-tool *[eepget|wget|fetch|curl]*
+\--download-tool *eepget|wget|fetch|curl*
 :   Specifiy the desired download tool. Without this option *grid-updates* will
     try to find the best available tool automatically.
 
@@ -106,10 +109,10 @@ SCRIPTURI = *URI*
 :    Same as \--script-uri option above
 HTTP_PROXY = *address*
 :    (The default is 127.0.0.1:4444)
-DOWNLOAD_TOOL = *name*
-:    Same as \--download-tool option above
 USE_PROXY = *yes*/*no*
 :    "USE_PROXY = no" equals the \--no-proxy option above. Default is *yes*.
+DOWNLOAD_TOOL = *name*
+:    Same as \--download-tool option above
 
 NOTES
 =====

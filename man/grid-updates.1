@@ -15,14 +15,6 @@ This is useful for any public grid that relies solely on
 volunteers.
 .SH ACTIONS
 .TP
-.B -C \f[I]file\f[], \[em]create-config \f[I]file\f[]
-Generate a grid-updates config file.
-If \f[I]file\f[] is not specified,
-\f[I]$XDG_HOME_CONFIG/grid-updates/config\f[] will be used.
-See \f[B]CONFIG FILES\f[] section below.
-.RS
-.RE
-.TP
 .B -m, --merge-introducers
 Merge your node's local introducers list with the subscription's.
 .RS
@@ -39,25 +31,16 @@ See the \f[B]NEWS\f[] section below.
 .RS
 .RE
 .TP
-.B --check-version
-Check for a new version of this script on the grid.
-.RS
-.RE
-.TP
-.B --download-update \f[I][target_directory]\f[]
-Download a new version of this script from the grid to the
-specified directory (implies \f[B]--check-update\f[]).
-.RS
-.RE
-.TP
 .B -R, --repair-subscriptions
 Maintain or repair the health of the subscription service's URIs.
 .RS
 .RE
 .TP
-.B --make-news \f[I]file\f[]
-Create a \f[I]grid-updates\f[]-compatible NEWS.tgz file from a
-Markdown source file.
+.B -C \f[I][file]\f[], --create-config \f[I][file]\f[]
+Generate a grid-updates config file.
+If \f[I]file\f[] is not specified,
+\f[I]$XDG_HOME_CONFIG/grid-updates/config\f[] will be used.
+See \f[B]CONFIG FILES\f[] section below.
 .RS
 .RE
 .TP
@@ -70,6 +53,23 @@ feed in an Iframe.
 .B --undo-patch-tahoe
 Remove the grid-updates patch to the Tahoe web console and restore
 its original version.
+.RS
+.RE
+.TP
+.B --make-news \f[I]file\f[]
+Create a \f[I]grid-updates\f[]-compatible NEWS.tgz file from a
+Markdown source file.
+.RS
+.RE
+.TP
+.B --check-version
+Check for a new version of this script on the grid.
+.RS
+.RE
+.TP
+.B --download-update \f[I][target_directory]\f[]
+Download a new version of this script from the grid to the
+specified directory (implies \f[B]--check-update\f[]).
 .RS
 .RE
 .SH OPTIONS
@@ -100,7 +100,7 @@ Override the default location of script updates.
 .RS
 .RE
 .TP
-.B --download-tool \f[I][eepget|wget|fetch|curl]\f[]
+.B --download-tool \f[I]eepget|wget|fetch|curl\f[]
 Specifiy the desired download tool.
 Without this option \f[I]grid-updates\f[] will try to find the best
 available tool automatically.
@@ -153,14 +153,14 @@ Same as --script-uri option above
 .RS
 .RE
 .TP
-.B DOWNLOAD_TOOL = \f[I]name\f[]
-Same as --download-tool option above
-.RS
-.RE
-.TP
 .B USE_PROXY = \f[I]yes\f[]/\f[I]no\f[]
 \[lq]USE_PROXY = no\[rq] equals the --no-proxy option above.
 Default is \f[I]yes\f[].
+.RS
+.RE
+.TP
+.B DOWNLOAD_TOOL = \f[I]name\f[]
+Same as --download-tool option above
 .RS
 .RE
 .SH NOTES
