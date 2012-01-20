@@ -749,13 +749,17 @@ check_webui_file_permissions () {
 			echo "ERROR: You may want run this command as the user who owns the Tahoe-LAFS installation."
 			return 1
 		else
-			only_verbose echo "$FILE found and writable."
+			only_verbose echo "INFO: $FILE found and writable."
 		fi
 	else
 		echo "ERROR: Not found: $FILE_PATH."
 		return 1
 	fi
-
+	# Check the patches
+	if [ ! -f "$PATCH_FILE" ]; then
+		echo "ERROR: Patch for $FILE not found. Cannot apply patch."
+		return 1
+	fi
 }
 
 check_if_webui_patchable () {
@@ -775,7 +779,7 @@ check_if_webui_patchable () {
 					restore_webui_backup
 					return 0
 				else
-					echo "ERROR: $FILE looks unexpected. Cannot apply patch."
+					echo "ERROR: Backup file $FILE looks unexpected. Cannot apply patch."
 					return 1
 				fi
 			fi
@@ -826,11 +830,13 @@ patch_webui_files () {
 	find_webui_files
 	for FILE in "welcome.xhtml" "tahoe.css" ; do
 		webui_file_profile $FILE
-		check_webui_file_permissions
-		check_if_webui_patchable
-		make_webui_backup
-		apply_webui_patch
-	done && echo -e "Success: Patches successfully applied."
+		check_webui_file_permissions || return 1
+		check_if_webui_patchable || return 1
+		make_webui_backup || return 1
+		apply_webui_patch || return 1
+	done \
+		&& echo "Success: Patches successfully applied." \
+		|| echo "ERROR: The Patches could not be applied. If your Tahoe console is inaccessible now, run \`grid-updates --undo-patch-tahoe\`."
 }
 
 restore_webui_files () {
@@ -841,8 +847,8 @@ restore_webui_files () {
 		check_webui_file_permissions
 		restore_webui_backup
 	done \
-		&& echo -e "Success: Original Tahoe WebUI files restored." \
-		|| echo -e "ERROR: Couldn't restore original WebUI files."
+		&& echo "Success: Original Tahoe WebUI files restored." \
+		|| echo "ERROR: Couldn't restore original WebUI files."
 }
 
 # some of those variables will not be initialized--and that's OK.
@@ -1007,7 +1013,6 @@ TAHOE=$(which tahoe)
 [ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
 
 # Find data dir
-# TODO: What to do if nothing found?
 BINDIR="$(dirname $(which $0))"
 if [ "$BINDIR" = "/usr/bin" ] || [ "$BINDIR" = "/usr/local/bin" ]; then
 	DATADIR="$BINDIR/../share/grid-updates"
