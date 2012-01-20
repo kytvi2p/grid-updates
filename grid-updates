@@ -15,7 +15,7 @@
 # For more information see the README.md and INSTALL.md files.
 
 # This script's version:
-VERSION='0.5-git'
+VERSION='0.6'
 
 ################################## DEFAULTS ###################################
 # Default location of the Tahoe-LAFS node:
