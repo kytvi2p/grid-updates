@@ -1,3 +1,11 @@
+2012-01-20 (version 0.6)
+
+	* Added actions to patch (and restore) the Tahoe web conole
+	* Added --make-news action
+	* Added uninstall target to Makefile
+	* Added action to create a config file template
+	* Various bug fixes and improvements
+
 2012-01-12 (version 0.5)
 
 	* Re-enabled eepget for I2P versions > 0.8.12
