@@ -330,6 +330,9 @@ check_tahoe_node () {
 			exit 1
 		fi
 		return 0
+	elif [ $OPT_PATCH_TAHOE ] && [ $(id -ur) -eq 0 ] ; then
+		# we don't care about the node directory if running as root and patching
+		return 0
 	else
 		echo "ERROR: $TAHOE_NODE_DIR is not a directory." >&2
 		exit 1
@@ -520,12 +523,17 @@ check_pubhtml_permissions () {
 }
 
 check_newshtml_exists () {
-	TAHOE_CFG="$TAHOE_NODE_DIR/tahoe.cfg"
-	WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\ *=\ *//' $TAHOE_CFG)"
-	PUB_HTML_DIR="$TAHOE_NODE_DIR/$WEB_STATIC"
-	if [ ! -e $PUB_HTML_DIR/NEWS.html ]; then
-		check_pubhtml_permissions
-		make_newshtml_placeholder > $PUB_HTML_DIR/NEWS.html
+	if [ $OPT_PATCH_TAHOE ] && [ $(id -ur) -eq 0 ] ; then
+		# we don't care about tahoe.cfg if running as root and patching
+		return 0
+	else
+		TAHOE_CFG="$TAHOE_NODE_DIR/tahoe.cfg"
+		WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\ *=\ *//' $TAHOE_CFG)"
+		PUB_HTML_DIR="$TAHOE_NODE_DIR/$WEB_STATIC"
+		if [ ! -e $PUB_HTML_DIR/NEWS.html ]; then
+			check_pubhtml_permissions
+			make_newshtml_placeholder > $PUB_HTML_DIR/NEWS.html
+		fi
 	fi
 }
 
