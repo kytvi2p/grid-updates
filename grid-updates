@@ -722,7 +722,8 @@ compile_news_tarball () {
 ### Tahoe patch ###
 
 find_webui_files () {
-	if [ "$TAHOE" = "/usr/bin/tahoe" ]; then
+	if [ "$TAHOE" = "/usr/bin/tahoe" ] && [ -e /etc/debian_version ] ; then
+		only_verbose echo "INFO: Debian package detected."
 		WELCOME="/usr/share/pyshared/allmydata/web/welcome.xhtml"
 		CSS="/usr/share/pyshared/allmydata/web/tahoe.css"
 	else
