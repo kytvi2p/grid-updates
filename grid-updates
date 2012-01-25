@@ -204,7 +204,7 @@ EOF
 
 parse_config_item () {
 	OPTION=$1
-	if grep -q "^$OPTION" $CONFIG_FILE ; then
+	if grep -q "^$OPTION" "$CONFIG_FILE" ; then
 		# XXX: are these regex's too broad?
 		PARSED_OPTION=$(grep --max-count=1 "^$OPTION" $CONFIG_FILE |
 			sed -e 's/^\w\+[\ \t]*=[\ \t]*\(.*\)$/\1/')
@@ -304,11 +304,11 @@ read_config_files () {
 		fi
 	fi
 	# Parse files in standard locations if available
-	if [ -f $XDG_CONFIG_HOME/grid-updates/config ]; then
+	if [ -f "$XDG_CONFIG_HOME/grid-updates/config" ]; then
 		CONFIG_FILE="$XDG_CONFIG_HOME/grid-updates/config"
 		parse_config_file
 	fi
-	if [ -f $XDG_CONFIG_DIRS/grid-updates/config ]; then
+	if [ -f "$XDG_CONFIG_DIRS/grid-updates/config" ]; then
 		CONFIG_FILE="$XDG_CONFIG_DIRS/grid-updates/config"
 		parse_config_file
 	fi
@@ -677,11 +677,11 @@ check_version () {
 }
 
 download_update () {
-	if [ ! -d $UPDATE_DOWNLOAD_DIR ]; then
+	if [ ! -d "$UPDATE_DOWNLOAD_DIR" ]; then
 		echo "ERROR: $UPDATE_DOWNLOAD_DIR is not a directory." >&2
 		exit 1
 	fi
-	if [ ! -w $UPDATE_DOWNLOAD_DIR ]; then
+	if [ ! -w "$UPDATE_DOWNLOAD_DIR" ]; then
 		echo "ERROR: Cannot write to download directory $UPDATE_DOWNLOAD_DIR." >&2
 		exit 1
 	fi
@@ -773,18 +773,18 @@ check_webui_file_permissions () {
 
 check_if_webui_patchable () {
 	# Compare files
-	if [ "$(sha256sum $FILE_PATH | cut -d ' ' -f 1)" = "$ORIG_CHECKSUM" ]; then
+	if [ "$(sha256sum \"$FILE_PATH\" | cut -d ' ' -f 1)" = "$ORIG_CHECKSUM" ]; then
 		only_verbose echo "INFO: $FILE still unpatched (known checksum)."
 		# patch
 		return 0
 	else
-		if grep -q "grid-updates" $FILE_PATH ; then
+		if grep -q "grid-updates" "$FILE_PATH" ; then
 			# Check if patched by g-u.  (It could also differ because
 			# of a new version of Tahoe. This shouldn't continue if we
 			# don't understand why the file differs.)
 			if [ -f "$BACKUP_FILE" ]; then
 				# check if backup exists
-				if [ "$(sha256sum $BACKUP_FILE | cut -d ' ' -f 1)" = $ORIG_CHECKSUM ]; then
+				if [ "$(sha256sum \"$BACKUP_FILE\" | cut -d ' ' -f 1)" = "$ORIG_CHECKSUM" ]; then
 					restore_webui_backup
 					return 0
 				else
@@ -825,7 +825,7 @@ make_webui_backup () {
 
 restore_webui_backup () {
 	if [ -f "$BACKUP_FILE" ]; then
-		cp $BACKUP_FILE $FILE_PATH
+		cp "$BACKUP_FILE" "$FILE_PATH"
 	else
 		echo "ERROR: Couldn't find original backup file $BACKUP_FILE."
 		return 1
