@@ -113,47 +113,6 @@ fi
 
 EEPGET="java -jar $I2P/lib/i2p.jar net.util.EepGet"
 
-### Stop multiple instances from running simultaneously ###
-
-if [ -w /var/lock ]; then  # the default lock directory in Linux
-        LOCKDIR="/var/lock/grid-updates.lck"
-else
-        LOCKDIR="/tmp/grid-updates.lck"   # but maybe not elsewhere...
-fi
-PIDFILE="${LOCKDIR}/PID"
-ENO_SUCCESS=0;
-ENO_GENERAL=1;
-ENO_LOCKFAIL=2;
-ENO_RECVSIG=3;
-
-if mkdir "${LOCKDIR}"  > /dev/null 2>&1 ; then
-       trap 'ECODE=$?;
-       rm -rf "${LOCKDIR}"' 0
-       touch $PIDFILE
-       echo $$ > "${PIDFILE}"
-       trap 'echo "ERROR: Killed by a signal $ECODE $ENO_RECVSIG" >&2
-            exit ${ENO_RECVSIG}' 1 2 3 15
-else
-       # lock failed, check if it's stale
-       OTHERPID="$(cat "${PIDFILE}")"
-
-       if [ $? != 0 ]; then
-               echo "ERROR: Another instance of `basename $0` is active with PID ${OTHERPID}" >&2
-               exit ${ENO_LOCKFAIL}
-       fi
-       if ! kill -0 ${OTHERPID} >/dev/null 2>&1; then
-               #stale lock, removing it and restarting
-               only_verbose echo "INFO: Removing stale PID ${OTHERPID}" >&2
-               rm -rf ${LOCKDIR} || echo "Cannot remove $LOCKDIR" >&2; exit 1
-               only_verbose echo "INFO: [`basename $0`] restarting" >&2
-               exec "$0" "$@"
-       else
-               #lock is valid and OTHERPID is active
-               echo "ERROR: Another instance of `basename $0` is active with PID ${OTHERPID}" >&2
-               exit ${ENO_LOCKFAIL}
-       fi
-fi
-
 # Abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
 set -e          # abort if there are any uncaught errors along the way
@@ -1024,6 +983,47 @@ while [ $# -gt 0 ] ; do
 done
 
 ### Tasks and checks to be run before any action ###
+## Stop multiple instances from running simultaneously ###
+
+if [ -w /var/lock ]; then  # the default lock directory in Linux
+        LOCKDIR="/var/lock/grid-updates.lck"
+else
+        LOCKDIR="/tmp/grid-updates.lck"   # but maybe not elsewhere...
+fi
+PIDFILE="${LOCKDIR}/PID"
+ENO_SUCCESS=0;
+ENO_GENERAL=1;
+ENO_LOCKFAIL=2;
+ENO_RECVSIG=3;
+
+if mkdir "${LOCKDIR}"  > /dev/null 2>&1 ; then
+       trap 'ECODE=$?;
+       rm -rf "${LOCKDIR}"' 0
+       touch $PIDFILE
+       echo $$ > "${PIDFILE}"
+       trap 'echo "ERROR: Killed by a signal $ECODE $ENO_RECVSIG" >&2
+            exit ${ENO_RECVSIG}' 1 2 3 15
+else
+       # lock failed, check if it's stale
+       OTHERPID="$(cat "${PIDFILE}")"
+
+       if [ $? != 0 ]; then
+               echo "ERROR: Another instance of `basename $0` is active with PID ${OTHERPID}" >&2
+               exit ${ENO_LOCKFAIL}
+       fi
+       if ! kill -0 ${OTHERPID} >/dev/null 2>&1; then
+               #stale lock, removing it and restarting
+               only_verbose echo "INFO: Removing stale PID ${OTHERPID}" >&2
+               rm -rf ${LOCKDIR} || echo "Cannot remove $LOCKDIR" >&2; exit 1
+               only_verbose echo "INFO: [`basename $0`] restarting" >&2
+               exec "$0" "$@"
+       else
+               #lock is valid and OTHERPID is active
+               echo "ERROR: Another instance of `basename $0` is active with PID ${OTHERPID}" >&2
+               exit ${ENO_LOCKFAIL}
+       fi
+fi
+
 
 TAHOE=$(which tahoe)
 [ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
