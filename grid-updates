@@ -731,6 +731,11 @@ find_webui_files () {
 		WELCOME="$(dirname $(which tahoe))/../src/allmydata/web/welcome.xhtml"
 		CSS="$(dirname $(which tahoe))/../src/allmydata/web/tahoe.css"
 	fi
+
+	if [ ! -e "$WELCOME" ] || [ ! -e "$CSS" ]; then
+		echo "ERROR: Unable to locate Tahoe WEBUI." >&2
+		return 1
+	fi
 }
 
 webui_file_profile () {
