@@ -15,7 +15,7 @@
 # For more information see the README.md and INSTALL.md files.
 
 # This script's version:
-VERSION='0.6.2'
+VERSION='0.6.2-git'
 
 ################################## DEFAULTS ###################################
 # Default location of the Tahoe-LAFS node:
@@ -534,8 +534,7 @@ print_news () {
 		# put new news into place
 		cp -f "$TMP_NEWS_PLAIN" "$TAHOE_NEWS" > /dev/null
 		# print
-		diff --ignore-all-space --ignore-blank-lines --new-file \
-			"$OLD_NEWS" "$TAHOE_NEWS" | sed -e '/^>/!d' -e 's/^>\ //'
+		cat "$TAHOE_NEWS"
 		# Copy HTML version into place
 		cp -f $TMP_NEWS_DIR/NEWS.html $PUB_HTML_DIR/NEWS.html
 		cp -f $TMP_NEWS_DIR/NEWS.atom $PUB_HTML_DIR/NEWS.atom
