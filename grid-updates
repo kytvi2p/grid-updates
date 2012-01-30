@@ -631,7 +631,9 @@ check_version () {
 		echo "Error: Nothing found. This doesn't seem to be a download location for grid-updates." >&2
 	fi
 	# Also check Tahoe web console patch versions
-	check_if_patch_uptodate
+	if [ -e "$DATADIR/welcome.xhtml.patch" ]; then
+		check_if_patch_uptodate
+	fi
 }
 
 download_update () {
@@ -763,20 +765,18 @@ check_if_webui_patchable () {
 }
 
 check_if_patch_uptodate () {
-	if [ -e "$DATADIR/welcome.xhtml.patch" ]; then
-		#only_verbose echo "INFO: Checking for updates to the Tahoe web console patch."
-		find_webui_files
-		# It should suffice to check one of the files to be patched.
-		webui_file_profile welcome.xhtml
-		CURRENT_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$DATADIR/welcome.xhtml.patch" )
-		INSTALLED_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$FILE_PATH")
-		#echo $CURRENT_WEBUI_PATCH_VERSION
-		#echo $INSTALLED_WEBUI_PATCH_VERSION
-		if [ "$CURRENT_WEBUI_PATCH_VERSION" != "$INSTALLED_WEBUI_PATCH_VERSION" ]; then
-			echo "There seems to be an updated web console patch available. Run grid-updates --patch-tahoe again to install it."
-		#else
-		#	only_verbose echo "INFO: No update to the web console patch available."
-		fi
+	#only_verbose echo "INFO: Checking for updates to the Tahoe web console patch."
+	find_webui_files
+	# It should suffice to check one of the files to be patched.
+	webui_file_profile welcome.xhtml
+	CURRENT_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$DATADIR/welcome.xhtml.patch" )
+	INSTALLED_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$FILE_PATH")
+	#echo $CURRENT_WEBUI_PATCH_VERSION
+	#echo $INSTALLED_WEBUI_PATCH_VERSION
+	if [ "$CURRENT_WEBUI_PATCH_VERSION" != "$INSTALLED_WEBUI_PATCH_VERSION" ]; then
+		echo "There seems to be an updated web console patch available. Run grid-updates --patch-tahoe again to install it."
+	#else
+	#	only_verbose echo "INFO: No update to the web console patch available."
 	fi
 }
 
