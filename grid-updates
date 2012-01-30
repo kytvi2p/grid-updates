@@ -350,8 +350,8 @@ eep_get () {
 	fi
 
 	# Configure download tool command
-	if [ "EEPTOOL" = "eepget" ]; then
-		EEPFETCHCMD="java -jar $I2P/lib/i2p.jar net.util.EepGet"
+	if [ "$EEPTOOL" = "eepget" ]; then
+		EEPFETCHCMD="java -jar $I2P/lib/i2p.jar net.util.EepGet -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
 	elif [ "$EEPTOOL" = "wget" ]; then
 		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${DL_REMOTE_LOCATION} -O ${DL_TARGET_LOCATION}"
 	elif [ "$EEPTOOL" = "fetch" ]; then
