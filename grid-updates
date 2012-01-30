@@ -87,35 +87,21 @@ run () {
 	return 0
 }
 
-version_to_decimal () {
-	echo "$@" | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3); }';
-}
-
 ### Determine Eepget version ###
 # Necessary due to bug http://trac.i2p2.i2p/ticket/576
 
 if [ -z $I2P ]; then
 	if [ -e /usr/share/i2p/lib/i2p.jar ]; then
 		I2P="/usr/share/i2p"
+		only_debug echo "DEBUG: Found I2P in $I2P."
 	elif [ -e $HOME/i2p/lib/i2p.jar ]; then
 		I2P="$HOME/i2p"
+		only_debug echo "DEBUG: Found I2P in $I2P."
 	else
 		I2P="nfc"
+		only_debug echo "DEBUG: Couldn't find an I2P installation."
 	fi
 fi
-
-if [ ! $I2P = "nfc"  ]; then
-	I2PVERSION=$(java -cp $I2P/lib/i2p.jar net.i2p.CoreVersion | awk -F' ' '/version/{print $4}') > /dev/null 2>&1
-	if [ $(version_to_decimal $I2PVERSION) -gt $(version_to_decimal 0.8.12) ]; then
-		FIXED_EEP="true"
-	elif [ $(version_to_decimal $I2PVERSION) -eq $(version_to_decimal 0.8.12) ] && [ "$I2P" = "/usr/share/i2p" ] ; then
-		FIXED_EEP="true"
-	else
-		FIXED_EEP="false"
-	fi
-fi
-
-EEPGET="java -jar $I2P/lib/i2p.jar net.util.EepGet"
 
 # Abort if any variables aren't initialized to try to prevent any surprises
 set -o nounset  # same as set -u
@@ -335,6 +321,7 @@ eep_get () {
 	DL_TARGET_LOCATION="$2"
 	DL_REMOTE_NAME="$3"
 	if [ $OPT_NOPROXY ]; then
+		only_debug echo "DEBUG: Disabling http_proxy as requested."
 		unset http_proxy
 	fi
 	if [ -n "$EEPTOOL" ]; then
@@ -342,6 +329,7 @@ eep_get () {
 		case "$EEPTOOL" in
 			"eepget"|"wget"|"fetch"|"curl")
 				# pass
+				only_debug echo "DEBUG: Using user-specified download tool: $EEPTOOL."
 				;;
 			*)
 				echo "ERROR: Unknown download tool."
@@ -350,7 +338,7 @@ eep_get () {
 		esac
 	else
 		# Find available download tools
-		if [ "$FIXED_EEP" = "true"  ]; then EEPTOOL="$EEPGET"
+		if [ -f "$I2P/lib/i2p.jar" ]; then EEPTOOL="eepget"
 		elif [ $(which wget) ]; then EEPTOOL="wget"
 		elif [ $(which fetch) ]; then EEPTOOL="fetch"
 		elif [ $(which curl) ]; then EEPTOOL="curl"
@@ -358,11 +346,13 @@ eep_get () {
 			echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
 			return 1
 		fi
-		only_debug echo "DEBUG: Chose download tool $EEPTOOL."
+		only_debug echo "DEBUG: Automatically chose download tool $EEPTOOL."
 	fi
 
 	# Configure download tool command
-	if [ "$EEPTOOL" = "wget" ]; then
+	if [ "EEPTOOL" = "eepget" ]; then
+		EEPFETCHCMD="java -jar $I2P/lib/i2p.jar net.util.EepGet"
+	elif [ "$EEPTOOL" = "wget" ]; then
 		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${DL_REMOTE_LOCATION} -O ${DL_TARGET_LOCATION}"
 	elif [ "$EEPTOOL" = "fetch" ]; then
 		EEPFETCHCMD="${EEPTOOL} -q -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
@@ -377,7 +367,6 @@ eep_get () {
 		echo "Detected $EEPTOOL"
 		if [ ! -z $I2PVERSION ]; then
 			echo "I2PVERSION: $I2PVERSION"
-			echo "FIXED_EEP: $FIXED_EEP"
 		fi
 	else
 		if [ $OPT_NOPROXY ]; then
