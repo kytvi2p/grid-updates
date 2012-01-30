@@ -41,6 +41,10 @@ only_verbose () {
 	if [ $OPT_VERBOSE ]; then $@ ; fi
 }
 
+only_debug () {
+	if [ $OPT_DEBUG ]; then $@ ; fi
+}
+
 pretty_print () {
 	while read line ; do echo "$line" | sed 's/^/INFO:\ \ \ \ /'; done
 }
@@ -252,10 +256,12 @@ EOF
 }
 
 read_config_files () {
+	only_debug echo "DEBUG: Parsing configuration files."
 	# Parse specified config file (--config)
 	if [ $OPT_CONFIG_FILE ] ; then
 		CONFIG_FILE="$SPECIFIED_CONFIG_FILE"
 		if [ -f "$CONFIG_FILE" ]; then
+			only_debug echo "DEBUG: Config files specified and found at $CONFIG_FILE."
 			parse_config_file
 		else
 			echo "ERROR: Config file $CONFIG_FILE not found."
@@ -265,10 +271,12 @@ read_config_files () {
 	# Parse files in standard locations if available
 	if [ -f "$XDG_CONFIG_HOME/grid-updates/config" ]; then
 		CONFIG_FILE="$XDG_CONFIG_HOME/grid-updates/config"
+		only_debug echo "DEBUG: Parsing config file $CONFIG_FILE."
 		parse_config_file
 	fi
 	if [ -f "$XDG_CONFIG_DIRS/grid-updates/config" ]; then
 		CONFIG_FILE="$XDG_CONFIG_DIRS/grid-updates/config"
+		only_debug echo "DEBUG: Parsing config file $CONFIG_FILE."
 		parse_config_file
 	fi
 	# Apply default values where necessary
@@ -283,6 +291,7 @@ read_config_files () {
 ### checks ###
 
 check_tahoe_node () {
+	only_debug echo "DEBUG: Checking if Tahoe node directory is valid."
 	if [ -d "$TAHOE_NODE_DIR" ]; then
 		if [ ! -e $TAHOE_NODE_DIR/node.url ]; then
 			echo "ERROR: Cannot find $TAHOE_NODE_DIR/node.url. Not a valid tahoe node." >&2
@@ -299,6 +308,7 @@ check_tahoe_node () {
 }
 
 check_permissions () {
+	only_debug echo "DEBUG: Checking file permissions in Tahoe node directory."
 	if [ ! -w "$TAHOE_NODE_DIR" ]; then
 		echo "ERROR: Need write permissions to "$TAHOE_NODE_DIR" to be able to update "$1"" >&2
 		exit 1
@@ -320,6 +330,7 @@ check_uri () {
 }
 
 eep_get () {
+	only_debug echo "DEBUG: Determining download tool to use."
 	DL_REMOTE_LOCATION="$1"
 	DL_TARGET_LOCATION="$2"
 	DL_REMOTE_NAME="$3"
@@ -347,6 +358,7 @@ eep_get () {
 			echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
 			return 1
 		fi
+		only_debug echo "DEBUG: Chose download tool $EEPTOOL."
 	fi
 
 	# Configure download tool command
@@ -391,6 +403,7 @@ download_list () {
 	DLLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ $(echo $LISTURI |egrep '^http:') ]; then
+		only_verbose echo "INFO: Downloading list from HTTP resource."
 		if ! eep_get "${LISTURI}/introducers" "$DLLIST" "subscriptions"; then
 			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
 			return 1
@@ -407,6 +420,7 @@ download_list () {
 }
 
 backup_list () {
+	only_debug echo "DEBUG: Making a backup copy of the introducers file."
 	if [ -e "$INTRODUCER_LIST" ]; then
 		LISTBAK="$INTRODUCER_LIST.bak"
 		if [ ! -w "$LISTBAK" ] && ! touch "$LISTBAK" 2> /dev/null ; then
@@ -420,6 +434,7 @@ backup_list () {
 }
 
 merge_list () {
+	only_debug echo "DEBUG: Attempting to merge the introducers lists."
 	INTRODUCER_LIST="$TAHOE_NODE_DIR/introducers"
 	TMPLIST2=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ ! -e "$INTRODUCER_LIST" ]; then
@@ -445,6 +460,7 @@ merge_list () {
 }
 
 replace_list () {
+	only_debug echo "DEBUG: Attempting to replace the local introducers list."
 	INTRODUCER_LIST="$TAHOE_NODE_DIR/introducers"
 	# Make the local list identical to the subscribed one.
 	check_permissions "the subscription list" "$INTRODUCER_LIST"
@@ -457,7 +473,7 @@ replace_list () {
 		mv -f "$TMPLIST" "$INTRODUCER_LIST" > /dev/null 2>&1   # install list
 		only_verbose echo "INFO: Success: the list has been retrieved. (Changes will take effect upon restart of the node.)"
 	else
-		only_verbose echo "INFO: No updates available."
+		only_verbose echo "INFO: No updates to the introducers list available."
 	fi
 	return 0
 }
@@ -465,6 +481,7 @@ replace_list () {
 ### news ###
 
 check_pubhtml_permissions () {
+	only_debug echo "DEBUG: Checking access permissions of Tahoe's web.static directory."
 	if [ ! $WEB_STATIC ]; then
 		echo "Error: could not find 'web.static' option in $TAHOE_CFG." >&2
 		return 1
@@ -482,6 +499,7 @@ check_pubhtml_permissions () {
 }
 
 check_newshtml_exists () {
+	only_debug echo "DEBUG: Check if NEWS.html file exists."
 	if [ $OPT_PATCH_TAHOE ] && [ $(id -ur) -eq 0 ] ; then
 		# we don't care about tahoe.cfg if running as root and patching
 		return 0
@@ -490,13 +508,14 @@ check_newshtml_exists () {
 		WEB_STATIC="$(sed -e '/^web\.static/!d' -e 's/^web\.static\ *=\ *//' $TAHOE_CFG)"
 		PUB_HTML_DIR="$TAHOE_NODE_DIR/$WEB_STATIC"
 		if [ ! -e $PUB_HTML_DIR/NEWS.html ]; then
-			check_pubhtml_permissions
+			check_pubhtml_permissions || return 1
 			make_newshtml_placeholder > $PUB_HTML_DIR/NEWS.html
 		fi
 	fi
 }
 
 make_newshtml_placeholder () {
+only_debug echo "DEBUG: Creating a NEWS.html placeholder."
 cat << EOF
 <html><head></head><body><small>
 	<p>
@@ -527,6 +546,7 @@ EOF
 print_news () {
 	# if new NEWS...
 	if ! diff -N "$TAHOE_NEWS" "$TMP_NEWS_PLAIN" > /dev/null ; then
+		only_debug echo "DEBUG: Printing new NEWS file."
 		# move old news aside
 		if [ -e "$TAHOE_NEWS" ]; then
 			cp -f "$TAHOE_NEWS" "$OLD_NEWS"
@@ -549,6 +569,7 @@ print_news () {
 }
 
 download_news () {
+	only_debug echo "DEBUG: Attempting to download NEWS file."
 	TAHOE_NEWS="$TAHOE_NODE_DIR/NEWS"
 	check_permissions "news" "$TAHOE_NEWS"
 	TMP_NEWS_TGZ=$(mktemp $LOCKDIR/grid-update.XXXX)
@@ -613,11 +634,13 @@ check_version () {
 	LATEST_VERSION_FILENAME=$("$TAHOE" ls $SCRIPTURI | grep 'grid-updates-v[[:digit:]]\.[[:digit:]].*\.tgz' | sort -r -V | head -n 1)
 	if [ "$LATEST_VERSION_FILENAME" ]; then
 		LATEST_AVAILABLE_VERSION=$(echo $LATEST_VERSION_FILENAME | sed 's/^grid-updates-v\(.*\)\.tgz$/\1/')
+		only_debug echo "DEBUG: Latest availble version: $LATEST_AVAILABLE_VERSION."
 		if [ $(uname -s |tr "[A-Z]" "[a-z]") != "linux" ]; then
 			NEWEST_VERSION=$(echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -V | head -n 1)
 		else
 			NEWEST_VERSION=$(/bin/echo -e "$VERSION\n$LATEST_AVAILABLE_VERSION" | sort -r -V | head -n 1)
 		fi
+		only_debug echo "DEBUG: Newest version: $LATEST_AVAILABLE_VERSION."
 		if [ "$VERSION" != "$NEWEST_VERSION" ]; then
 			# Only print if not called via --download-update
 			[ ! $OPT_DOWNLOAD_UPDATE ] && echo "New version available: $LATEST_AVAILABLE_VERSION."
@@ -661,6 +684,7 @@ download_update () {
 ### Make NEWS.tgz ###
 
 compile_news_tarball () {
+	only_debug echo "DEBUG: Compiling a NEWS.tgz tarball."
 	# TODO install templates in /usr/share (use $DATADIR from webui branch)
 	# TODO upload?
 	NEWS_MARKDOWN_BASENAME="$(basename "$NEWS_MARKDOWN_SOURCE")"
@@ -693,6 +717,7 @@ find_webui_files () {
 		CSS="$(dirname $(which tahoe))/../src/allmydata/web/tahoe.css"
 	fi
 	if [ ! -e "$WELCOME" ] || [ ! -e "$CSS" ]; then
+		only_debug echo "DEBUG: Could not find web console files."
 		return 1
 	fi
 }
@@ -710,12 +735,13 @@ webui_file_profile () {
 		export BACKUP_FILE=${FILE_PATH}.grid-updates.original
 		export ORIG_CHECKSUM=$ORIGINAL_WEBUI_CSS_CHECKSUM
 	else
-		echo "ERROR: unknown file name."
+		echo "ERROR: Unknown file name."
 		return 1
 	fi
 }
 
 check_webui_file_permissions () {
+	only_debug echo "DEBUG: Checking web console file permissions."
 	if [ -f "$FILE_PATH" ]; then
 		if [ ! -w "$FILE_PATH" ]; then
 			echo "ERROR: No permission to write to $FILE."
@@ -736,9 +762,10 @@ check_webui_file_permissions () {
 }
 
 check_if_webui_patchable () {
+	only_debug echo "DEBUG: Checking if web console file is patchable by grid-updates."
 	# Compare files
 	if [ "$(sha256sum \"$FILE_PATH\" | cut -d ' ' -f 1)" = "$ORIG_CHECKSUM" ]; then
-		only_verbose echo "INFO: $FILE still unpatched (known checksum)."
+		only_debug echo "DEBUG: $FILE still unpatched (known checksum)."
 		# patch
 		return 0
 	else
@@ -746,9 +773,11 @@ check_if_webui_patchable () {
 			# Check if patched by g-u.  (It could also differ because
 			# of a new version of Tahoe. This shouldn't continue if we
 			# don't understand why the file differs.)
+			only_debug echo "DEBUG: File differs. Checking if it has been patched by grid-updates before."
 			if [ -f "$BACKUP_FILE" ]; then
 				# check if backup exists
 				if [ "$(sha256sum \"$BACKUP_FILE\" | cut -d ' ' -f 1)" = "$ORIG_CHECKSUM" ]; then
+					only_debug echo "DEBUG: Restoring backup in order to patch that."
 					restore_webui_backup
 					return 0
 				else
@@ -764,23 +793,24 @@ check_if_webui_patchable () {
 }
 
 check_if_patch_uptodate () {
-	#only_verbose echo "INFO: Checking for updates to the Tahoe web console patch."
+	only_debug echo "DEBUG: Checking for updates to the Tahoe web console patch."
 	find_webui_files || return 1
 	# It should suffice to check one of the files to be patched.
 	webui_file_profile welcome.xhtml
 	CURRENT_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$DATADIR/welcome.xhtml.patch" )
 	INSTALLED_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$FILE_PATH")
-	#echo $CURRENT_WEBUI_PATCH_VERSION
-	#echo $INSTALLED_WEBUI_PATCH_VERSION
+	only_debug echo "DEBUG: Most current web console patch version: $CURRENT_WEBUI_PATCH_VERSION."
+	only_debug echo "DEBUG: Currently installed web console patch version: $INSTALLED_WEBUI_PATCH_VERSION."
 	if [ "$CURRENT_WEBUI_PATCH_VERSION" != "$INSTALLED_WEBUI_PATCH_VERSION" ]; then
 		echo "There seems to be an updated web console patch available. Run grid-updates --patch-tahoe again to install it."
-	#else
-	#	only_verbose echo "INFO: No update to the web console patch available."
+	else
+		only_debug echo "DEBUG: No update to the web console patch available."
 	fi
 }
 
 make_webui_backup () {
 	if [ ! -f "$BACKUP_FILE" ]; then
+		only_debug echo "DEBUG: Making a backup of $FILE_PATH."
 		cp "$FILE_PATH" "$BACKUP_FILE"
 	fi
 }
@@ -788,6 +818,7 @@ make_webui_backup () {
 restore_webui_backup () {
 	if [ -f "$BACKUP_FILE" ]; then
 		cp "$BACKUP_FILE" "$FILE_PATH"
+		only_debug echo "DEBUG: Restoring web console backup file."
 	else
 		echo "ERROR: Couldn't find original backup file $BACKUP_FILE."
 		return 1
@@ -795,6 +826,7 @@ restore_webui_backup () {
 }
 
 apply_webui_patch () {
+	only_debug echo "DEBUG: Applying patch to $FILE_PATH."
 	patch "$FILE_PATH" < "$PATCH_FILE"
 }
 
@@ -897,6 +929,11 @@ while [ $# -gt 0 ] ; do
 			shift
 			;;
 		--verbose|-v)
+			OPT_VERBOSE=1
+			shift
+			;;
+		--debug)
+			OPT_DEBUG=1
 			OPT_VERBOSE=1
 			shift
 			;;
@@ -1034,14 +1071,16 @@ else
 	# if script is run directly and not installed
 	DATADIR="$BINDIR/etc"
 fi
+only_debug echo "DEBUG: Determined that location of grid-updates data directory is $DATADIR."
 
 # Parse config files
 read_config_files
 
 # Debug output (should probably be removed again)
-only_verbose echo "INFO: Using Tahoe node dir: $TAHOE_NODE_DIR"
+only_debug echo "DEBUG: Using Tahoe node dir: $TAHOE_NODE_DIR"
 
 export http_proxy
+only_debug echo "DEBUG: Using HTTP proxy $http_proxy."
 
 # Always check for valid Tahoe node directory.
 # If this stays we can remove a bunch of later checks.
