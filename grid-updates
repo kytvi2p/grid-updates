@@ -202,8 +202,8 @@ parse_config_file () {
 	*)
 		;; # pass
 	esac
-	if [ -z $EEPTOOL ] && [ -n $PARSED_DOWNLOAD_TOOL ]; then
-		EEPTOOL="$PARSED_DOWNLOAD_TOOL"
+	if [ -z $DOWNLOAD_TOOL ] && [ -n $PARSED_DOWNLOAD_TOOL ]; then
+		DOWNLOAD_TOOL="$PARSED_DOWNLOAD_TOOL"
 	fi
 	return 0
 }
@@ -217,7 +217,7 @@ create_config_file ()
 	# TODO We should update the config file when options change or are added instead of failing outright.
 	# If the config file exists we just exit.
 	if [ ! -e "$CONFIG_FILE" ]; then
-		eep_get > /dev/null 2>&1
+		http_download > /dev/null 2>&1
 		cat << EOF > $CONFIG_FILE || (echo "ERROR: Failed to create the file $CONFIG_FILE." >&2; exit 1)
 # grid-updates $VERSION config
 
@@ -229,7 +229,7 @@ create_config_file ()
 #SCRIPTURI=$DEFAULT_SCRIPTURI
 
 # These are only used when fetching from non-tahoe URIs
-#DOWNLOAD_TOOL="$EEPTOOL"
+#DOWNLOAD_TOOL="$DOWNLOAD_TOOL"
 #HTTP_PROXY=$DEFAULT_HTTP_PROXY
 #USE_PROXY=yes
 EOF
@@ -315,21 +315,14 @@ check_uri () {
 	fi
 }
 
-eep_get () {
+choose_http_download_tool () {
 	only_debug echo "DEBUG: Determining download tool to use."
-	DL_REMOTE_LOCATION="$1"
-	DL_TARGET_LOCATION="$2"
-	DL_REMOTE_NAME="$3"
-	if [ $OPT_NOPROXY ]; then
-		only_debug echo "DEBUG: Disabling http_proxy as requested."
-		unset http_proxy
-	fi
-	if [ -n "$EEPTOOL" ]; then
+	if [ -n "$DOWNLOAD_TOOL" ]; then
 		# Check user-specified download tool is valid
-		case "$EEPTOOL" in
+		case "$DOWNLOAD_TOOL" in
 			"eepget"|"wget"|"fetch"|"curl")
 				# pass
-				only_debug echo "DEBUG: Using user-specified download tool: $EEPTOOL."
+				only_debug echo "DEBUG: Using user-specified download tool: $DOWNLOAD_TOOL."
 				;;
 			*)
 				echo "ERROR: Unknown download tool."
@@ -338,43 +331,54 @@ eep_get () {
 		esac
 	else
 		# Find available download tools
-		if [ -f "$I2P/lib/i2p.jar" ]; then EEPTOOL="eepget"
-		elif [ $(which wget) ]; then EEPTOOL="wget"
-		elif [ $(which fetch) ]; then EEPTOOL="fetch"
-		elif [ $(which curl) ]; then EEPTOOL="curl"
+		if [ -f "$I2P/lib/i2p.jar" ]; then DOWNLOAD_TOOL="eepget"
+		elif [ $(which wget) ]; then DOWNLOAD_TOOL="wget"
+		elif [ $(which fetch) ]; then DOWNLOAD_TOOL="fetch"
+		elif [ $(which curl) ]; then DOWNLOAD_TOOL="curl"
 		else
-			echo "ERROR: Couldn't find a tool capable of retrieving files from eepsites." >&2
+			echo "ERROR: Couldn't find a tool capable of retrieving files from HTTP resources." >&2
 			return 1
 		fi
-		only_debug echo "DEBUG: Automatically chose download tool $EEPTOOL."
+		only_debug echo "DEBUG: Automatically chose download tool $DOWNLOAD_TOOL."
 	fi
-
 	# Configure download tool command
-	if [ "$EEPTOOL" = "eepget" ]; then
-		EEPFETCHCMD="java -jar $I2P/lib/i2p.jar net.util.EepGet -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
-	elif [ "$EEPTOOL" = "wget" ]; then
-		EEPFETCHCMD="${EEPTOOL} --tries=2 --quiet ${DL_REMOTE_LOCATION} -O ${DL_TARGET_LOCATION}"
-	elif [ "$EEPTOOL" = "fetch" ]; then
-		EEPFETCHCMD="${EEPTOOL} -q -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
-	elif [ "$EEPTOOL" = "curl" ]; then
-		EEPFETCHCMD="${EEPTOOL} -s --retry 2 -L ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION}"
+	if [ "$DOWNLOAD_TOOL" = "eepget" ]; then
+		HTTP_DOWNLOAD_CMD="java -jar $I2P/lib/i2p.jar net.util.EepGet -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
+	elif [ "$DOWNLOAD_TOOL" = "wget" ]; then
+		HTTP_DOWNLOAD_CMD="${DOWNLOAD_TOOL} --tries=2 --quiet ${DL_REMOTE_LOCATION} -O ${DL_TARGET_LOCATION}"
+	elif [ "$DOWNLOAD_TOOL" = "fetch" ]; then
+		HTTP_DOWNLOAD_CMD="${DOWNLOAD_TOOL} -q -o ${DL_TARGET_LOCATION} ${DL_REMOTE_LOCATION}"
+	elif [ "$DOWNLOAD_TOOL" = "curl" ]; then
+		HTTP_DOWNLOAD_CMD="${DOWNLOAD_TOOL} -s --retry 2 -L ${DL_REMOTE_LOCATION} -o ${DL_TARGET_LOCATION}"
+	fi
+}
+
+http_download () {
+	DL_REMOTE_LOCATION="$1"
+	DL_TARGET_LOCATION="$2"
+	DL_REMOTE_NAME="$3"
+	choose_http_download_tool
+	if [ $OPT_NOPROXY ]; then
+		only_debug echo "DEBUG: Disabling http_proxy as requested."
+		unset http_proxy
 	fi
 
 	if [ x${DL_REMOTE_LOCATION} = "x" ]; then
-		# We'll only arrive here if eep_get is called
+		# We'll only arrive here if http_download is called
 		# without any parameters. For potential future
 		# use.
-		echo "Detected $EEPTOOL"
+		echo "Detected $DOWNLOAD_TOOL"
 		if [ ! -z $I2PVERSION ]; then
 			echo "I2PVERSION: $I2PVERSION"
 		fi
 	else
 		if [ $OPT_NOPROXY ]; then
-			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} from ${DL_REMOTE_LOCATION} (no proxy)."
+			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${DOWNLOAD_TOOL} from ${DL_REMOTE_LOCATION} (no proxy)."
 		else
-			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${EEPTOOL} from ${DL_REMOTE_LOCATION} (proxy ${http_proxy})."
+			only_verbose echo "INFO: Attempting to download $DL_REMOTE_NAME using ${DOWNLOAD_TOOL} from ${DL_REMOTE_LOCATION} (proxy ${http_proxy})."
 		fi
-		$EEPFETCHCMD > /dev/null 2>&1
+		only_debug echo "DEBUG: Running $HTTP_DOWNLOAD_CMD."
+		$HTTP_DOWNLOAD_CMD > /dev/null 2>&1
 		if [ $? -gt 0 ]; then
 			echo "ERROR: Failed to retrieve $DL_REMOTE_NAME from $1." >&2
 			return 1
@@ -393,7 +397,7 @@ download_list () {
 	TMPLIST=$(mktemp $LOCKDIR/grid-update.XXXX)
 	if [ $(echo $LISTURI |egrep '^http:') ]; then
 		only_verbose echo "INFO: Downloading list from HTTP resource."
-		if ! eep_get "${LISTURI}/introducers" "$DLLIST" "subscriptions"; then
+		if ! http_download "${LISTURI}/introducers" "$DLLIST" "subscriptions"; then
 			echo "ERROR: Could not retrieve the list from $LISTURI." >&2
 			return 1
 		fi
@@ -567,7 +571,7 @@ download_news () {
 	OLD_NEWS=$(mktemp $LOCKDIR/grid-update.XXXX)
 	check_pubhtml_permissions
 	if [ $(echo $NEWSURI |egrep '^http:') ]; then
-		if eep_get "${NEWSURI}/NEWS.tgz" "$TMP_NEWS_DIR/NEWS.tgz" "news"; then
+		if http_download "${NEWSURI}/NEWS.tgz" "$TMP_NEWS_DIR/NEWS.tgz" "news"; then
 			tar xzf "$TMP_NEWS_DIR/NEWS.tgz" --directory "$TMP_NEWS_DIR"
 			print_news
 			return 0
@@ -910,7 +914,7 @@ while [ $# -gt 0 ] ; do
 				print_help
 				exit 1
 			fi
-			EEPTOOL="$2"
+			DOWNLOAD_TOOL="$2"
 			shift 2
 			;;
 		--no-proxy)
@@ -991,7 +995,7 @@ while [ $# -gt 0 ] ; do
 			;;
 		--version|-V)
 			echo "$(basename $0) version: $VERSION"
-			eep_get
+			http_download
 			exit 0
 			;;
 		--help|-h)
