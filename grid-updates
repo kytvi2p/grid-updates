@@ -87,26 +87,6 @@ run () {
 	return 0
 }
 
-### Determine Eepget version ###
-# Necessary due to bug http://trac.i2p2.i2p/ticket/576
-
-if [ -z $I2P ]; then
-	if [ -e /usr/share/i2p/lib/i2p.jar ]; then
-		I2P="/usr/share/i2p"
-		only_debug echo "DEBUG: Found I2P in $I2P."
-	elif [ -e $HOME/i2p/lib/i2p.jar ]; then
-		I2P="$HOME/i2p"
-		only_debug echo "DEBUG: Found I2P in $I2P."
-	else
-		I2P="nfc"
-		only_debug echo "DEBUG: Couldn't find an I2P installation."
-	fi
-fi
-
-# Abort if any variables aren't initialized to try to prevent any surprises
-set -o nounset  # same as set -u
-set -e          # abort if there are any uncaught errors along the way
-
 print_help () {
 cat << EOF
 Usage: $0 [OPTIONS] [ACTIONS]
@@ -849,6 +829,10 @@ restore_webui_files () {
 		|| echo "ERROR: Couldn't restore original WebUI files."
 }
 
+# Abort if any variables aren't initialized to try to prevent any surprises
+set -o nounset  # same as set -u
+set -e          # abort if there are any uncaught errors along the way
+
 # some of those variables will not be initialized--and that's OK.
 # We'll do our own checking from this point forward.
 set +u
@@ -1011,8 +995,8 @@ while [ $# -gt 0 ] ; do
 done
 
 ### Tasks and checks to be run before any action ###
-## Stop multiple instances from running simultaneously ###
 
+# Stop multiple instances from running simultaneously #
 if [ -w /var/lock ]; then  # the default lock directory in Linux
         LOCKDIR="/var/lock/grid-updates.lck"
 else
@@ -1052,7 +1036,7 @@ else
        fi
 fi
 
-
+# Find tahoe executable
 TAHOE=$(which tahoe)
 [ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
 
@@ -1066,6 +1050,20 @@ else
 fi
 only_debug echo "DEBUG: Determined that location of grid-updates data directory is $DATADIR."
 
+# Look for I2P
+if [ -z $I2P ]; then
+	if [ -e /usr/share/i2p/lib/i2p.jar ]; then
+		I2P="/usr/share/i2p"
+		only_debug echo "DEBUG: Found I2P in $I2P."
+	elif [ -e $HOME/i2p/lib/i2p.jar ]; then
+		I2P="$HOME/i2p"
+		only_debug echo "DEBUG: Found I2P in $I2P."
+	else
+		I2P="nfc"
+		only_debug echo "DEBUG: Couldn't find an I2P installation."
+	fi
+fi
+
 # Parse config files
 read_config_files
 
@@ -1076,7 +1074,7 @@ export http_proxy
 only_debug echo "DEBUG: Using HTTP proxy $http_proxy."
 
 # Always check for valid Tahoe node directory.
-# If this stays we can remove a bunch of later checks.
+# TODO If this stays we can remove a bunch of later checks.
 check_tahoe_node
 
 # Always check NEWS.html exists. Create a placeholder if it doesn't.
