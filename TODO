@@ -1,10 +1,7 @@
 These are suggestions:
 
 TODO
-	* Check if code, documentation, error strings etc. can still be less I2P specific
-	  (e.g. eep_get()).
-	* Fix convoluted eepget code (assume everybody has upgraded)
-	* Include HTML docs?
+	* Include HTML docs in $(htmldir)?
 	* Neatly list all dependencies?
 	* BSD compatibility
 
@@ -12,4 +9,4 @@ UNDECIDED
 	* Support web UI patches for multiple versions of Tahoe?
 	* Test on Windows?
 	* Download script updates from HTTP URIs?
-	* Don't hardcode links to http://127.0.0.1:3456/static/NEWS.html; parse tahoe.cfg
+	* Don't hardcode links to http://127.0.0.1:3456/static/NEWS.html; parse tahoe.cfg?
