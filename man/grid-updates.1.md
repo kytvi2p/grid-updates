@@ -153,6 +153,19 @@ regular feed readers to check for *grid-updates* news.  (Please note, however,
 that you cannot "refresh" the feed with regular news readers.  These files have
 to always be fetched by *grid-updates* first.)
 
+INFORMATION FOR SUBSCRIPTION MAINTAINERS
+========================================
+
+If you want to offer a *grid-updates* subscription service, you will have to
+provide users with URIs to directories that contain the news feed (called
+**NEWS.tgz**) and the introducer list (called **introducers**). Please note
+that *grid-updates* will append the filenames itself and expects the URIs of
+directories, not of the files themselves.
+
+The NEWS.tgz file can be compiled with the `--make-news` action.  The
+introducers' FURLs must be listed one per line in the introducer list, but can
+be mixed with other text. *grid-updates* will filter out only the pb:// FURLs.
+
 FILES
 =====
 

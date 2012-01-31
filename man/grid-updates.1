@@ -214,6 +214,21 @@ news.
 with regular news readers.
 These files have to always be fetched by \f[I]grid-updates\f[]
 first.)
+.SH INFORMATION FOR SUBSCRIPTION MAINTAINERS
+.PP
+If you want to offer a \f[I]grid-updates\f[] subscription service,
+you will have to provide users with URIs to directories that
+contain the news feed (called \f[B]NEWS.tgz\f[]) and the introducer
+list (called \f[B]introducers\f[]).
+Please note that \f[I]grid-updates\f[] will append the filenames
+itself and expects the URIs of directories, not of the files
+themselves.
+.PP
+The NEWS.tgz file can be compiled with the \f[B]--make-news\f[]
+action.
+The introducers' FURLs must be listed one per line in the
+introducer list, but can be mixed with other text.
+\f[I]grid-updates\f[] will filter out only the pb:// FURLs.
 .SH FILES
 .IP \[bu] 2
 \f[I]~/.tahoe/introducers\f[]
