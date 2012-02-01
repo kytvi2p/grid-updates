@@ -437,8 +437,8 @@ replace_list () {
 	INTRODUCER_LIST="$TAHOE_NODE_DIR/introducers"
 	# Make the local list identical to the subscribed one.
 	check_permissions "the subscription list" "$INTRODUCER_LIST"
-	download_list
 	backup_list
+	download_list
 	FILTERED_LISTBAK=$(mktemp $LOCKDIR/grid-update.XXXX)
 	filter_furls "$LISTBAK" |sort -u > "$FILTERED_LISTBAK"
 	if ! diff -N "$FILTERED_LISTBAK" "$TMPLIST" > /dev/null 2>&1; then
