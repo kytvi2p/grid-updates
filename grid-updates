@@ -439,7 +439,9 @@ replace_list () {
 	check_permissions "the subscription list" "$INTRODUCER_LIST"
 	download_list
 	backup_list
-	if diff -N "$LISTBAK" "$INTRODUCER_LIST" > /dev/null 2>&1; then
+	FILTERED_LISTBAK=$(mktemp $LOCKDIR/grid-update.XXXX)
+	filter_furls "$LISTBAK" |sort -u > "$FILTERED_LISTBAK"
+	if ! diff -N "$FILTERED_LISTBAK" "$TMPLIST" > /dev/null 2>&1; then
 		mv -f "$TMPLIST" "$INTRODUCER_LIST" > /dev/null 2>&1   # install list
 		only_verbose echo "INFO: Success: the list has been retrieved. (Changes will take effect upon restart of the node.)"
 	elif [ ! -e "$INTRODUCER_LIST" ]; then # if we're here there was a back up but no introducer list
