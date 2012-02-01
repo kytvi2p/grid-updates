@@ -384,7 +384,7 @@ download_list () {
 		filter_furls $DLLIST | sort -u > "$TMPLIST"
 	else
 		only_verbose echo "INFO: Attempting to download introducers list from the grid ($LISTURI)."
-		if ! "$TAHOE" get "$LISTURI"/introducers "$TMPLIST" 2> /dev/null ; then
+		if ! "$TAHOE" get "$LISTURI"/introducers "$DLLIST" 2> /dev/null ; then
 			echo "ERROR: Could not retrieve the list. Try again or check the share's integrity. See \`$0 --help.\`" >&2
 			return 1
 		fi
