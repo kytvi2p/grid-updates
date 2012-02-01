@@ -256,6 +256,11 @@ read_config_files () {
 
 ### checks ###
 
+if [ -e "$DATADIR/welcome.xhtml.patch" ]; then
+	PATCHES_FOUND=y
+else
+	PATCHES_FOUND=n
+fi
 check_tahoe_node () {
 	only_debug echo "DEBUG: Checking if Tahoe node directory is valid."
 	if [ -d "$TAHOE_NODE_DIR" ]; then
@@ -629,7 +634,7 @@ check_version () {
 		echo "Error: Nothing found. This doesn't seem to be a download location for grid-updates." >&2
 	fi
 	# Also check Tahoe web console patch versions
-	if [ -e "$DATADIR/welcome.xhtml.patch" ]; then
+	if [ "$PATCHES_FOUND" = "y" ]; then
 		find_webui_files || return 1
 		check_if_patch_uptodate
 	fi
@@ -768,18 +773,22 @@ check_if_webui_patchable () {
 }
 
 check_if_patch_uptodate () {
-	only_debug echo "DEBUG: Checking for updates to the Tahoe web console patch."
-	find_webui_files || return 1
-	# It should suffice to check one of the files to be patched.
-	webui_file_profile welcome.xhtml
-	CURRENT_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$DATADIR/welcome.xhtml.patch" )
-	INSTALLED_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$FILE_PATH")
-	only_debug echo "DEBUG: Most current web console patch version: $CURRENT_WEBUI_PATCH_VERSION."
-	only_debug echo "DEBUG: Currently installed web console patch version: $INSTALLED_WEBUI_PATCH_VERSION."
-	if [ "$CURRENT_WEBUI_PATCH_VERSION" != "$INSTALLED_WEBUI_PATCH_VERSION" ]; then
-		echo "There seems to be an updated web console patch available. Run grid-updates --patch-tahoe again to install it."
+	if [ "$PATCHES_FOUND" = "y" ]; then
+		only_debug echo "DEBUG: Checking for updates to the Tahoe web console patch."
+		find_webui_files || return 1
+		# It should suffice to check one of the files to be patched.
+		webui_file_profile welcome.xhtml
+		CURRENT_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$DATADIR/welcome.xhtml.patch" )
+		INSTALLED_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$FILE_PATH")
+		only_debug echo "DEBUG: Most current web console patch version: $CURRENT_WEBUI_PATCH_VERSION."
+		only_debug echo "DEBUG: Currently installed web console patch version: $INSTALLED_WEBUI_PATCH_VERSION."
+		if [ "$CURRENT_WEBUI_PATCH_VERSION" != "$INSTALLED_WEBUI_PATCH_VERSION" ]; then
+			echo "There seems to be an updated web console patch available. Run grid-updates --patch-tahoe again to install it."
+		else
+			only_debug echo "DEBUG: No update to the web console patch available."
+		fi
 	else
-		only_debug echo "DEBUG: No update to the web console patch available."
+		only_debug echo "DEBUG: Patches for Tahoe web console not found."
 	fi
 }
 
