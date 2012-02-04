@@ -301,20 +301,19 @@ check_uri () {
 }
 
 choose_http_download_tool () {
-# Look for I2P
-if [ -z $I2P ]; then
-	if [ -e /usr/share/i2p/lib/i2p.jar ]; then
-		I2P="/usr/share/i2p"
-		only_debug echo "DEBUG: Found I2P in $I2P."
-	elif [ -e $HOME/i2p/lib/i2p.jar ]; then
-		I2P="$HOME/i2p"
-		only_debug echo "DEBUG: Found I2P in $I2P."
-	else
-		I2P="nfc"
-		only_debug echo "DEBUG: Couldn't find an I2P installation."
+	# Look for I2P
+	if [ -z $I2P ]; then
+		if [ -e /usr/share/i2p/lib/i2p.jar ]; then
+			I2P="/usr/share/i2p"
+			only_debug echo "DEBUG: Found I2P in $I2P."
+		elif [ -e "$HOME/i2p/lib/i2p.jar" ]; then
+			I2P="$HOME/i2p"
+			only_debug echo "DEBUG: Found I2P in $I2P."
+		else
+			I2P="nfc"
+			only_debug echo "DEBUG: Couldn't find an I2P installation."
+		fi
 	fi
-fi
-
 	only_debug echo "DEBUG: Determining download tool to use."
 	if [ -n "$DOWNLOAD_TOOL" ]; then
 		# Check user-specified download tool is valid
