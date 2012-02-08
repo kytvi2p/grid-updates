@@ -187,7 +187,8 @@ SEE ALSO
 The *grid-updates* Git repositories:
 
 * http://darrob.i2p/grid-updates/  
-* http://git.repo.i2p/w/grid-updates.git  
+* http://git.repo.i2p/r/grid-updates.git  
+* http://killyourtv.i2p/git/grid-updates.git
 
 The README on the grid:
 

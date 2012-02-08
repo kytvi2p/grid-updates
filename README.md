@@ -19,9 +19,9 @@ Download
   * [Project Eepsite](http://darrob.i2p/grid-updates/)
   * [Tahoe grid](http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Amjozenx3522pxtqyruekcx7mh4%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/)[^2]
   * Git
-	- [Git repository](http://git.repo.i2p/w/grid-updates.git)
+	- [Git repository](http://git.repo.i2p/r/grid-updates.git) ([Gitweb](http://git.repo.i2p/w/grid-updates.git))
 	- [Git mirror 1](http://darrob.i2p/grid-updates/grid-updates.git)
-	- [Git mirror 2](http://killyourtv.i2p/gitweb/?p=grid-updates.git;a=summary)
+	- [Git mirror 2](http://killyourtv.i2p/git/grid-updates.git) ([Gitweb](http://killyourtv.i2p/gitweb/?p=grid-updates.git))
 
 Installation
 ============
