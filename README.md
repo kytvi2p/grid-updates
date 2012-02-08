@@ -11,6 +11,12 @@ are run by volunteers and may disappear at any given time.  Maintaining a list
 of all known introducers and distributing it to all participants of the grid
 will ensure the best possible connectivity for everyone.
 
+Furthermore, there is no reliable way to contact node operators.  This is why
+we want to encourage users to subscribe to a news feed relevant to their Tahoe
+grid.  We hope it's going to be a way to inform unknown node operators about
+their wrongly configured nodes, necessary updates, recommended configuration
+changes and such.
+
 Download
 ========
 
