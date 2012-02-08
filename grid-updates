@@ -256,11 +256,6 @@ read_config_files () {
 
 ### checks ###
 
-if [ -e "$DATADIR/welcome.xhtml.patch" ]; then
-	PATCHES_FOUND=y
-else
-	PATCHES_FOUND=n
-fi
 check_tahoe_node () {
 	only_debug echo "DEBUG: Checking if Tahoe node directory is valid."
 	if [ -d "$TAHOE_NODE_DIR" ]; then
@@ -1076,6 +1071,13 @@ only_debug echo "DEBUG: Determined that location of grid-updates data directory 
 
 # Parse config files
 read_config_files
+
+# Check for patch files
+if [ -e "$DATADIR/welcome.xhtml.patch" ]; then
+	PATCHES_FOUND=y
+else
+	PATCHES_FOUND=n
+fi
 
 # Debug output (should probably be removed again)
 only_debug echo "DEBUG: Using Tahoe node dir: $TAHOE_NODE_DIR"
