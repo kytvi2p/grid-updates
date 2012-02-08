@@ -1,6 +1,9 @@
-28a29,49
+5a6
+>   <link href="/static/NEWS.atom" type="application/atom+xml" rel="alternate" title="grid-updates NEWS Atom Feed" />
+27a29,49
+> 
 > <!-- Begin grid-updates patch
-> VERSION=1.8.3-gu3
+> VERSION=1.8.3-gu4
 > This div section imlements an Iframe which will display the grid-updates news
 > feed on the Tahoe-LAFS web frontend. For more information on grid-updates see
 > http://darrob.i2p/grid-updates,
@@ -19,4 +22,3 @@
 > 	</div>
 > </div>
 > <!-- End grid-updates patch -->
-> 
