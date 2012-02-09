@@ -790,7 +790,7 @@ check_if_patch_uptodate () {
 		INSTALLED_WEBUI_PATCH_VERSION=$(awk -F= '/<!-- Begin grid-updates patch/{getline; print $2}' "$FILE_PATH")
 		only_debug echo "DEBUG: Most current web console patch version: $CURRENT_WEBUI_PATCH_VERSION."
 		only_debug echo "DEBUG: Currently installed web console patch version: $INSTALLED_WEBUI_PATCH_VERSION."
-		if [ "$CURRENT_WEBUI_PATCH_VERSION" != "$INSTALLED_WEBUI_PATCH_VERSION" ]; then
+		if [ $INSTALLED_WEBUI_PATCH_VERSION ] && [ "$CURRENT_WEBUI_PATCH_VERSION" != "$INSTALLED_WEBUI_PATCH_VERSION" ]; then
 			echo "There seems to be an updated web console patch available. Run grid-updates --patch-tahoe again to install it."
 		else
 			only_debug echo "DEBUG: No update to the web console patch available."
