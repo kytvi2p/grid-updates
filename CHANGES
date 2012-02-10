@@ -1,7 +1,13 @@
+2012-02-10 (version 0.7.2)
+
+	* Bugfix: only inform about updated patches if Web UI is already patched;
+	  leave users with no interest in the patch alone
+
 2012-02-09 (version 0.7.1)
 
 	* Fixed a bug preventing the script to detect new patch versions
-	* Updated Tahoe web UI patch and NEWS template to include links to the ATOM news feed
+	* Updated Tahoe web UI patch and NEWS template to include links to the ATOM
+	  news feed
 
 2012-02-01 (version 0.7)
 
