@@ -672,6 +672,11 @@ download_update () {
 ### Make NEWS.tgz ###
 
 compile_news_tarball () {
+	PANDOC="$(which pandoc)"
+	if [ -z "$PANDOC" ]; then
+		echo "ERROR: pandoc not found. Cannot --make-news."
+		return 1
+	fi
 	only_debug echo "DEBUG: Compiling a NEWS.tgz tarball."
 	# TODO install templates in /usr/share (use $DATADIR from webui branch)
 	# TODO upload?
@@ -682,7 +687,7 @@ compile_news_tarball () {
 	NEWS_TMP_DIR=$(mktemp -d $LOCKDIR/grid-update.XXXX)
 	cp "$NEWS_MARKDOWN_SOURCE" "$NEWS_TMP_DIR"/NEWS
 	# Compile HTML
-	pandoc -s --template="$NEWS_PANDOC_TEMPLATE" -w html -r markdown \
+	$PANDOC -s --template="$NEWS_PANDOC_TEMPLATE" -w html -r markdown \
 		--email-obfuscation=none --output "$NEWS_TMP_DIR"/NEWS.html \
 		"$NEWS_TMP_DIR"/NEWS
 	# Create Atom news feed file
