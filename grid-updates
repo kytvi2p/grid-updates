@@ -882,13 +882,7 @@ restore_webui_files () {
 		|| echo "ERROR: Couldn't restore original WebUI files."
 }
 
-# Abort if any variables aren't initialized to try to prevent any surprises
-set -o nounset  # same as set -u
 set -e          # abort if there are any uncaught errors along the way
-
-# some of those variables will not be initialized--and that's OK.
-# We'll do our own checking from this point forward.
-set +u
 
 ### CLI option evaluation ###
 
