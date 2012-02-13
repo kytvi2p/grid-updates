@@ -672,12 +672,13 @@ download_update () {
 ### Make NEWS.tgz ###
 
 compile_news_tarball () {
+	only_debug echo "DEBUG: Beginning of compile_news_tarball"
 	PANDOC="$(which pandoc)"
-	if [ -z "$PANDOC" ]; then
-		echo "ERROR: pandoc not found. Cannot --make-news."
+	MARKDOWN="$(which markdown)"
+	if [ -z $PANDOC ] && [ -z $MARKDOWN ]; then
+		echo "ERROR: Could not find pandoc or markdown. Cannot --make-news."
 		return 1
 	fi
-	only_debug echo "DEBUG: Compiling a NEWS.tgz tarball."
 	# TODO install templates in /usr/share (use $DATADIR from webui branch)
 	# TODO upload?
 	NEWS_MARKDOWN_BASENAME="$(basename "$NEWS_MARKDOWN_SOURCE")"
@@ -687,9 +688,16 @@ compile_news_tarball () {
 	NEWS_TMP_DIR=$(mktemp -d $LOCKDIR/grid-update.XXXX)
 	cp "$NEWS_MARKDOWN_SOURCE" "$NEWS_TMP_DIR"/NEWS
 	# Compile HTML
-	$PANDOC -s --template="$NEWS_PANDOC_TEMPLATE" -w html -r markdown \
-		--email-obfuscation=none --output "$NEWS_TMP_DIR"/NEWS.html \
-		"$NEWS_TMP_DIR"/NEWS
+	if [ $PANDOC ]; then
+		only_verbose echo "INFO: Compiling a NEWS.tgz tarball using pandoc."
+		$PANDOC -s --template="$NEWS_PANDOC_TEMPLATE" -w html -r markdown \
+			--email-obfuscation=none --output "$NEWS_TMP_DIR"/NEWS.html \
+			"$NEWS_TMP_DIR"/NEWS
+	elif [ $MARKDOWN ]; then
+		only_verbose echo "INFO: Compiling a NEWS.tgz tarball using markdown."
+		only_verbose echo "INFO: Please note that pandoc would produce nicer looking HTML files."
+		$MARKDOWN "$NEWS_TMP_DIR"/NEWS > "$NEWS_TMP_DIR"/NEWS.html
+	fi
 	# Create Atom news feed file
 	sed -e "s/REPLACEUPDATED/$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$(date -Ru)/" \
 	-e "s/REPLACEID/urn:uuid$(uuid)/" "$NEWS_ATOM_TEMPLATE" > "$NEWS_TMP_DIR"/NEWS.atom
