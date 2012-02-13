@@ -1084,8 +1084,7 @@ else
 fi
 
 # Find tahoe executable
-TAHOE=$(which tahoe)
-[ -z "$TAHOE" ] && echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1
+TAHOE=$(which tahoe) || (echo "ERROR: \`tahoe\` executable not found." >&2 && exit 1)
 
 # Find data dir
 BINDIR="$(dirname $(which $0))"
