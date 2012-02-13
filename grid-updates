@@ -695,8 +695,29 @@ compile_news_tarball () {
 			"$NEWS_TMP_DIR"/NEWS
 	elif [ $MARKDOWN ]; then
 		only_verbose echo "INFO: Compiling a NEWS.tgz tarball using markdown."
-		only_verbose echo "INFO: Please note that pandoc would produce nicer looking HTML files."
-		$MARKDOWN "$NEWS_TMP_DIR"/NEWS > "$NEWS_TMP_DIR"/NEWS.html
+		cat << EOF > "$NEWS_TMP_DIR"/NEWS.html
+<html>
+<head>
+	<title>grid-updates</title>
+	<link href="NEWS.atom" type="application/atom+xml" rel="alternate" title="grid-updates NEWS Atom Feed" />
+	<style type="text/css">
+	body {
+		font-size: 80%;
+	}
+	h1 {
+		font-size: 110%;
+		font-family: sans-serif;
+	}
+	h2 {
+		font-size: 90%;
+		font-family: sans-serif;
+	}
+	</style>
+</head>
+<body>
+EOF
+		$MARKDOWN "$NEWS_TMP_DIR"/NEWS >> "$NEWS_TMP_DIR"/NEWS.html
+		echo "</body>" >> "$NEWS_TMP_DIR"/NEWS.html
 	fi
 	# Create Atom news feed file
 	sed -e "s/REPLACEUPDATED/$(date +%FT%T%:z)/" -e "s/REPLACEDATE/$(date -Ru)/" \
