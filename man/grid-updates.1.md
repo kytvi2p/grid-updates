@@ -1,5 +1,5 @@
 % GRID-UPDATES(1) User Commands
-% darrob <darrob@mail.i2p>, killyourtv <kytv@mail.i2p>
+% darrob <darrob@mail.i2p>, KillYourTV <killyourtv@mail.i2p>
 % January 2012
 
 NAME
