@@ -157,7 +157,8 @@ class Updates:
                 version_numbers.append(v)
         latest_version = sorted(version_numbers)[-1]
         if verbose:
-            print 'INFO: current version: %s; newest available: %s.' % (version, latest_version)
+            print 'INFO: current version: %s; newest available: %s.' % \
+                    (version, latest_version)
         return latest_version
 
     def new_version_available(self):
