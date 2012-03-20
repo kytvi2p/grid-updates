@@ -12,7 +12,7 @@ import optparse
 import urllib
 import filecmp
 import json
-#from ConfigParser import SafeConfigParser
+from ConfigParser import SafeConfigParser
 
 class List:
     def __init__(self, verbose, nodedir, url):
@@ -217,6 +217,14 @@ def repair_shares(verbose, uri_dict):
         f.close()
 
 def main():
+
+    # Parse settings:
+    #   1. Set default fall-backs.
+    #   2. Parse configuration files.
+    #       (Apply defaults if necessary.)
+    #   3. Parse command line options.
+    #       (Use values from 2. as defaults.)
+
     # Default settings
     tahoe_node_dir = os.path.abspath('testdir')
     tahoe_node_url = 'http://127.0.0.1:3456'
@@ -227,7 +235,19 @@ def main():
     script_uri = 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'\
             'eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
 
+    # Configparser
+    # uses defaults (above) if not found in config file
+    config = SafeConfigParser({
+        'tahoe_node_dir': tahoe_node_dir,
+        'tahoe_node_url': tahoe_node_url,
+        'list_uri': list_uri,
+        'news_uri': news_uri,
+        'script_uri': script_uri,
+        })
+    config.read('config.ini')
+
     # Optparse
+    # defaults to values from Configparser
     parser = optparse.OptionParser()
     # actions
     action_opts = optparse.OptionGroup(
@@ -272,27 +292,27 @@ def main():
     other_opts.add_option('-d', '--node-dir',
             action = 'store',
             dest = "tahoe_node_dir",
-            default = tahoe_node_dir,
+            default = config.get('global', 'tahoe_node_dir'),
             help = 'Specify the Tahoe node directory.')
     other_opts.add_option('-u', '--node-url',
             action = 'store',
             dest = 'tahoe_node_url',
-            default = tahoe_node_url,
+            default = config.get('global', 'tahoe_node_url'),
             help = "Specify the Tahoe gateway node's URL.")
     other_opts.add_option('--list-uri',
             action = 'store',
             dest = 'list_uri',
-            default = list_uri,
+            default = config.get('global', 'list_uri'),
             help = 'Override default location of introducers list.')
     other_opts.add_option('--news-uri',
             action = 'store',
             dest = 'news_uri',
-            default = news_uri,
+            default = config.get('global', 'news_uri'),
             help = 'Override default location of news list.')
     other_opts.add_option('--script-uri',
             action = 'store',
             dest = 'script_uri',
-            default = script_uri,
+            default = config.get('global', 'script_uri'),
             help = 'Override default location of script releases.')
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
@@ -312,16 +332,14 @@ def main():
             action = "store_true",
             default = False,
             help = 'Display version information.')
-
     # parse arguments
     (opts, args) = parser.parse_args()
 
-    # parse options (best way to make global?)
-    #tahoe_node_dir = opts.tahoe_node_dir
-    #tahoe_node_url = opts.tahoe_node_url
-    #list_uri = opts.list_uri
-    #news_uri = opts.news_uri
-    #script_uri = opts.script_uri
+    # DEBUG
+    if opts.verbose:
+        print 'INFO: the following options have been set:'
+        for opt in sorted(opts.__dict__.keys()):
+            print '  %s\t-> %s' % (opt, opts.__dict__[opt])
 
     if opts.version:
         print 'grid-updates version: %s.' % version
