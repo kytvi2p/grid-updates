@@ -108,6 +108,7 @@ class News:
         for file in ['NEWS.html', 'NEWS.atom']:
             copyfile(self.tempdir + '/' + file, tahoe_node_dir + \
                     '/public_html/' + file)
+        # TODO parse web.static (public_html) dir from tahoe.cfg?
 
     def news_differ(self):
         """ Determine if downloaded NEWS differ from already present local
@@ -118,6 +119,7 @@ class News:
             else:
                 return False
         else:
+            # file doesn't exist; return True to copy over downloaded version
             return True
 
     def print_news(self):
