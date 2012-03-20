@@ -1,0 +1,9 @@
+* handle KeyboardInterrupts?
+* config files
+	- in /etc and ~/.config
+	- use XDG dirs? what about Windows?
+* pid/lock file?
+* docstrings
+* parse web.static option from tahoe.cfg?
+* in case of multiple actions, don't completely exit if one fails
+	(e.g. if news can't be fetched, skip and continue with deep-check)
