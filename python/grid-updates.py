@@ -402,6 +402,10 @@ def main():
             up.download_update()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print "\ngrid-updates interrupted by user."
+        exit(1)
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

@@ -1,4 +1,3 @@
-* handle KeyboardInterrupts?
 * config files
 	- in /etc and ~/.config
 	- use XDG dirs? what about Windows?
