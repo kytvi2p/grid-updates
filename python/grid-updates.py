@@ -113,9 +113,10 @@ class List:
             exit(1)
 
 class News:
-    def __init__(self, verbosity, nodedir, url):
+    def __init__(self, verbosity, nodedir, web_static_dir, url):
         self.verbosity = verbosity
         self.nodedir = nodedir
+        self.web_static = web_static_dir
         self.url = url
         if self.verbosity > 0: print "-- Updating NEWS --"
         self.local_news = os.path.join(self.nodedir, 'NEWS')
@@ -179,7 +180,7 @@ class News:
             copyfile(os.path.join(self.tempdir, 'NEWS'), self.local_news)
             for file in ['NEWS.html', 'NEWS.atom']:
                 copyfile(os.path.join(self.tempdir, file),
-                        os.path.join(self.nodedir, 'public_html', file))
+                        os.path.join(self.nodedir, self.web_static, file))
         except:
             print "ERROR: Couldn't copy one or more NEWS files into the" \
                   "node directory."
@@ -453,11 +454,22 @@ def main():
     # parse arguments
     (opts, args) = parser.parse_args()
 
+    # Parse tahoe options
+    tahoe_config = SafeConfigParser({'web.static': 'public_html'})
+    tahoe_config.read(os.path.join(opts.tahoe_node_dir, 'tahoe.cfg'))
+    print tahoe_config.get('node', 'web.static')
+    web_static_dir = os.path.abspath(
+            os.path.join(
+                opts.tahoe_node_dir,
+                tahoe_config.get('node', 'web.static')
+            ))
+
     # DEBUG
     if opts.verbosity > 2:
         print 'DEBUG: The following options have been set:'
         for opt in sorted(opts.__dict__.keys()):
             print '  %s\t-> %s' % (opt, opts.__dict__[opt])
+        print '  web.static\t-> ' + web_static_dir
 
     # Check for at least 1 mandatory option
     if not opts.version \
@@ -531,7 +543,7 @@ def main():
         try:
             if opts.verbosity > 2:
                 print 'DEBUG: Selected action: --download-news'
-            news = News(opts.verbosity, opts.tahoe_node_dir, uri_dict['news'][1])
+            news = News(opts.verbosity, opts.tahoe_node_dir, web_static_dir, uri_dict['news'][1])
             news.download_news()
             news.extract_tgz()
             news.news_differ()
