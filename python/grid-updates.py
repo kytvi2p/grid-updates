@@ -31,7 +31,7 @@ class List:
         if self.verbosity > 0: print "-- Updating introducers --"
         self.old_list = []
         self.new_introducers = []
-        self.introducers = self.nodedir + '/introducers'
+        self.introducers = os.path.join(self.nodedir, 'introducers')
         self.introducers_bak = self.introducers + '.bak'
         (self.old_introducers, self.old_list) = self.read_existing_list()
         self.new_list = self.download_new_list()
@@ -49,7 +49,7 @@ class List:
             print 'WARN: cannot read local introducers files:', e
             print 'WARN: Are you sure you have a compatible version of Tahoe-LAFS?'
             if self.verbosity > 1:
-                print 'INFO: Creating new empty introducers list.'
+                print 'INFO: Pretending to have read an empty introducers list.'
             old_introducers = ''
             old_list = []
         return (old_introducers, old_list)
@@ -57,7 +57,7 @@ class List:
     def download_new_list(self):
         """Download an introducers list from the Tahoe grid; return a list of
         strings."""
-        url = self.url + '/introducers'
+        url = os.path.join(self.url, 'introducers')
         if self.verbosity > 1: print "INFO: Downloading", url
         try:
             response = urllib2.urlopen(url)
@@ -118,13 +118,13 @@ class News:
         self.nodedir = nodedir
         self.url = url
         if self.verbosity > 0: print "-- Updating NEWS --"
-        self.local_news = self.nodedir + '/NEWS'
+        self.local_news = os.path.join(self.nodedir, 'NEWS')
         self.tempdir = tempfile.mkdtemp()
-        self.local_archive = self.tempdir + '/NEWS.tgz'
+        self.local_archive = os.path.join(self.tempdir, 'NEWS.tgz')
 
     def download_news(self):
         """Download NEWS.tgz file to local temporary file."""
-        url = self.url + '/NEWS.tgz'
+        url = os.path.join(self.url, 'NEWS.tgz')
         if self.verbosity > 1: print "INFO: Downloading", url
         try:
             remote_file = urllib2.urlopen(url)
@@ -157,7 +157,7 @@ class News:
             print 'ERROR: cannot access NEWS file: %s' % e
             exit(1)
         else:
-            with open(self.tempdir + '/NEWS', 'r') as tn:
+            with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
                 if ln.read() != tn.read():
                     if self.verbosity > 2:
                         print 'DEBUG: NEWS files differ.'
@@ -176,10 +176,10 @@ class News:
     def install_files(self):
         """Copy extracted NEWS files to their intended locations."""
         try:
-            copyfile(self.tempdir + '/NEWS', self.local_news)
+            copyfile(os.path.join(self.tempdir, 'NEWS'), self.local_news)
             for file in ['NEWS.html', 'NEWS.atom']:
-                copyfile(self.tempdir + '/' + file,
-                        self.nodedir + '/public_html/' + file)
+                copyfile(os.path.join(self.tempdir, file),
+                        os.path.join(self.nodedir, 'public_html', file))
         except:
             print "ERROR: couldn't copy one or more NEWS files into the" \
                   "node directory."
@@ -262,7 +262,7 @@ class Updates:
         """Download script tarball."""
         if self.new_version_available:
             download_url = \
-                    self.url + '/grid-updates-v' + self.latest_version + '.tgz'
+                    os.path.join(self.url, 'grid-updates-v' + self.latest_version + '.tgz')
             if self.verbosity > 1:
                 print "INFO: Downloading", download_url
             try:
@@ -270,8 +270,8 @@ class Updates:
             except urllib2.HTTPError, e:
                 print 'ERROR: could not download the tarball:', e
                 exit(1)
-            local_file = self.output_dir + '/grid-updates-v' + \
-                    self.latest_version + '.tgz'
+            local_file = os.path.join(self.output_dir, 'grid-updates-v' + \
+                                        self.latest_version + '.tgz')
             try:
                 with open(local_file,'wb') as output:
                     output.write(remote_file.read())
