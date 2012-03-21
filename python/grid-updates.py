@@ -96,6 +96,7 @@ class List:
                 f.write(new_introducer + '\n')
 
 class News:
+    # TODO improve diff'ing
     def __init__(self, verbosity, nodedir, url):
         self.verbosity = verbosity
         self.nodedir = nodedir
@@ -404,14 +405,12 @@ def main():
     if opts.version:
         print 'grid-updates version: %s.' % __version__
         exit(0)
-        # TODO license information?
 
     # conflicting options
     if opts.merge and opts.replace:
-        # TODO better message
-        print 'ERROR: choose either -m or -r.'
+        print 'ERROR: --merge-introducers & --replace-introducers are' \
+            ' mutually exclusive actions.'
         exit(1)
-        # TODO raise exception?
 
     # tahoe node dir validity check
     if not os.access(tahoe_node_dir + '/node.url', os.F_OK):
