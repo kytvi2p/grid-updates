@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """ grid-updates is a helper script for Tahoe-LAFS nodes."""
 
