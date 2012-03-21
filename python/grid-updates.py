@@ -4,7 +4,6 @@
 
 from ConfigParser import SafeConfigParser
 from shutil import copyfile, rmtree
-import filecmp
 import json
 import optparse
 import os
@@ -119,11 +118,40 @@ class News:
 
     def extract_tgz(self):
         """ Extract NEWS.tgz archive into temporary directory."""
-        # TODO exceptions
-        #tar = tarfile.open(self.local_archive, 'r:gz')
-        with tarfile.open(self.local_archive, 'r:gz') as tar:
+        if self.verbosity > 2:
+            print 'DEBUG: extracting %s to %s.' % \
+                    (self.local_archive, self.tempdir)
+        try:
+            tar = tarfile.open(self.local_archive, 'r:gz')
             for file in ['NEWS', 'NEWS.html', 'NEWS.atom']:
                 tar.extract(file, self.tempdir)
+            tar.close()
+        except:
+            print 'ERROR: could not extract NEWS.tgz archive.'
+            exit(1)
+
+    def news_differ(self):
+        """ Compare NEWS files and print to stdout if they differ (if allowed
+        by verbosity level)."""
+        try:
+            with open(self.local_news, 'r+') as ln:
+                with open(self.tempdir + '/NEWS', 'r') as tn:
+                    if ln.read() != tn.read():
+                        if self.verbosity > 2:
+                            print 'DEBUG: NEWS files differ.'
+                        if self.verbosity > 0:
+                            tn.seek(0)
+                            for line in tn.readlines():
+                                print line,
+                    else:
+                        if self.verbosity > 2:
+                            print 'DEBUG: NEWS files seem to be identical.'
+        except:
+            print 'TODO: news diff error'
+            exit(1)
+        else:
+            if self.verbosity > 2:
+                print 'DEBUG: successfully extracted and compared NEWS files.'
 
     def install_files(self):
         """ Copy extracted NEWS files to their intended locations."""
@@ -133,24 +161,6 @@ class News:
             copyfile(self.tempdir + '/' + file, self.nodedir + \
                     '/public_html/' + file)
         # TODO parse web.static (public_html) dir from tahoe.cfg?
-
-    def news_differ(self):
-        """ Determine if downloaded NEWS differ from already present local
-        NEWS."""
-        if os.access(self.local_news, os.R_OK):
-            if not filecmp.cmp(self.local_news, self.tempdir + '/NEWS'):
-                return True
-            else:
-                return False
-        else:
-            # file doesn't exist; return True to copy over downloaded version
-            return True
-
-    def print_news(self):
-        """ Print new NEWS (plaintext version) to stdout."""
-        with open(self.tempdir + '/NEWS', 'r') as file:
-            for line in file:
-                print line,
 
     def remove_temporary(self):
         """ Clean up temporary NEWS files."""
@@ -390,6 +400,7 @@ def main():
         for opt in sorted(opts.__dict__.keys()):
             print '  %s\t-> %s' % (opt, opts.__dict__[opt])
 
+
     # Check for at least 1 mandatory option
     if not opts.version \
     and not opts.merge \
@@ -458,11 +469,7 @@ def main():
             news = News(opts.verbosity, opts.tahoe_node_dir, uri_dict['news'][1])
             news.download_news()
             news.extract_tgz()
-            if news.news_differ():
-                news.print_news()
-            else:
-                if opts.verbosity > 0:
-                    print "The NEWS file is unchanged."
+            news.news_differ()
             # Copy in any case to make easily make sure that all versions
             # (escpecially the HTML version) are always present:
             news.install_files()
@@ -476,6 +483,7 @@ def main():
                 print 'DEBUG: successfully ran news operation.'
 
     if opts.repair:
+        # TODO
         repair_shares(opts.verbosity, uri_dict)
         exit(0)
         try:
