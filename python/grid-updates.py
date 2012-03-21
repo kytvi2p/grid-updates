@@ -488,7 +488,6 @@ def main():
     # generate URI dictionary
     def generate_full_tahoe_uri(uri):
         return tahoe_node_url + '/uri/' + uri
-    global uri_dict
     uri_dict = {'list': (opts.list_uri, generate_full_tahoe_uri(opts.list_uri)),
             'news': (opts.news_uri, generate_full_tahoe_uri(opts.news_uri)),
             'script': (opts.script_uri, generate_full_tahoe_uri(opts.script_uri))}
