@@ -40,20 +40,19 @@ class List:
         """ Read the local introducers file as a single string (to be written
         again) and as individual lines. """
         try:
-            f = open(self.introducers, 'r')
-            self.old_introducers = f.read()
-            self.old_list = self.old_introducers.splitlines()
-            f.close()
-        except IOError:
-            print 'ERROR: cannot read local introducers files.'
+            with open(self.introducers, 'r') as f:
+                self.old_introducers = f.read()
+                self.old_list = self.old_introducers.splitlines()
+        except IOError, e:
+            print 'ERROR: cannot read local introducers files:', e
             exit(1)
 
     def download_new_list(self):
         """ Download an introducers list from the Tahoe grid; return a list of
         strings."""
-        # TODO exceptions
         url = self.url + '/introducers'
         if self.verbosity > 1: print "INFO: trying to download", url
+        # TODO exceptions
         response = urllib2.urlopen(url)
         new_list = response.read().split('\n')
         return new_list
@@ -64,19 +63,24 @@ class List:
         for line in self.new_list:
             if re.match("^pb:\/\/", line):
                 self.new_introducers.append(line)
+        if self.verbosity > 3:
+            print self.new_introducers
 
     def backup_original(self):
         """ Copy the old introducers file to introducers.bak."""
         try:
-            f = open(self.introducers_bak, 'w')
-            f.write(self.old_introducers)
-            f.close()
+            with open(self.introducers_bak, 'w') as f:
+                f.write(self.old_introducers)
         except IOError:
             print 'ERROR: cannot create backup file introducers.bak'
             exit(1)
+        else:
+            if self.verbosity > 2:
+                print 'DEBUG: created backup of local introducers.'
 
     def merge_introducers(self):
         """ Add newly discovered introducers to the local introducers file."""
+        # TODO exceptions
         with open(self.introducers, 'a') as f:
             for new_introducer in self.new_introducers:
                 if new_introducer not in self.old_list:
@@ -86,6 +90,7 @@ class List:
     def replace_introducers(self):
         """ Write the downloaded list of introducers to the local file
         (overwriting the existing file)."""
+        # TODO exceptions
         with open(self.introducers, 'w') as f:
             for new_introducer in self.new_introducers:
                 f.write(new_introducer + '\n')
@@ -103,17 +108,21 @@ class News:
         """ Download NEWS.tgz file to local temporary file."""
         url = self.url + '/NEWS.tgz'
         if self.verbosity > 1: print "INFO: trying to download", url
-        remote_file = urllib2.urlopen(url)
+        try:
+            remote_file = urllib2.urlopen(url)
+        except:
+            print "ERROR: couldn't find %s." % url
+            exit(1)
         with open(self.local_archive,'wb') as output:
             output.write(remote_file.read())
 
     def extract_tgz(self):
         """ Extract NEWS.tgz archive into temporary directory."""
         # TODO exceptions
-        tar = tarfile.open(self.local_archive, 'r:gz')
-        for file in ['NEWS', 'NEWS.html', 'NEWS.atom']:
-            tar.extract(file, self.tempdir)
-        tar.close()
+        #tar = tarfile.open(self.local_archive, 'r:gz')
+        with tarfile.open(self.local_archive, 'r:gz') as tar:
+            for file in ['NEWS', 'NEWS.html', 'NEWS.atom']:
+                tar.extract(file, self.tempdir)
 
     def install_files(self):
         """ Copy extracted NEWS files to their intended locations."""
@@ -144,7 +153,10 @@ class News:
 
     def remove_temporary(self):
         """ Clean up temporary NEWS files."""
-        rmtree(self.tempdir)
+        try:
+            rmtree(self.tempdir)
+        except:
+            print "ERROR: couldn't remove temporary dir: %s." % self.tempdir
 
 class Updates:
     def __init__(self, verbosity, output_dir, url):
@@ -162,21 +174,25 @@ class Updates:
         directory."""
         if self.verbosity > 1: print "INFO: checking for new version..."
         # list Tahoe dir
-        request = urllib2.urlopen(self.dir_url)
-        json_dir = request.read()
-        # parse json index of dir
-        file_list = json.loads(json_dir)[1]['children'].keys()
-        # parse version numbers
-        version_numbers = []
-        for filename in file_list:
-            if re.match("^grid-updates-v.*\.tgz$", filename):
-                v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
-                version_numbers.append(v)
-        latest_version = sorted(version_numbers)[-1]
-        if self.verbosity > 1:
-            print 'INFO: current version: %s; newest available: %s.' % \
-                    (__version__, latest_version)
-        return latest_version
+        try:
+            request = urllib2.urlopen(self.dir_url)
+            json_dir = request.read()
+            # parse json index of dir
+            file_list = json.loads(json_dir)[1]['children'].keys()
+            # parse version numbers
+            version_numbers = []
+            for filename in file_list:
+                if re.match("^grid-updates-v.*\.tgz$", filename):
+                    v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
+                    version_numbers.append(v)
+            latest_version = sorted(version_numbers)[-1]
+            if self.verbosity > 1:
+                print 'INFO: current version: %s; newest available: %s.' % \
+                        (__version__, latest_version)
+        except urllib2.HTTPError, e:
+            print 'ERROR: could not access the Tahoe directory:', e
+        else:
+            return latest_version
 
     def new_version_available(self):
         """ Determine if the local version is smaller than the available
@@ -196,19 +212,24 @@ class Updates:
 
     def download_update(self):
         """ Download script tarball."""
-        # TODO configurable output dir
         if self.new_version_available:
             download_url = self.url + '/grid-updates-v' + self.latest_version \
                     + '.tgz'
-            if self.verbosity > 1: print "INFO: trying to download", download_url
-            remote_file = urllib2.urlopen(download_url)
+            if self.verbosity > 1:
+                print "INFO: trying to download", download_url
             try:
-                local_file = self.output_dir + '/grid-updates-v' + \
-                    self.latest_version + '.tgz'
-                output = open(local_file,'wb')
-                output.write(remote_file.read())
-            except:
-                print 'ERROR' # TODO
+                remote_file = urllib2.urlopen(download_url)
+            except urllib2.HTTPError, e:
+                print 'ERROR: could not download the tarball:', e
+                exit(1)
+            local_file = self.output_dir + '/grid-updates-v' + \
+                self.latest_version + '.tgz'
+            try:
+                with open(local_file,'wb') as output:
+                    output.write(remote_file.read())
+            except IOError, e:
+                print 'ERROR: could not write to local file:', e
+                exit(1)
             else:
                 print 'Success: downloaded an update to %s.' \
                     % os.path.abspath(local_file)
@@ -216,14 +237,27 @@ class Updates:
 def repair_shares(verbosity, uri_dict):
     """ Run a deep-check including repair and add-lease on the grid-update
     shares."""
+    # TODO catch: <html><head><title>Page Not Found</title></head><body>Sorry, but I couldn't find the object you requested.</body></html>
+    if verbosity > 2:
+        print 'DEBUG: this is the output of the repair operations:'
     for uri in uri_dict.keys():
         repair_uri = uri_dict[uri][1]
         if verbosity > 0: print "Repairing", repair_uri
         params = urllib.urlencode({'t': 'stream-deep-check',
             'repair': 'true', 'add-lease': 'true'})
         f = urllib.urlopen(repair_uri, params)
-        #print f.read()
+        if verbosity > 2:
+            print f.read()
         f.close()
+        #try:
+        #    f = urllib.urlopen(repair_uri, params)
+        #    # TODO parse output
+        #    print f.read()
+        #except urllib2.HTTPError, e:
+        #    print 'ERROR: could not repair %s URI: %s' % (uri, e)
+        #    break
+        #else:
+        #    f.close()
 
 def main():
 
@@ -375,7 +409,7 @@ def main():
     # conflicting options
     if opts.merge and opts.replace:
         # TODO better message
-        print 'Error: choose either -m or -r.'
+        print 'ERROR: choose either -m or -r.'
         exit(1)
         # TODO raise exception?
 
@@ -395,49 +429,81 @@ def main():
             'script': (opts.script_uri, generate_full_tahoe_uri(opts.script_uri))}
 
     # run actions
-    if opts.merge:
+    try:
+        if opts.merge:
+                if opts.verbosity > 2:
+                    print 'DEBUG: Selected action: --merge-introducers'
+                list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
+                list.filter_new_list()
+                list.backup_original()
+                list.merge_introducers()
+        elif opts.replace:
+            if opts.verbosity > 2:
+                print 'DEBUG: Selected action: --replace-introducers'
+            list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
+            list.filter_new_list()
+            list.backup_original()
+            list.replace_introducers()
+    except:
+        if opts.verbosity > 1:
+            print "DEBUG: Couldn't finish introducer list operation." \
+                " Continuing..."
+    else:
         if opts.verbosity > 2:
-            print 'DEBUG: Selected action: --merge-introducers'
-        list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
-        list.filter_new_list()
-        list.backup_original()
-        list.merge_introducers()
-    elif opts.replace:
-        if opts.verbosity > 2:
-            print 'DEBUG: Selected action: --replace-introducers'
-        list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
-        list.filter_new_list()
-        list.backup_original()
-        list.replace_introducers()
+            print 'DEBUG: successfully ran introducer list operation.'
 
     if opts.news:
-        if opts.verbosity > 2:
-            print 'DEBUG: Selected action: --download-news'
-        news = News(opts.verbosity, opts.tahoe_node_dir, uri_dict['news'][1])
-        news.download_news()
-        news.extract_tgz()
-        if news.news_differ():
-            news.print_news()
+        try:
+            if opts.verbosity > 2:
+                print 'DEBUG: Selected action: --download-news'
+            news = News(opts.verbosity, opts.tahoe_node_dir, uri_dict['news'][1])
+            news.download_news()
+            news.extract_tgz()
+            if news.news_differ():
+                news.print_news()
+            else:
+                if opts.verbosity > 0:
+                    print "The NEWS file is unchanged."
+            # Copy in any case to make easily make sure that all versions
+            # (escpecially the HTML version) are always present:
+            news.install_files()
+            news.remove_temporary()
+        except:
+            if opts.verbosity > 2:
+                print "DEBUG: Couldn't finish news update operation." \
+                    " Continuing..."
         else:
-            if opts.verbosity > 0:
-                print "The NEWS file is unchanged."
-        # Copy in any case to make easily make sure that all versions
-        # (escpecially the HTML version) are always present:
-        news.install_files()
-        news.remove_temporary()
+            if opts.verbosity > 2:
+                print 'DEBUG: successfully ran news operation.'
 
     if opts.repair:
-        if opts.verbosity > 2:
-            print 'DEBUG: Selected action: --repair-subscriptions'
         repair_shares(opts.verbosity, uri_dict)
+        exit(0)
+        try:
+            if opts.verbosity > 2:
+                print 'DEBUG: Selected action: --repair-subscriptions'
+            repair_shares(opts.verbosity, uri_dict)
+        except:
+            if opts.verbosity > 2:
+                print "DEBUG: couldn't finish repair operation." \
+                    " continuing..."
+        else:
+            if opts.verbosity > 2:
+                print 'DEBUG: successfully ran repair operation.'
 
     if opts.check_version or opts.download_update:
-        # __init__ checks for new version
-        up = Updates(opts.verbosity, opts.output_dir, uri_dict['script'][1])
-        if opts.check_version:
-            up.check_update()
-        if opts.download_update:
-            up.download_update()
+        try:
+            # __init__ checks for new version
+            up = Updates(opts.verbosity, opts.output_dir, uri_dict['script'][1])
+            if opts.check_version: up.check_update()
+            if opts.download_update: up.download_update()
+        except:
+            if opts.verbosity > 2:
+                print "DEBUG: couldn't finish version check operation." \
+                    " Continuing..."
+        else:
+            if opts.verbosity > 2:
+                print 'DEBUG: successfully ran script update operation.'
 
 if __name__ == "__main__":
     try:
