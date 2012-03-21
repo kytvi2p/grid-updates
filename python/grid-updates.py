@@ -23,11 +23,11 @@ __email__ = "darrob@mail.i2p"
 __status__ = "Development"
 
 class List:
-    def __init__(self, verbose, nodedir, url):
-        self.verbose = verbose
+    def __init__(self, verbosity, nodedir, url):
+        self.verbosity = verbosity
         self.nodedir = nodedir
         self.url = url
-        if self.verbose: print "INFO: Tahoe node dir is", self.nodedir
+        if self.verbosity > 1: print "INFO: Tahoe node dir is", self.nodedir
         self.old_list = []
         self.new_introducers = []
         self.introducers = self.nodedir + '/introducers'
@@ -53,7 +53,7 @@ class List:
         strings."""
         # TODO exceptions
         url = self.url + '/introducers'
-        if self.verbose: print "INFO: trying to download", url
+        if self.verbosity > 1: print "INFO: trying to download", url
         response = urllib2.urlopen(url)
         new_list = response.read().split('\n')
         return new_list
@@ -91,8 +91,8 @@ class List:
                 f.write(new_introducer + '\n')
 
 class News:
-    def __init__(self, verbose, nodedir, url):
-        self.verbose = verbose
+    def __init__(self, verbosity, nodedir, url):
+        self.verbosity = verbosity
         self.nodedir = nodedir
         self.url = url
         self.local_news = self.nodedir + '/NEWS'
@@ -102,7 +102,7 @@ class News:
     def download_news(self):
         """ Download NEWS.tgz file to local temporary file."""
         url = self.url + '/NEWS.tgz'
-        if self.verbose: print "INFO: trying to download", url
+        if self.verbosity > 1: print "INFO: trying to download", url
         remote_file = urllib2.urlopen(url)
         with open(self.local_archive,'wb') as output:
             output.write(remote_file.read())
@@ -147,8 +147,8 @@ class News:
         rmtree(self.tempdir)
 
 class Updates:
-    def __init__(self, verbose, output_dir, url):
-        self.verbose = verbose
+    def __init__(self, verbosity, output_dir, url):
+        self.verbosity = verbosity
         self.output_dir = output_dir
         self.url = url
         self.dir_url = self.url + '/?t=json'
@@ -160,7 +160,7 @@ class Updates:
     def get_version_number(self):
         """ Determine latest available version number by parsing the Tahoe
         directory."""
-        if self.verbose: print "INFO: checking for new version..."
+        if self.verbosity > 1: print "INFO: checking for new version..."
         # list Tahoe dir
         request = urllib2.urlopen(self.dir_url)
         json_dir = request.read()
@@ -173,7 +173,7 @@ class Updates:
                 v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
                 version_numbers.append(v)
         latest_version = sorted(version_numbers)[-1]
-        if self.verbose:
+        if self.verbosity > 1:
             print 'INFO: current version: %s; newest available: %s.' % \
                     (__version__, latest_version)
         return latest_version
@@ -190,8 +190,9 @@ class Updates:
     def check_update(self):
         """ Print current and available version numbers."""
         if self.new_version_available:
-            print 'There is a new version available: %s (currently %s).' % \
-                    (self.latest_version, __version__)
+            if self.verbosity > 0:
+                print 'There is a new version available: %s (currently %s).' \
+                        % (self.latest_version, __version__)
 
     def download_update(self):
         """ Download script tarball."""
@@ -199,7 +200,7 @@ class Updates:
         if self.new_version_available:
             download_url = self.url + '/grid-updates-v' + self.latest_version \
                     + '.tgz'
-            if self.verbose: print "INFO: trying to download", download_url
+            if self.verbosity > 1: print "INFO: trying to download", download_url
             remote_file = urllib2.urlopen(download_url)
             try:
                 local_file = self.output_dir + '/grid-updates-v' + \
@@ -212,12 +213,12 @@ class Updates:
                 print 'Success: downloaded an update to %s.' \
                     % os.path.abspath(local_file)
 
-def repair_shares(verbose, uri_dict):
+def repair_shares(verbosity, uri_dict):
     """ Run a deep-check including repair and add-lease on the grid-update
     shares."""
     for uri in uri_dict.keys():
         repair_uri = uri_dict[uri][1]
-        if verbose: print "INFO: Repairing", repair_uri
+        if verbosity > 0: print "Repairing", repair_uri
         params = urllib.urlencode({'t': 'stream-deep-check',
             'repair': 'true', 'add-lease': 'true'})
         f = urllib.urlopen(repair_uri, params)
@@ -330,11 +331,16 @@ def main():
                     'update downloads.' % os.getcwd())
     parser.add_option_group(other_opts)
     # remaining
-    parser.add_option('-v', '--verbose',
-            dest = "verbose",
-            action = "store_true",
-            default = False,
-            help = 'Display more verbose output.')
+    parser.add_option('-v',
+            action='count',
+            dest='verbosity',
+            default=1,
+            help = 'Increase verbosity (-vv for debug mode).')
+    parser.add_option('-q',
+            action='store_const',
+            const=0,
+            dest='verbosity',
+            help = 'Turn off verbosity.')
     parser.add_option('-V', '--version',
             dest = "version",
             action = "store_true",
@@ -344,8 +350,8 @@ def main():
     (opts, args) = parser.parse_args()
 
     # DEBUG
-    if opts.verbose:
-        print 'INFO: the following options have been set:'
+    if opts.verbosity > 2:
+        print 'DEBUG: the following options have been set:'
         for opt in sorted(opts.__dict__.keys()):
             print '  %s\t-> %s' % (opt, opts.__dict__[opt])
 
@@ -390,40 +396,44 @@ def main():
 
     # run actions
     if opts.merge:
-        if opts.verbose: print 'INFO: Selected action: --merge-introducers'
-        list = List(opts.verbose, opts.tahoe_node_dir, uri_dict['list'][1])
+        if opts.verbosity > 2:
+            print 'DEBUG: Selected action: --merge-introducers'
+        list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
         list.filter_new_list()
         list.backup_original()
         list.merge_introducers()
     elif opts.replace:
-        if opts.verbose: print 'INFO: Selected action: --replace-introducers'
-        list = List(opts.verbose, opts.tahoe_node_dir, uri_dict['list'][1])
+        if opts.verbosity > 2:
+            print 'DEBUG: Selected action: --replace-introducers'
+        list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
         list.filter_new_list()
         list.backup_original()
         list.replace_introducers()
 
     if opts.news:
-        if opts.verbose: print 'INFO: Selected action: --download-news'
-        news = News(opts.verbose, opts.tahoe_node_dir, uri_dict['news'][1])
+        if opts.verbosity > 2:
+            print 'DEBUG: Selected action: --download-news'
+        news = News(opts.verbosity, opts.tahoe_node_dir, uri_dict['news'][1])
         news.download_news()
         news.extract_tgz()
         if news.news_differ():
             news.print_news()
         else:
-            if opts.verbose:
-                print "INFO: the NEWS file is unchanged."
+            if opts.verbosity > 0:
+                print "The NEWS file is unchanged."
         # Copy in any case to make easily make sure that all versions
         # (escpecially the HTML version) are always present:
         news.install_files()
         news.remove_temporary()
 
     if opts.repair:
-        if opts.verbose: print 'INFO: Selected action: --repair-subscriptions'
-        repair_shares(opts.verbose, uri_dict)
+        if opts.verbosity > 2:
+            print 'DEBUG: Selected action: --repair-subscriptions'
+        repair_shares(opts.verbosity, uri_dict)
 
     if opts.check_version or opts.download_update:
         # __init__ checks for new version
-        up = Updates(opts.verbose, opts.output_dir, uri_dict['script'][1])
+        up = Updates(opts.verbosity, opts.output_dir, uri_dict['script'][1])
         if opts.check_version:
             up.check_update()
         if opts.download_update:

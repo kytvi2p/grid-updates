@@ -5,4 +5,3 @@
 * parse web.static option from tahoe.cfg?
 * in case of multiple actions, don't completely exit if one fails
 	(e.g. if news can't be fetched, skip and continue with deep-check)
-* enable debug mode with multiple -v flags
