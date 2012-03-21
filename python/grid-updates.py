@@ -439,28 +439,27 @@ def main():
             'script': (opts.script_uri, generate_full_tahoe_uri(opts.script_uri))}
 
     # run actions
-    try:
-        if opts.merge:
-                if opts.verbosity > 2:
-                    print 'DEBUG: Selected action: --merge-introducers'
-                list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
-                list.filter_new_list()
-                list.backup_original()
-                list.merge_introducers()
-        elif opts.replace:
-            if opts.verbosity > 2:
-                print 'DEBUG: Selected action: --replace-introducers'
+    if opts.merge or opts.replace:
+        # Debug info
+        if opts.merge and opts.verbosity > 2:
+            print 'DEBUG: Selected action: --merge-introducers'
+        if opts.replace and opts.verbosity > 2:
+            print 'DEBUG: Selected action: --replace-introducers'
+        try:
             list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
             list.filter_new_list()
             list.backup_original()
-            list.replace_introducers()
-    except:
-        if opts.verbosity > 1:
-            print "DEBUG: Couldn't finish introducer list operation." \
-                " Continuing..."
-    else:
-        if opts.verbosity > 2:
-            print 'DEBUG: successfully ran introducer list operation.'
+            if opts.merge:
+                list.merge_introducers()
+            elif opts.replace:
+                list.replace_introducers()
+        except:
+            if opts.verbosity > 1:
+                print "DEBUG: Couldn't finish introducer list operation." \
+                    " Continuing..."
+        else:
+            if opts.verbosity > 2:
+                print 'DEBUG: successfully ran introducer list operation.'
 
     if opts.news:
         try:
@@ -485,18 +484,17 @@ def main():
     if opts.repair:
         # TODO
         repair_shares(opts.verbosity, uri_dict)
-        exit(0)
-        try:
-            if opts.verbosity > 2:
-                print 'DEBUG: Selected action: --repair-subscriptions'
-            repair_shares(opts.verbosity, uri_dict)
-        except:
-            if opts.verbosity > 2:
-                print "DEBUG: couldn't finish repair operation." \
-                    " continuing..."
-        else:
-            if opts.verbosity > 2:
-                print 'DEBUG: successfully ran repair operation.'
+        #try:
+        #    if opts.verbosity > 2:
+        #        print 'DEBUG: Selected action: --repair-subscriptions'
+        #    repair_shares(opts.verbosity, uri_dict)
+        #except:
+        #    if opts.verbosity > 2:
+        #        print "DEBUG: couldn't finish repair operation." \
+        #            " continuing..."
+        #else:
+        #    if opts.verbosity > 2:
+        #        print 'DEBUG: successfully ran repair operation.'
 
     if opts.check_version or opts.download_update:
         try:
