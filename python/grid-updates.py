@@ -62,7 +62,7 @@ class List:
         try:
             response = urllib2.urlopen(url)
         except urllib2.HTTPError, e:
-            print 'ERROR: could not download the introducers list:', e
+            print 'ERROR: Could not download the introducers list:', e
         else:
             new_list = response.read().split('\n')
             return new_list
@@ -82,7 +82,7 @@ class List:
             with open(self.introducers_bak, 'w') as f:
                 f.write(self.old_introducers)
         except IOError:
-            print 'ERROR: cannot create backup file introducers.bak'
+            print 'ERROR: Cannot create backup file introducers.bak'
             exit(1)
         else:
             if self.verbosity > 2:
@@ -98,7 +98,7 @@ class List:
                             print "New introducer added: %s" % new_introducer
                             f.write(new_introducer + '\n')
         except IOError, e:
-            print 'ERROR: could not write to introducer file: %s' % e
+            print 'ERROR: Could not write to introducer file: %s' % e
             exit(1)
 
     def replace_introducers(self):
@@ -109,7 +109,7 @@ class List:
                 for new_introducer in self.new_introducers:
                     f.write(new_introducer + '\n')
         except IOError, e:
-            print 'ERROR: could not write to introducer file: %s' % e
+            print 'ERROR: Could not write to introducer file: %s' % e
             exit(1)
 
 class News:
@@ -129,7 +129,7 @@ class News:
         try:
             remote_file = urllib2.urlopen(url)
         except:
-            print "ERROR: couldn't find %s." % url
+            print "ERROR: Couldn't find %s." % url
             exit(1)
         with open(self.local_archive,'wb') as output:
             output.write(remote_file.read())
@@ -145,7 +145,7 @@ class News:
                 tar.extract(file, self.tempdir)
             tar.close()
         except:
-            print 'ERROR: could not extract NEWS.tgz archive.'
+            print 'ERROR: Could not extract NEWS.tgz archive.'
             exit(1)
 
     def news_differ(self):
@@ -154,7 +154,7 @@ class News:
         try:
             ln = open(self.local_news, 'r+')
         except IOError, e:
-            print 'ERROR: cannot access NEWS file: %s' % e
+            print 'ERROR: Cannot access NEWS file: %s' % e
             exit(1)
         else:
             with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
@@ -181,7 +181,7 @@ class News:
                 copyfile(os.path.join(self.tempdir, file),
                         os.path.join(self.nodedir, 'public_html', file))
         except:
-            print "ERROR: couldn't copy one or more NEWS files into the" \
+            print "ERROR: Couldn't copy one or more NEWS files into the" \
                   "node directory."
             exit(1)
         else:
@@ -194,7 +194,7 @@ class News:
         try:
             rmtree(self.tempdir)
         except:
-            print "ERROR: couldn't remove temporary dir: %s." % self.tempdir
+            print "ERROR: Couldn't remove temporary dir: %s." % self.tempdir
         else:
             if self.verbosity > 2:
                 print 'DEBUG: Removed temporary dir: %s.' % self.tempdir
@@ -221,7 +221,7 @@ class Updates:
         try:
             request = urllib2.urlopen(self.dir_url)
         except urllib2.HTTPError, e:
-            print 'ERROR: could not access the Tahoe directory:', e
+            print 'ERROR: Could not access the Tahoe directory:', e
         else:
             json_dir = request.read()
             # parse json index of dir
@@ -268,7 +268,7 @@ class Updates:
             try:
                 remote_file = urllib2.urlopen(download_url)
             except urllib2.HTTPError, e:
-                print 'ERROR: could not download the tarball:', e
+                print 'ERROR: Could not download the tarball:', e
                 exit(1)
             local_file = os.path.join(self.output_dir, 'grid-updates-v' + \
                                         self.latest_version + '.tgz')
@@ -276,7 +276,7 @@ class Updates:
                 with open(local_file,'wb') as output:
                     output.write(remote_file.read())
             except IOError, e:
-                print 'ERROR: could not write to local file:', e
+                print 'ERROR: Could not write to local file:', e
                 exit(1)
             else:
                 if self.verbosity > 0:
@@ -304,7 +304,7 @@ def repair_shares(verbosity, uri_dict):
         #    # TODO parse output
         #    print f.read()
         #except urllib2.HTTPError, e:
-        #    print 'ERROR: could not repair %s URI: %s' % (uri, e)
+        #    print 'ERROR: Could not repair %s URI: %s' % (uri, e)
         #    break
         #else:
         #    f.close()
@@ -482,7 +482,7 @@ def main():
         print "ERROR: node.url not found. Not a valid Tahoe node."
         exit(1)
     if not os.access(opts.tahoe_node_dir, os.W_OK):
-        print "ERROR: need write access to", opts.tahoe_node_dir
+        print "ERROR: Need write access to", opts.tahoe_node_dir
         exit(1)
 
     # generate URI dictionary
