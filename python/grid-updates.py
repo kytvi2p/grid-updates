@@ -401,27 +401,27 @@ def main():
     other_opts.add_option('-d', '--node-dir',
             action = 'store',
             dest = "tahoe_node_dir",
-            default = config.get('global', 'tahoe_node_dir'),
+            default = config.get('OPTIONS', 'tahoe_node_dir'),
             help = 'Specify the Tahoe node directory.')
     other_opts.add_option('-u', '--node-url',
             action = 'store',
             dest = 'tahoe_node_url',
-            default = config.get('global', 'tahoe_node_url'),
+            default = config.get('OPTIONS', 'tahoe_node_url'),
             help = "Specify the Tahoe gateway node's URL.")
     other_opts.add_option('--list-uri',
             action = 'store',
             dest = 'list_uri',
-            default = config.get('global', 'list_uri'),
+            default = config.get('OPTIONS', 'list_uri'),
             help = 'Override default location of introducers list.')
     other_opts.add_option('--news-uri',
             action = 'store',
             dest = 'news_uri',
-            default = config.get('global', 'news_uri'),
+            default = config.get('OPTIONS', 'news_uri'),
             help = 'Override default location of news list.')
     other_opts.add_option('--script-uri',
             action = 'store',
             dest = 'script_uri',
-            default = config.get('global', 'script_uri'),
+            default = config.get('OPTIONS', 'script_uri'),
             help = 'Override default location of script releases.')
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
