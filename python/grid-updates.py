@@ -32,7 +32,7 @@ class List:
         self.new_introducers = []
         self.introducers = self.nodedir + '/introducers'
         self.introducers_bak = self.introducers + '.bak'
-        self.read_existing_list()
+        (self.old_introducers, self.old_list) = self.read_existing_list()
         self.new_list = self.download_new_list()
 
     def read_existing_list(self):
@@ -42,15 +42,16 @@ class List:
             print 'DEBUG: Reading the local introducers file.'
         try:
             with open(self.introducers, 'r') as f:
-                self.old_introducers = f.read()
-                self.old_list = self.old_introducers.splitlines()
+                old_introducers = f.read()
+                old_list = old_introducers.splitlines()
         except IOError, e:
             print 'WARN: cannot read local introducers files:', e
             print 'WARN: Are you sure you have a compatible version of Tahoe-LAFS?'
             if self.verbosity > 1:
                 print 'INFO: Creating new empty introducers list.'
-            self.old_introducers = ''
-            self.old_list = []
+            old_introducers = ''
+            old_list = []
+        return (old_introducers, old_list)
 
     def download_new_list(self):
         """Download an introducers list from the Tahoe grid; return a list of
