@@ -1,18 +1,25 @@
 #!/usr/bin/python
 
-version = '0.7.0-test'
+""" grid-updates is a helper script for Tahoe-LAFS nodes."""
 
+from ConfigParser import SafeConfigParser
 from shutil import copyfile, rmtree
+import filecmp
+import json
+import optparse
 import os
 import re
 import tarfile
 import tempfile # use os.tmpfile()?
-import urllib2
-import optparse
 import urllib
-import filecmp
-import json
-from ConfigParser import SafeConfigParser
+import urllib2
+
+__author__ = "darrob"
+__license__ = "Public Domain"
+__version__ = "1.0.0a"
+__maintainer__ = "darrob"
+__email__ = "darrob@mail.i2p"
+__status__ = "Development"
 
 class List:
     def __init__(self, verbose, nodedir, url):
@@ -167,14 +174,14 @@ class Updates:
         latest_version = sorted(version_numbers)[-1]
         if self.verbose:
             print 'INFO: current version: %s; newest available: %s.' % \
-                    (version, latest_version)
+                    (__version__, latest_version)
         return latest_version
 
     def new_version_available(self):
         """ Determine if the local version is smaller than the available
         version."""
         self.latest_version = self.get_version_number()
-        if version < self.latest_version:
+        if __version__ < self.latest_version:
             return True
         else:
             return False
@@ -183,7 +190,7 @@ class Updates:
         """ Print current and available version numbers."""
         if self.new_version_available:
             print 'There is a new version available: %s (currently %s).' % \
-                    (self.latest_version, version)
+                    (self.latest_version, __version__)
 
     def download_update(self):
         """ Download script tarball."""
@@ -342,7 +349,7 @@ def main():
             print '  %s\t-> %s' % (opt, opts.__dict__[opt])
 
     if opts.version:
-        print 'grid-updates version: %s.' % version
+        print 'grid-updates version: %s.' % __version__
         exit(0)
         # TODO license information?
 
@@ -405,10 +412,8 @@ def main():
         # __init__ checks for new version
         up = Updates(opts.verbose, opts.output_dir, uri_dict['script'][1])
         if opts.check_version:
-            if opts.verbose: print 'INFO: Selected action: --check-version'
             up.check_update()
         if opts.download_update:
-            if opts.verbose: print 'INFO: Selected action: --download-update'
             up.download_update()
 
 if __name__ == "__main__":
