@@ -325,13 +325,13 @@ def main():
     #for k in os.environ: print "%s: %s" %(k, os.environ[k])
     operating_system = platform.system()
     if operating_system == 'Windows':
-        tahoe_node_dir = os.path.join(os.environ['USERPROFILE'], ".tahoe")
+        default_tahoe_node_dir = os.path.join(os.environ['USERPROFILE'], ".tahoe")
         config_locations = [
                 os.path.join(os.environ['APPDATA'], 'grid-updates', 'config.ini'),
                 ]
         # TODO get web.static directory here?
     else:
-        tahoe_node_dir = os.path.join(os.environ['HOME'], ".tahoe")
+        default_tahoe_node_dir = os.path.join(os.environ['HOME'], ".tahoe")
         config_locations = [
                 os.path.join(os.environ['HOME'], ".config", 'grid-updates', 'config.ini'),
                 os.path.join('/etc', 'grid-updates', 'config.ini'),
@@ -340,22 +340,22 @@ def main():
 
     # Default settings
     #tahoe_node_dir = os.path.abspath('testdir')
-    tahoe_node_url = 'http://127.0.0.1:3456'
-    list_uri = 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:'\
+    default_tahoe_node_url = 'http://127.0.0.1:3456'
+    default_list_uri = 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:'\
             'gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua'
-    news_uri = 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:'\
+    default_news_uri = 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:'\
             'hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q'
-    script_uri = 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'\
+    default_script_uri = 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'\
             'eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
 
     # Configparser
     # uses defaults (above) if not found in config file
     config = SafeConfigParser({
-        'tahoe_node_dir': tahoe_node_dir,
-        'tahoe_node_url': tahoe_node_url,
-        'list_uri': list_uri,
-        'news_uri': news_uri,
-        'script_uri': script_uri,
+        'tahoe_node_dir': default_tahoe_node_dir,
+        'tahoe_node_url': default_tahoe_node_url,
+        'list_uri': default_list_uri,
+        'news_uri': default_news_uri,
+        'script_uri': default_script_uri,
         })
     config.read(config_locations)
 
@@ -491,7 +491,7 @@ def main():
 
     # generate URI dictionary
     def generate_full_tahoe_uri(uri):
-        return tahoe_node_url + '/uri/' + uri
+        return opts.tahoe_node_url + '/uri/' + uri
     uri_dict = {'list': (opts.list_uri, generate_full_tahoe_uri(opts.list_uri)),
             'news': (opts.news_uri, generate_full_tahoe_uri(opts.news_uri)),
             'script': (opts.script_uri, generate_full_tahoe_uri(opts.script_uri))}
