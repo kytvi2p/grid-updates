@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" grid-updates is a helper script for Tahoe-LAFS nodes."""
+"""grid-updates is a helper script for Tahoe-LAFS nodes."""
 
 from ConfigParser import SafeConfigParser
 from shutil import copyfile, rmtree
@@ -37,7 +37,7 @@ class List:
         self.new_list = self.download_new_list()
 
     def read_existing_list(self):
-        """ Read the local introducers file as a single string (to be written
+        """Read the local introducers file as a single string (to be written
         again) and as individual lines. """
         try:
             with open(self.introducers, 'r') as f:
@@ -48,7 +48,7 @@ class List:
             exit(1)
 
     def download_new_list(self):
-        """ Download an introducers list from the Tahoe grid; return a list of
+        """Download an introducers list from the Tahoe grid; return a list of
         strings."""
         url = self.url + '/introducers'
         if self.verbosity > 1: print "INFO: downloading", url
@@ -61,7 +61,7 @@ class List:
             return new_list
 
     def filter_new_list(self):
-        """ Compile a list of new introducers (not yet present in local
+        """Compile a list of new introducers (not yet present in local
         file)."""
         for line in self.new_list:
             if re.match("^pb:\/\/", line):
@@ -70,7 +70,7 @@ class List:
             print self.new_introducers
 
     def backup_original(self):
-        """ Copy the old introducers file to introducers.bak."""
+        """Copy the old introducers file to introducers.bak."""
         try:
             with open(self.introducers_bak, 'w') as f:
                 f.write(self.old_introducers)
@@ -82,7 +82,7 @@ class List:
                 print 'DEBUG: created backup of local introducers.'
 
     def merge_introducers(self):
-        """ Add newly discovered introducers to the local introducers file."""
+        """Add newly discovered introducers to the local introducers file."""
         try:
             with open(self.introducers, 'a') as f:
                 for new_introducer in self.new_introducers:
@@ -95,7 +95,7 @@ class List:
             exit(1)
 
     def replace_introducers(self):
-        """ Write the downloaded list of introducers to the local file
+        """Write the downloaded list of introducers to the local file
         (overwriting the existing file)."""
         try:
             with open(self.introducers, 'w') as f:
@@ -116,7 +116,7 @@ class News:
         self.local_archive = self.tempdir + '/NEWS.tgz'
 
     def download_news(self):
-        """ Download NEWS.tgz file to local temporary file."""
+        """Download NEWS.tgz file to local temporary file."""
         url = self.url + '/NEWS.tgz'
         if self.verbosity > 1: print "INFO: downloading", url
         try:
@@ -128,7 +128,7 @@ class News:
             output.write(remote_file.read())
 
     def extract_tgz(self):
-        """ Extract NEWS.tgz archive into temporary directory."""
+        """Extract NEWS.tgz archive into temporary directory."""
         if self.verbosity > 2:
             print 'DEBUG: extracting %s to %s.' % \
                     (self.local_archive, self.tempdir)
@@ -142,7 +142,7 @@ class News:
             exit(1)
 
     def news_differ(self):
-        """ Compare NEWS files and print to stdout if they differ (if allowed
+        """Compare NEWS files and print to stdout if they differ (if allowed
         by verbosity level)."""
         try:
             ln = open(self.local_news, 'r+')
@@ -167,12 +167,12 @@ class News:
             ln.close()
 
     def install_files(self):
-        """ Copy extracted NEWS files to their intended locations."""
+        """Copy extracted NEWS files to their intended locations."""
         try:
             copyfile(self.tempdir + '/NEWS', self.local_news)
             for file in ['NEWS.html', 'NEWS.atom']:
-                copyfile(self.tempdir + '/' + file, self.nodedir + \
-                        '/public_html/' + file)
+                copyfile(self.tempdir + '/' + file,
+                        self.nodedir + '/public_html/' + file)
         except:
             print "ERROR: couldn't copy one or more NEWS files into the" \
                   "node directory."
@@ -183,7 +183,7 @@ class News:
         # TODO parse web.static (public_html) dir from tahoe.cfg?
 
     def remove_temporary(self):
-        """ Clean up temporary NEWS files."""
+        """Clean up temporary NEWS files."""
         try:
             rmtree(self.tempdir)
         except:
@@ -205,9 +205,11 @@ class Updates:
             self.new_version_available = False
 
     def get_version_number(self):
-        """ Determine latest available version number by parsing the Tahoe
+        """Determine latest available version number by parsing the Tahoe
         directory."""
         if self.verbosity > 1: print "INFO: checking for new version."
+        if self.verbosity > 2:
+            print 'DEBUG: parsing Tahoe dir: %s.' % self.dir_url
         # list Tahoe dir
         try:
             request = urllib2.urlopen(self.dir_url)
@@ -230,7 +232,7 @@ class Updates:
             return latest_version
 
     def new_version_available(self):
-        """ Determine if the local version is smaller than the available
+        """Determine if the local version is smaller than the available
         version."""
         self.latest_version = self.get_version_number()
         if __version__ < self.latest_version:
@@ -239,17 +241,21 @@ class Updates:
             return False
 
     def print_versions(self):
-        """ Print current and available version numbers."""
+        """Print current and available version numbers."""
+        # verbosity doesn't matter in this case; it's a user request:
+        #if self.verbosity > 0:
         if self.new_version_available:
-            if self.verbosity > 0:
-                print 'There is a new version available: %s (currently %s).' \
-                        % (self.latest_version, __version__)
+            print 'There is a new version available: %s (currently %s).' %\
+                    (self.latest_version, __version__)
+        else:
+            print 'This version of grid-updates (%s) is up-to-date.' % \
+                                                             __version__
 
     def download_update(self):
-        """ Download script tarball."""
+        """Download script tarball."""
         if self.new_version_available:
-            download_url = self.url + '/grid-updates-v' + self.latest_version \
-                    + '.tgz'
+            download_url = \
+                    self.url + '/grid-updates-v' + self.latest_version + '.tgz'
             if self.verbosity > 1:
                 print "INFO: downloading", download_url
             try:
@@ -258,7 +264,7 @@ class Updates:
                 print 'ERROR: could not download the tarball:', e
                 exit(1)
             local_file = self.output_dir + '/grid-updates-v' + \
-                self.latest_version + '.tgz'
+                    self.latest_version + '.tgz'
             try:
                 with open(local_file,'wb') as output:
                     output.write(remote_file.read())
@@ -267,11 +273,11 @@ class Updates:
                 exit(1)
             else:
                 if self.verbosity > 0:
-                    print 'Success: downloaded an update to %s.' \
-                            % os.path.abspath(local_file)
+                    print 'Success: downloaded an update to %s.' % \
+                            os.path.abspath(local_file)
 
 def repair_shares(verbosity, uri_dict):
-    """ Run a deep-check including repair and add-lease on the grid-update
+    """Run a deep-check including repair and add-lease on the grid-update
     shares."""
     # TODO catch: <html><head><title>Page Not Found</title></head><body>Sorry, but I couldn't find the object you requested.</body></html>
     if verbosity > 0: print "-- Repairing the grid-updates Tahoe shares. --"
