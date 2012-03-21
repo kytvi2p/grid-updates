@@ -4,4 +4,3 @@
 	  	* pyxdg not in standard lib
 * pid/lock file?
 * parse web.static option from tahoe.cfg?
-* check URI addresses

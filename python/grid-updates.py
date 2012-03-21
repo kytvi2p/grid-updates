@@ -490,11 +490,17 @@ def main():
         exit(1)
 
     # generate URI dictionary
-    def generate_full_tahoe_uri(uri):
+    def gen_full_tahoe_uri(uri):
         return opts.tahoe_node_url + '/uri/' + uri
-    uri_dict = {'list': (opts.list_uri, generate_full_tahoe_uri(opts.list_uri)),
-            'news': (opts.news_uri, generate_full_tahoe_uri(opts.news_uri)),
-            'script': (opts.script_uri, generate_full_tahoe_uri(opts.script_uri))}
+    uri_dict = {'list': (opts.list_uri, gen_full_tahoe_uri(opts.list_uri)),
+            'news': (opts.news_uri, gen_full_tahoe_uri(opts.news_uri)),
+            'script': (opts.script_uri, gen_full_tahoe_uri(opts.script_uri))}
+
+    # Check URI validity
+    for uri in uri_dict.values():
+        if not re.match('^URI:', uri[0]):
+            print "'%s' is not a valid Tahoe URI. Aborting." % uri[0]
+            exit(1)
 
     if opts.verbosity > 1: print "DEBUG: Tahoe node dir is", opts.tahoe_node_dir
 
