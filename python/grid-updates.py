@@ -152,7 +152,7 @@ class News:
         """Compare NEWS files and print to stdout if they differ (if allowed
         by verbosity level)."""
         try:
-            ln = open(self.local_news, 'w+')
+            ln = open(self.local_news, 'r+')
         except IOError, e:
             print 'ERROR: cannot access NEWS file: %s' % e
             exit(1)
