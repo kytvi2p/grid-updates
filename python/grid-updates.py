@@ -22,6 +22,7 @@ __email__ = "darrob@mail.i2p"
 __status__ = "Development"
 
 class List:
+    # TODO compare lists first? don't backup identical lists?
     def __init__(self, verbosity, nodedir, url):
         self.verbosity = verbosity
         self.nodedir = nodedir
@@ -51,10 +52,13 @@ class List:
         strings."""
         url = self.url + '/introducers'
         if self.verbosity > 1: print "INFO: trying to download", url
-        # TODO exceptions
-        response = urllib2.urlopen(url)
-        new_list = response.read().split('\n')
-        return new_list
+        try:
+            response = urllib2.urlopen(url)
+        except urllib2.HTTPError, e:
+            print 'ERROR: could not download the introducers list:', e
+        else:
+            new_list = response.read().split('\n')
+            return new_list
 
     def filter_new_list(self):
         """ Compile a list of new introducers (not yet present in local
@@ -79,20 +83,26 @@ class List:
 
     def merge_introducers(self):
         """ Add newly discovered introducers to the local introducers file."""
-        # TODO exceptions
-        with open(self.introducers, 'a') as f:
-            for new_introducer in self.new_introducers:
-                if new_introducer not in self.old_list:
-                    print "New introducer added: %s" % new_introducer
-                    f.write(new_introducer + '\n')
+        try:
+            with open(self.introducers, 'a') as f:
+                for new_introducer in self.new_introducers:
+                    if new_introducer not in self.old_list:
+                        print "New introducer added: %s" % new_introducer
+                        f.write(new_introducer + '\n')
+        except IOError, e:
+            print 'ERROR: could not write to introducer file: %s' % e
+            exit(1)
 
     def replace_introducers(self):
         """ Write the downloaded list of introducers to the local file
         (overwriting the existing file)."""
-        # TODO exceptions
-        with open(self.introducers, 'w') as f:
-            for new_introducer in self.new_introducers:
-                f.write(new_introducer + '\n')
+        try:
+            with open(self.introducers, 'w') as f:
+                for new_introducer in self.new_introducers:
+                    f.write(new_introducer + '\n')
+        except IOError, e:
+            print 'ERROR: could not write to introducer file: %s' % e
+            exit(1)
 
 class News:
     # TODO improve diff'ing
@@ -187,6 +197,9 @@ class Updates:
         # list Tahoe dir
         try:
             request = urllib2.urlopen(self.dir_url)
+        except urllib2.HTTPError, e:
+            print 'ERROR: could not access the Tahoe directory:', e
+        else:
             json_dir = request.read()
             # parse json index of dir
             file_list = json.loads(json_dir)[1]['children'].keys()
@@ -200,9 +213,6 @@ class Updates:
             if self.verbosity > 1:
                 print 'INFO: current version: %s; newest available: %s.' % \
                         (__version__, latest_version)
-        except urllib2.HTTPError, e:
-            print 'ERROR: could not access the Tahoe directory:', e
-        else:
             return latest_version
 
     def new_version_available(self):
