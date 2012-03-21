@@ -105,7 +105,6 @@ class List:
             exit(1)
 
 class News:
-    # TODO improve diff'ing
     def __init__(self, verbosity, nodedir, url):
         self.verbosity = verbosity
         self.nodedir = nodedir
@@ -144,32 +143,41 @@ class News:
         """ Compare NEWS files and print to stdout if they differ (if allowed
         by verbosity level)."""
         try:
-            with open(self.local_news, 'r+') as ln:
-                with open(self.tempdir + '/NEWS', 'r') as tn:
-                    if ln.read() != tn.read():
-                        if self.verbosity > 2:
-                            print 'DEBUG: NEWS files differ.'
-                        if self.verbosity > 0:
-                            tn.seek(0)
-                            for line in tn.readlines():
-                                print line,
-                    else:
-                        if self.verbosity > 2:
-                            print 'DEBUG: NEWS files seem to be identical.'
-        except:
-            print 'TODO: news diff error'
+            ln = open(self.local_news, 'r+')
+        except IOError, e:
+            print 'ERROR: cannot access NEWS file: %s' % e
             exit(1)
         else:
+            with open(self.tempdir + '/NEWS', 'r') as tn:
+                if ln.read() != tn.read():
+                    if self.verbosity > 2:
+                        print 'DEBUG: NEWS files differ.'
+                    if self.verbosity > 0:
+                        tn.seek(0)
+                        for line in tn.readlines():
+                            print line,
+                else:
+                    if self.verbosity > 2:
+                        print 'DEBUG: NEWS files seem to be identical.'
             if self.verbosity > 2:
                 print 'DEBUG: successfully extracted and compared NEWS files.'
+        finally:
+            ln.close()
 
     def install_files(self):
         """ Copy extracted NEWS files to their intended locations."""
-        # TODO exceptions
-        copyfile(self.tempdir + '/NEWS', self.local_news)
-        for file in ['NEWS.html', 'NEWS.atom']:
-            copyfile(self.tempdir + '/' + file, self.nodedir + \
-                    '/public_html/' + file)
+        try:
+            copyfile(self.tempdir + '/NEWS', self.local_news)
+            for file in ['NEWS.html', 'NEWS.atom']:
+                copyfile(self.tempdir + '/' + file, self.nodedir + \
+                        '/public_html/' + file)
+        except:
+            print "ERROR: couldn't copy one or more NEWS files into the" \
+                  "node directory."
+            exit(1)
+        else:
+            if self.verbosity > 2:
+                print 'DEBUG: copied NEWS files into the node directory.'
         # TODO parse web.static (public_html) dir from tahoe.cfg?
 
     def remove_temporary(self):
