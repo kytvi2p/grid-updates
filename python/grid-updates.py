@@ -178,6 +178,9 @@ class News:
             rmtree(self.tempdir)
         except:
             print "ERROR: couldn't remove temporary dir: %s." % self.tempdir
+        else:
+            if self.verbosity > 2:
+                print 'DEBUG: removed temporary dir: %s.' % self.tempdir
 
 class Updates:
     def __init__(self, verbosity, output_dir, url):
