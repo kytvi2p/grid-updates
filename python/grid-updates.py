@@ -7,6 +7,7 @@ from shutil import copyfile, rmtree
 import json
 import optparse
 import os
+import platform
 import re
 import sys
 import tarfile
@@ -309,7 +310,6 @@ def repair_shares(verbosity, uri_dict):
         #    f.close()
 
 def main():
-
     # Parse settings:
     #   1. Set default fall-backs.
     #   2. Parse configuration files.
@@ -317,8 +317,25 @@ def main():
     #   3. Parse command line options.
     #       (Use values from 2. as defaults.)
 
+    # OS-dependent settings
+    #for k in os.environ: print "%s: %s" %(k, os.environ[k])
+    operating_system = platform.system()
+    if operating_system == 'Windows':
+        tahoe_node_dir = os.path.join(os.environ['USERPROFILE'], ".tahoe")
+        config_locations = [
+                os.path.join(os.environ['APPDATA'], 'grid-updates', 'config.ini'),
+                ]
+        # TODO get web.static directory here?
+    else:
+        tahoe_node_dir = os.path.join(os.environ['HOME'], ".tahoe")
+        config_locations = [
+                os.path.join(os.environ['HOME'], ".config", 'grid-updates', 'config.ini'),
+                os.path.join('/etc', 'grid-updates', 'config.ini'),
+                os.path.join(os.getcwd(), 'config.ini'),
+                ]
+
     # Default settings
-    tahoe_node_dir = os.path.abspath('testdir')
+    #tahoe_node_dir = os.path.abspath('testdir')
     tahoe_node_url = 'http://127.0.0.1:3456'
     list_uri = 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:'\
             'gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua'
@@ -336,7 +353,7 @@ def main():
         'news_uri': news_uri,
         'script_uri': script_uri,
         })
-    config.read('config.ini')
+    config.read(config_locations)
 
     # Optparse
     # defaults to values from Configparser
@@ -438,7 +455,6 @@ def main():
         for opt in sorted(opts.__dict__.keys()):
             print '  %s\t-> %s' % (opt, opts.__dict__[opt])
 
-
     # Check for at least 1 mandatory option
     if not opts.version \
     and not opts.merge \
@@ -462,11 +478,12 @@ def main():
         exit(1)
 
     # tahoe node dir validity check
-    if not os.access(tahoe_node_dir + '/node.url', os.F_OK):
+    if not os.access(os.path.join(opts.tahoe_node_dir, 'node.url'), os.F_OK):
         print "ERROR: node.url not found. Not a valid Tahoe node."
         exit(1)
-    if not os.access(tahoe_node_dir, os.W_OK):
-        print "ERROR: need write access to", tahoe_node_dir
+    if not os.access(opts.tahoe_node_dir, os.W_OK):
+        print "ERROR: need write access to", opts.tahoe_node_dir
+        exit(1)
 
     # generate URI dictionary
     def generate_full_tahoe_uri(uri):
