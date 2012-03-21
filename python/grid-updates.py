@@ -9,6 +9,7 @@ import json
 import optparse
 import os
 import re
+import sys
 import tarfile
 import tempfile # use os.tmpfile()?
 import urllib
@@ -347,6 +348,18 @@ def main():
         print 'INFO: the following options have been set:'
         for opt in sorted(opts.__dict__.keys()):
             print '  %s\t-> %s' % (opt, opts.__dict__[opt])
+
+    # Check for at least 1 mandatory option
+    if not opts.version \
+    and not opts.merge \
+    and not opts.replace \
+    and not opts.news \
+    and not opts.repair \
+    and not opts.check_version \
+    and not opts.download_update:
+        print 'ERROR: You need to specify an action. Please see %s --help.' % \
+                sys.argv[0]
+        exit(1)
 
     if opts.version:
         print 'grid-updates version: %s.' % __version__
