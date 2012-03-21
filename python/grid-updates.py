@@ -45,9 +45,12 @@ class List:
                 self.old_introducers = f.read()
                 self.old_list = self.old_introducers.splitlines()
         except IOError, e:
-            print 'ERROR: cannot read local introducers files:', e
-            print 'ERROR: Are you sure you have a compatible version of Tahoe-LAFS?'
-            exit(1)
+            print 'WARN: cannot read local introducers files:', e
+            print 'WARN: Are you sure you have a compatible version of Tahoe-LAFS?'
+            if self.verbosity > 1:
+                print 'INFO: Creating new empty introducers list.'
+            self.old_introducers = ''
+            self.old_list = []
 
     def download_new_list(self):
         """Download an introducers list from the Tahoe grid; return a list of
