@@ -27,7 +27,7 @@ class List:
         self.verbosity = verbosity
         self.nodedir = nodedir
         self.url = url
-        if self.verbosity > 1: print "INFO: Tahoe node dir is", self.nodedir
+        if self.verbosity > 0: print "-- Updating introducers --"
         self.old_list = []
         self.new_introducers = []
         self.introducers = self.nodedir + '/introducers'
@@ -51,7 +51,7 @@ class List:
         """ Download an introducers list from the Tahoe grid; return a list of
         strings."""
         url = self.url + '/introducers'
-        if self.verbosity > 1: print "INFO: trying to download", url
+        if self.verbosity > 1: print "INFO: downloading", url
         try:
             response = urllib2.urlopen(url)
         except urllib2.HTTPError, e:
@@ -87,8 +87,9 @@ class List:
             with open(self.introducers, 'a') as f:
                 for new_introducer in self.new_introducers:
                     if new_introducer not in self.old_list:
-                        print "New introducer added: %s" % new_introducer
-                        f.write(new_introducer + '\n')
+                        if self.verbosity > 0:
+                            print "New introducer added: %s" % new_introducer
+                            f.write(new_introducer + '\n')
         except IOError, e:
             print 'ERROR: could not write to introducer file: %s' % e
             exit(1)
@@ -109,6 +110,7 @@ class News:
         self.verbosity = verbosity
         self.nodedir = nodedir
         self.url = url
+        if self.verbosity > 0: print "-- Updating NEWS --"
         self.local_news = self.nodedir + '/NEWS'
         self.tempdir = tempfile.mkdtemp()
         self.local_archive = self.tempdir + '/NEWS.tgz'
@@ -116,7 +118,7 @@ class News:
     def download_news(self):
         """ Download NEWS.tgz file to local temporary file."""
         url = self.url + '/NEWS.tgz'
-        if self.verbosity > 1: print "INFO: trying to download", url
+        if self.verbosity > 1: print "INFO: downloading", url
         try:
             remote_file = urllib2.urlopen(url)
         except:
@@ -155,10 +157,10 @@ class News:
                     if self.verbosity > 0:
                         tn.seek(0)
                         for line in tn.readlines():
-                            print line,
+                            print '  | ' + line,
                 else:
-                    if self.verbosity > 2:
-                        print 'DEBUG: NEWS files seem to be identical.'
+                    if self.verbosity > 1:
+                        print 'INFO: NEWS files seem to be identical.'
             if self.verbosity > 2:
                 print 'DEBUG: successfully extracted and compared NEWS files.'
         finally:
@@ -195,6 +197,7 @@ class Updates:
         self.verbosity = verbosity
         self.output_dir = output_dir
         self.url = url
+        if self.verbosity > 0: print "-- Looking for script updates --"
         self.dir_url = self.url + '/?t=json'
         if self.new_version_available():
             self.new_version_available = True
@@ -204,7 +207,7 @@ class Updates:
     def get_version_number(self):
         """ Determine latest available version number by parsing the Tahoe
         directory."""
-        if self.verbosity > 1: print "INFO: checking for new version..."
+        if self.verbosity > 1: print "INFO: checking for new version."
         # list Tahoe dir
         try:
             request = urllib2.urlopen(self.dir_url)
@@ -235,7 +238,7 @@ class Updates:
         else:
             return False
 
-    def check_update(self):
+    def print_versions(self):
         """ Print current and available version numbers."""
         if self.new_version_available:
             if self.verbosity > 0:
@@ -248,7 +251,7 @@ class Updates:
             download_url = self.url + '/grid-updates-v' + self.latest_version \
                     + '.tgz'
             if self.verbosity > 1:
-                print "INFO: trying to download", download_url
+                print "INFO: downloading", download_url
             try:
                 remote_file = urllib2.urlopen(download_url)
             except urllib2.HTTPError, e:
@@ -263,13 +266,15 @@ class Updates:
                 print 'ERROR: could not write to local file:', e
                 exit(1)
             else:
-                print 'Success: downloaded an update to %s.' \
-                    % os.path.abspath(local_file)
+                if self.verbosity > 0:
+                    print 'Success: downloaded an update to %s.' \
+                            % os.path.abspath(local_file)
 
 def repair_shares(verbosity, uri_dict):
     """ Run a deep-check including repair and add-lease on the grid-update
     shares."""
     # TODO catch: <html><head><title>Page Not Found</title></head><body>Sorry, but I couldn't find the object you requested.</body></html>
+    if verbosity > 0: print "-- Repairing the grid-updates Tahoe shares. --"
     if verbosity > 2:
         print 'DEBUG: this is the output of the repair operations:'
     for uri in uri_dict.keys():
@@ -459,6 +464,8 @@ def main():
             'news': (opts.news_uri, generate_full_tahoe_uri(opts.news_uri)),
             'script': (opts.script_uri, generate_full_tahoe_uri(opts.script_uri))}
 
+    if opts.verbosity > 1: print "DEBUG: Tahoe node dir is", opts.tahoe_node_dir
+
     # run actions
     if opts.merge or opts.replace:
         # Debug info
@@ -479,8 +486,8 @@ def main():
                 print "DEBUG: Couldn't finish introducer list operation." \
                     " Continuing..."
         else:
-            if opts.verbosity > 2:
-                print 'DEBUG: successfully ran introducer list operation.'
+            if opts.verbosity > 0:
+                print 'Successfully updated the introducer list.'
 
     if opts.news:
         try:
@@ -521,7 +528,7 @@ def main():
         try:
             # __init__ checks for new version
             up = Updates(opts.verbosity, opts.output_dir, uri_dict['script'][1])
-            if opts.check_version: up.check_update()
+            if opts.check_version: up.print_versions()
             if opts.download_update: up.download_update()
         except:
             if opts.verbosity > 2:
