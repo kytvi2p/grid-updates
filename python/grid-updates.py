@@ -282,6 +282,10 @@ class Updates:
                 if self.verbosity > 0:
                     print 'Success: downloaded an update to %s.' % \
                             os.path.abspath(local_file)
+        else:
+            if self.verbosity > 0:
+                print 'No update available.'
+
 
 def repair_shares(verbosity, uri_dict):
     """Run a deep-check including repair and add-lease on the grid-update
@@ -534,8 +538,8 @@ def main():
                 print "DEBUG: Couldn't finish news update operation." \
                     " Continuing..."
         else:
-            if opts.verbosity > 2:
-                print 'DEBUG: Successfully ran news operation.'
+            if opts.verbosity > 0:
+                print 'Successfully updated news.'
 
     if opts.repair:
         # TODO
@@ -563,7 +567,7 @@ def main():
                 print "DEBUG: Couldn't finish version check operation." \
                     " Continuing..."
         else:
-            if opts.verbosity > 2:
+            if opts.verbosity > 1:
                 print 'DEBUG: Successfully ran script update operation.'
 
 if __name__ == "__main__":
