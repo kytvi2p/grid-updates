@@ -165,27 +165,36 @@ class News:
     def news_differ(self):
         """Compare NEWS files and print to stdout if they differ (if allowed
         by verbosity level)."""
-        try:
-            ln = open(self.local_news, 'r+')
-        except IOError as e:
-            print('ERROR: Cannot access NEWS file: %s' % e)
-            exit(1)
+        # TODO convoluted; can probably be solved with a single try..except
+        if os.access(self.local_news, os.F_OK):
+            try:
+                ln = open(self.local_news, 'r+')
+            except IOError as e:
+                print('ERROR: Cannot access NEWS file: %s' % e)
+                exit(1)
+            else:
+                with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
+                    if ln.read() != tn.read():
+                        if self.verbosity > 2:
+                            print('DEBUG: NEWS files differ.')
+                        if self.verbosity > 0:
+                            tn.seek(0)
+                            for line in tn.readlines():
+                                print('  | ' + line, end=' ')
+                    else:
+                        if self.verbosity > 1:
+                            print('INFO: NEWS files seem to be identical.')
+                if self.verbosity > 2:
+                    print('DEBUG: Successfully extracted and compared NEWS files.')
+            finally:
+                ln.close()
         else:
             with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
-                if ln.read() != tn.read():
-                    if self.verbosity > 2:
-                        print('DEBUG: NEWS files differ.')
-                    if self.verbosity > 0:
-                        tn.seek(0)
-                        for line in tn.readlines():
-                            print('  | ' + line, end=' ')
-                else:
-                    if self.verbosity > 1:
-                        print('INFO: NEWS files seem to be identical.')
-            if self.verbosity > 2:
-                print('DEBUG: Successfully extracted and compared NEWS files.')
-        finally:
-            ln.close()
+                if self.verbosity > 2:
+                    print('DEBUG: No NEWS file found in node directory.')
+                if self.verbosity > 0:
+                    for line in tn.readlines():
+                        print('  | ' + line, end=' ')
 
     def install_files(self):
         """Copy extracted NEWS files to their intended locations."""
