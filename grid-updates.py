@@ -151,7 +151,7 @@ class News:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
             exit(1)
         else:
-            if is_valid_tahoe_response(response):
+            if type(response) is bytes:
                 with open(self.local_archive,'wb') as output:
                     output.write(response)
             else:
