@@ -3,10 +3,6 @@
 """grid-updates is a helper script for Tahoe-LAFS nodes."""
 
 from __future__ import print_function
-try:
-    from ConfigParser import SafeConfigParser
-except ImportError:
-    from configparser import SafeConfigParser
 from shutil import copyfile, rmtree
 import json
 import optparse
@@ -16,15 +12,16 @@ import re
 import sys
 import tarfile
 import tempfile # use os.tmpfile()?
-try:
-    #from urlparse import urlparse
+# Maybe this is better than try -> except?
+if sys.version_info[0] == 2:
+    from ConfigParser import SafeConfigParser
     from urllib import urlopen
     from urllib import urlencode
     from urllib2 import HTTPError
-except:
+else:
+    from configparser import SafeConfigParser
     from urllib.request import urlopen
     from urllib.parse import urlencode
-    #from urllib.parse import urlparse
     from urllib.error import HTTPError
 
 __author__ = ['darrob', 'KillYourTV']
