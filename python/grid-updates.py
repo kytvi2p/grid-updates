@@ -17,15 +17,15 @@ import sys
 import tarfile
 import tempfile # use os.tmpfile()?
 try:
-    from urllib.request import urlopen
-    from urllib.parse import urlencode
-    from urllib.parse import urlparse
-    from urllib.error import HTTPError
-except:
     from urlparse import urlparse
     from urllib import urlopen
     from urllib import urlencode
     from urllib2 import HTTPError
+except:
+    from urllib.request import urlopen
+    from urllib.parse import urlencode
+    from urllib.parse import urlparse
+    from urllib.error import HTTPError
 
 __author__ = "darrob"
 __license__ = "Public Domain"
