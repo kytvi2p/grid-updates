@@ -491,13 +491,17 @@ def main():
     #                    tahoe_config.get('node', 'web.static')))
     if os.access(tahoe_cfg_path, os.R_OK):
         tahoe_config.read(tahoe_cfg_path)
-        print(tahoe_config.get('node', 'web.static'))
         web_static_dir = os.path.abspath(
                 os.path.join(
                         opts.tahoe_node_dir,
                         tahoe_config.get('node', 'web.static')))
     else:
-        print('ERROR: Could not parse tahoe.cfg.')
+        print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.')
+        exit(1)
+
+    # tahoe node dir validity check (in addition to the above tahoe.cfg check)
+    if not os.access(opts.tahoe_node_dir, os.W_OK):
+        print("ERROR: Need write access to", opts.tahoe_node_dir)
         exit(1)
 
     # DEBUG
@@ -527,14 +531,6 @@ def main():
     if opts.merge and opts.replace:
         print('ERROR: --merge-introducers & --replace-introducers are' \
             ' mutually exclusive actions.')
-        exit(1)
-
-    # tahoe node dir validity check
-    if not os.access(os.path.join(opts.tahoe_node_dir, 'node.url'), os.F_OK):
-        print("ERROR: node.url not found. Not a valid Tahoe node.")
-        exit(1)
-    if not os.access(opts.tahoe_node_dir, os.W_OK):
-        print("ERROR: Need write access to", opts.tahoe_node_dir)
         exit(1)
 
     # generate URI dictionary
