@@ -151,12 +151,21 @@ class News:
         url = os.path.join(self.url, 'NEWS.tgz')
         if self.verbosity > 1: print("INFO: Downloading", url)
         try:
-            remote_file = urlopen(url)
+            remote_file = urlopen(url).read()
         except:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
             exit(1)
-        with open(self.local_archive,'wb') as output:
-            output.write(remote_file.read())
+        else:
+            # Catch error message from Tahoe: <html><head><title>Page Not
+            # Found</title></head><body>Sorry, but I couldn't find the object
+            # you requested.</body></html>
+            if re.search('Page\ Not\ Found', remote_file):
+                print('ERROR: Could not download the introducers list:',
+                        'Page Not Found.', file=sys.stderr)
+                exit(1)
+            else:
+                with open(self.local_archive,'wb') as output:
+                    output.write(remote_file)
 
     def extract_tgz(self):
         """Extract NEWS.tgz archive into temporary directory."""
