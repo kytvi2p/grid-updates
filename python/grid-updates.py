@@ -18,11 +18,13 @@ import tarfile
 import tempfile # use os.tmpfile()?
 try:
     from urllib.request import urlopen
+    from urllib.parse import urlencode
     from urllib.parse import urlparse
     from urllib.error import HTTPError
 except:
     from urlparse import urlparse
     from urllib import urlopen
+    from urllib import urlencode
     from urllib2 import HTTPError
 
 __author__ = "darrob"
@@ -309,7 +311,7 @@ def repair_shares(verbosity, uri_dict):
         repair_uri = uri_dict[uri][1]
         if verbosity > 0: print("Repairing", repair_uri)
         params = urlencode({'t': 'stream-deep-check',
-            'repair': 'true', 'add-lease': 'true'})
+            'repair': 'true', 'add-lease': 'true'}).encode('ascii')
         f = urlopen(repair_uri, params)
         if verbosity > 2:
             print(f.read())
