@@ -27,11 +27,11 @@ except:
     #from urllib.parse import urlparse
     from urllib.error import HTTPError
 
-__author__ = "darrob"
+__author__ = ['darrob', 'KillYourTV']
 __license__ = "Public Domain"
 __version__ = "1.0.0a"
-__maintainer__ = "darrob"
-__email__ = "darrob@mail.i2p"
+__maintainer__ = ['darrob', 'KillYourTV']
+__email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"
 
 class List:
