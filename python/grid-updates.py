@@ -201,7 +201,6 @@ class News:
         else:
             if self.verbosity > 2:
                 print('DEBUG: Copied NEWS files into the node directory.')
-        # TODO parse web.static (public_html) dir from tahoe.cfg?
 
     def remove_temporary(self):
         """Clean up temporary NEWS files."""
@@ -343,7 +342,6 @@ def main():
         config_locations = [
                 os.path.join(os.environ['APPDATA'], 'grid-updates', 'config.ini'),
                 ]
-        # TODO get web.static directory here?
     else:
         default_tahoe_node_dir = os.path.join(os.environ['HOME'], ".tahoe")
         config_locations = [
@@ -468,14 +466,30 @@ def main():
     (opts, args) = parser.parse_args()
 
     # Parse tahoe options
+    tahoe_cfg_path = os.path.join(opts.tahoe_node_dir, 'tahoe.cfg')
     tahoe_config = SafeConfigParser({'web.static': 'public_html'})
-    tahoe_config.read(os.path.join(opts.tahoe_node_dir, 'tahoe.cfg'))
-    print tahoe_config.get('node', 'web.static')
-    web_static_dir = os.path.abspath(
-            os.path.join(
-                opts.tahoe_node_dir,
-                tahoe_config.get('node', 'web.static')
-            ))
+    # TODO figure out why try..except doesn't work
+    #try:
+    #    tahoe_config.read(tahoe_cfg_path)
+    #except ConfigParser.NoSectionError:
+    #    print('ERROR: Could not parse tahoe.cfg.')
+    #    exit(1)
+    #else:
+    #    print(tahoe_config.get('node', 'web.static'))
+    #    web_static_dir = os.path.abspath(
+    #            os.path.join(
+    #                    opts.tahoe_node_dir,
+    #                    tahoe_config.get('node', 'web.static')))
+    if os.access(tahoe_cfg_path, os.R_OK):
+        tahoe_config.read(tahoe_cfg_path)
+        print(tahoe_config.get('node', 'web.static'))
+        web_static_dir = os.path.abspath(
+                os.path.join(
+                        opts.tahoe_node_dir,
+                        tahoe_config.get('node', 'web.static')))
+    else:
+        print('ERROR: Could not parse tahoe.cfg.')
+        exit(1)
 
     # DEBUG
     if opts.verbosity > 2:
