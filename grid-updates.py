@@ -77,8 +77,8 @@ class List:
             print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
             exit(1)
         else:
-            # convert to bytes, needed for Python 3
-            #new_list = (b"response.read().split('\n')")
+            if sys.version_info[0] == 3:
+                response = str(response, encoding='ascii')
             if is_valid_tahoe_response(response):
                 new_list = response.split('\n')
                 return new_list
@@ -581,8 +581,6 @@ def main():
             print('DEBUG: Selected action: --replace-introducers')
         try:
             list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
-            # convert to bytes, needed for Python 3
-            #b"list.filter_new_list()"
             list.filter_new_list()
             list.backup_original()
             if opts.merge:
