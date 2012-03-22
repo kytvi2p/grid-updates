@@ -79,10 +79,11 @@ class List:
         else:
             # convert to bytes, needed for Python 3
             #new_list = (b"response.read().split('\n')")
-            validate_tahoe_response(response)
-            #
-            new_list = response.split('\n')
-            return new_list
+            if is_valid_tahoe_response(response):
+                new_list = response.split('\n')
+                return new_list
+            else:
+                exit(1)
 
     def filter_new_list(self):
         """Compile a list of new introducers (not yet present in local
@@ -150,9 +151,11 @@ class News:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
             exit(1)
         else:
-            validate_tahoe_response(response)
-            with open(self.local_archive,'wb') as output:
-                output.write(response)
+            if is_valid_tahoe_response(response):
+                with open(self.local_archive,'wb') as output:
+                    output.write(response)
+            else:
+                exit(1)
 
     def extract_tgz(self):
         """Extract NEWS.tgz archive into temporary directory."""
@@ -252,20 +255,22 @@ class Updates:
             print('ERROR: Could not access the Tahoe directory:', e, file=sys.stderr)
             exit(1)
         else:
-            validate_tahoe_response(json_dir)
-            # parse json index of dir
-            file_list = list(json.loads(json_dir)[1]['children'].keys())
-            # parse version numbers
-            version_numbers = []
-            for filename in file_list:
-                if re.match("^grid-updates-v.*\.tgz$", filename):
-                    v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
-                    version_numbers.append(v)
-            latest_version = sorted(version_numbers)[-1]
-            if self.verbosity > 1:
-                print('INFO: Current version: %s; newest available: %s.' % \
-                        (__version__, latest_version))
-            return latest_version
+            if is_valid_tahoe_response(json_dir):
+                # parse json index of dir
+                file_list = list(json.loads(json_dir)[1]['children'].keys())
+                # parse version numbers
+                version_numbers = []
+                for filename in file_list:
+                    if re.match("^grid-updates-v.*\.tgz$", filename):
+                        v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
+                        version_numbers.append(v)
+                latest_version = sorted(version_numbers)[-1]
+                if self.verbosity > 1:
+                    print('INFO: Current version: %s; newest available: %s.' % \
+                            (__version__, latest_version))
+                return latest_version
+            else:
+                exit()
 
     def new_version_available(self):
         """Determine if the local version is smaller than the available
@@ -320,7 +325,7 @@ class Updates:
 def repair_shares(verbosity, uri_dict):
     """Run a deep-check including repair and add-lease on the grid-update
     shares."""
-    validate_tahoe_response()
+    #if is_valid_tahoe_response()
     if verbosity > 0: print("-- Repairing the grid-updates Tahoe shares. --")
     if verbosity > 2:
         print('DEBUG: This is the output of the repair operations:')
@@ -343,14 +348,16 @@ def repair_shares(verbosity, uri_dict):
         #else:
         #    f.close()
 
-def validate_tahoe_response(response):
+def is_valid_tahoe_response(response):
     """Catch Page Not Found error message from Tahoe."""
     # <html><head><title>Page Not Found</title></head><body>Sorry, but I
     # couldn't find the object you requested.</body></html>
     if re.search('Page\ Not\ Found', response):
         print('ERROR: Could not download the introducers list:',
                 'Page Not Found.', file=sys.stderr)
-        exit(1)
+        return False
+    else:
+        return True
 
 def main():
     # Parse settings:
