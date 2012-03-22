@@ -181,7 +181,7 @@ class News:
                         if self.verbosity > 0:
                             tn.seek(0)
                             for line in tn.readlines():
-                                print('  | ' + line, end=' ')
+                                print('  | ' + line, end='')
                     else:
                         if self.verbosity > 1:
                             print('INFO: NEWS files seem to be identical.')
@@ -195,7 +195,7 @@ class News:
                     print('DEBUG: No NEWS file found in node directory.')
                 if self.verbosity > 0:
                     for line in tn.readlines():
-                        print('  | ' + line, end=' ')
+                        print('  | ' + line, end='')
 
     def install_files(self):
         """Copy extracted NEWS files to their intended locations."""
