@@ -1,6 +1,1 @@
-* config files
-	- in /etc and ~/.config
-	- use XDG dirs? what about Windows?
-	  	* pyxdg not in standard lib
-* pid/lock file?
-* parse web.static option from tahoe.cfg?
+* pid/lock file? (at least the shell version prevented multiple instances)
