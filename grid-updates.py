@@ -79,14 +79,8 @@ class List:
         else:
             # convert to bytes, needed for Python 3
             #new_list = (b"response.read().split('\n')")
+            validate_tahoe_response(response)
             #
-            # Catch error message from Tahoe: <html><head><title>Page Not
-            # Found</title></head><body>Sorry, but I couldn't find the object
-            # you requested.</body></html>
-            if re.search('Page\ Not\ Found', response):
-                print('ERROR: Could not download the introducers list:',
-                        'Page Not Found.', file=sys.stderr)
-                exit(1)
             new_list = response.split('\n')
             return new_list
 
@@ -151,21 +145,14 @@ class News:
         url = os.path.join(self.url, 'NEWS.tgz')
         if self.verbosity > 1: print("INFO: Downloading", url)
         try:
-            remote_file = urlopen(url).read()
+            response = urlopen(url).read()
         except:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
             exit(1)
         else:
-            # Catch error message from Tahoe: <html><head><title>Page Not
-            # Found</title></head><body>Sorry, but I couldn't find the object
-            # you requested.</body></html>
-            if re.search('Page\ Not\ Found', remote_file):
-                print('ERROR: Could not download the introducers list:',
-                        'Page Not Found.', file=sys.stderr)
-                exit(1)
-            else:
-                with open(self.local_archive,'wb') as output:
-                    output.write(remote_file)
+            validate_tahoe_response(response)
+            with open(self.local_archive,'wb') as output:
+                output.write(response)
 
     def extract_tgz(self):
         """Extract NEWS.tgz archive into temporary directory."""
@@ -265,24 +252,20 @@ class Updates:
             print('ERROR: Could not access the Tahoe directory:', e, file=sys.stderr)
             exit(1)
         else:
-            if re.search('Page\ Not\ Found', json_dir):
-                print('ERROR: Could not download the introducers list:',
-                        'Page Not Found.', file=sys.stderr)
-                exit(1)
-            else:
-                # parse json index of dir
-                file_list = list(json.loads(json_dir)[1]['children'].keys())
-                # parse version numbers
-                version_numbers = []
-                for filename in file_list:
-                    if re.match("^grid-updates-v.*\.tgz$", filename):
-                        v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
-                        version_numbers.append(v)
-                latest_version = sorted(version_numbers)[-1]
-                if self.verbosity > 1:
-                    print('INFO: Current version: %s; newest available: %s.' % \
-                            (__version__, latest_version))
-                return latest_version
+            validate_tahoe_response(json_dir)
+            # parse json index of dir
+            file_list = list(json.loads(json_dir)[1]['children'].keys())
+            # parse version numbers
+            version_numbers = []
+            for filename in file_list:
+                if re.match("^grid-updates-v.*\.tgz$", filename):
+                    v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
+                    version_numbers.append(v)
+            latest_version = sorted(version_numbers)[-1]
+            if self.verbosity > 1:
+                print('INFO: Current version: %s; newest available: %s.' % \
+                        (__version__, latest_version))
+            return latest_version
 
     def new_version_available(self):
         """Determine if the local version is smaller than the available
@@ -313,6 +296,7 @@ class Updates:
                 print("INFO: Downloading", download_url)
             try:
                 remote_file = urlopen(download_url)
+                # TODO validate_tahoe_response()
             except HTTPError as e:
                 print('ERROR: Could not download the tarball:', e, file=sys.stderr)
                 exit(1)
@@ -336,7 +320,7 @@ class Updates:
 def repair_shares(verbosity, uri_dict):
     """Run a deep-check including repair and add-lease on the grid-update
     shares."""
-    # TODO catch: <html><head><title>Page Not Found</title></head><body>Sorry, but I couldn't find the object you requested.</body></html>
+    validate_tahoe_response()
     if verbosity > 0: print("-- Repairing the grid-updates Tahoe shares. --")
     if verbosity > 2:
         print('DEBUG: This is the output of the repair operations:')
@@ -358,6 +342,15 @@ def repair_shares(verbosity, uri_dict):
         #    break
         #else:
         #    f.close()
+
+def validate_tahoe_response(response):
+    """Catch Page Not Found error message from Tahoe."""
+    # <html><head><title>Page Not Found</title></head><body>Sorry, but I
+    # couldn't find the object you requested.</body></html>
+    if re.search('Page\ Not\ Found', response):
+        print('ERROR: Could not download the introducers list:',
+                'Page Not Found.', file=sys.stderr)
+        exit(1)
 
 def main():
     # Parse settings:
