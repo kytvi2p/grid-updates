@@ -72,15 +72,22 @@ class List:
         url = os.path.join(self.url, 'introducers')
         if self.verbosity > 1: print("INFO: Downloading", url)
         try:
-            response = urlopen(url)
+            response = urlopen(url).read()
         except HTTPError as e:
-            # TODO this doesn't seem to work
             print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
             exit(1)
         else:
             # convert to bytes, needed for Python 3
             #new_list = (b"response.read().split('\n')")
-            new_list = response.read().split('\n')
+            #
+            # Catch error message from Tahoe: <html><head><title>Page Not
+            # Found</title></head><body>Sorry, but I couldn't find the object
+            # you requested.</body></html>
+            if re.search('Page\ Not\ Found', response):
+                print('ERROR: Could not download the introducers list:',
+                        'Page Not Found.', file=sys.stderr)
+                exit(1)
+            new_list = response.split('\n')
             return new_list
 
     def filter_new_list(self):
