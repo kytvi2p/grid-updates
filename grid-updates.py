@@ -260,24 +260,29 @@ class Updates:
             print('DEBUG: Parsing Tahoe dir: %s.' % self.dir_url)
         # list Tahoe dir
         try:
-            request = urlopen(self.dir_url)
+            json_dir = urlopen(self.dir_url).read()
         except HTTPError as e:
             print('ERROR: Could not access the Tahoe directory:', e, file=sys.stderr)
+            exit(1)
         else:
-            json_dir = request.read()
-            # parse json index of dir
-            file_list = list(json.loads(json_dir)[1]['children'].keys())
-            # parse version numbers
-            version_numbers = []
-            for filename in file_list:
-                if re.match("^grid-updates-v.*\.tgz$", filename):
-                    v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
-                    version_numbers.append(v)
-            latest_version = sorted(version_numbers)[-1]
-            if self.verbosity > 1:
-                print('INFO: Current version: %s; newest available: %s.' % \
-                        (__version__, latest_version))
-            return latest_version
+            if re.search('Page\ Not\ Found', json_dir):
+                print('ERROR: Could not download the introducers list:',
+                        'Page Not Found.', file=sys.stderr)
+                exit(1)
+            else:
+                # parse json index of dir
+                file_list = list(json.loads(json_dir)[1]['children'].keys())
+                # parse version numbers
+                version_numbers = []
+                for filename in file_list:
+                    if re.match("^grid-updates-v.*\.tgz$", filename):
+                        v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
+                        version_numbers.append(v)
+                latest_version = sorted(version_numbers)[-1]
+                if self.verbosity > 1:
+                    print('INFO: Current version: %s; newest available: %s.' % \
+                            (__version__, latest_version))
+                return latest_version
 
     def new_version_available(self):
         """Determine if the local version is smaller than the available
