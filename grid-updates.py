@@ -74,7 +74,9 @@ class List:
         try:
             response = urlopen(url)
         except HTTPError as e:
-            print('ERROR: Could not download the introducers list:', e)
+            # TODO this doesn't seem to work
+            print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
+            exit(1)
         else:
             # convert to bytes, needed for Python 3
             #new_list = (b"response.read().split('\n')")
@@ -96,7 +98,7 @@ class List:
             with open(self.introducers_bak, 'w') as f:
                 f.write(self.old_introducers)
         except IOError:
-            print('ERROR: Cannot create backup file introducers.bak')
+            print('ERROR: Cannot create backup file introducers.bak', file=sys.stderr)
             exit(1)
         else:
             if self.verbosity > 2:
@@ -112,7 +114,7 @@ class List:
                             print("New introducer added: %s" % new_introducer)
                             f.write(new_introducer + '\n')
         except IOError as e:
-            print('ERROR: Could not write to introducer file: %s' % e)
+            print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
             exit(1)
 
     def replace_introducers(self):
@@ -123,7 +125,7 @@ class List:
                 for new_introducer in self.new_introducers:
                     f.write(new_introducer + '\n')
         except IOError as e:
-            print('ERROR: Could not write to introducer file: %s' % e)
+            print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
             exit(1)
 
 class News:
@@ -144,7 +146,7 @@ class News:
         try:
             remote_file = urlopen(url)
         except:
-            print("ERROR: Couldn't find %s." % url)
+            print("ERROR: Couldn't find %s." % url, file=sys.stderr)
             exit(1)
         with open(self.local_archive,'wb') as output:
             output.write(remote_file.read())
@@ -160,7 +162,7 @@ class News:
                 tar.extract(file, self.tempdir)
             tar.close()
         except:
-            print('ERROR: Could not extract NEWS.tgz archive.')
+            print('ERROR: Could not extract NEWS.tgz archive.', file=sys.stderr)
             exit(1)
 
     def news_differ(self):
@@ -171,7 +173,7 @@ class News:
             try:
                 ln = open(self.local_news, 'r+')
             except IOError as e:
-                print('ERROR: Cannot access NEWS file: %s' % e)
+                print('ERROR: Cannot access NEWS file: %s' % e, file=sys.stderr)
                 exit(1)
             else:
                 with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
@@ -206,7 +208,7 @@ class News:
                         os.path.join(self.nodedir, self.web_static, file))
         except:
             print("ERROR: Couldn't copy one or more NEWS files into the" \
-                  "node directory.")
+                  "node directory.", file=sys.stderr)
             exit(1)
         else:
             if self.verbosity > 2:
@@ -217,7 +219,7 @@ class News:
         try:
             rmtree(self.tempdir)
         except:
-            print("ERROR: Couldn't remove temporary dir: %s." % self.tempdir)
+            print("ERROR: Couldn't remove temporary dir: %s." % self.tempdir, file=sys.stderr)
         else:
             if self.verbosity > 2:
                 print('DEBUG: Removed temporary dir: %s.' % self.tempdir)
@@ -244,7 +246,7 @@ class Updates:
         try:
             request = urlopen(self.dir_url)
         except HTTPError as e:
-            print('ERROR: Could not access the Tahoe directory:', e)
+            print('ERROR: Could not access the Tahoe directory:', e, file=sys.stderr)
         else:
             json_dir = request.read()
             # parse json index of dir
@@ -291,7 +293,7 @@ class Updates:
             try:
                 remote_file = urlopen(download_url)
             except HTTPError as e:
-                print('ERROR: Could not download the tarball:', e)
+                print('ERROR: Could not download the tarball:', e, file=sys.stderr)
                 exit(1)
             local_file = os.path.join(self.output_dir, 'grid-updates-v' + \
                                         self.latest_version + '.tgz')
@@ -299,7 +301,7 @@ class Updates:
                 with open(local_file,'wb') as output:
                     output.write(remote_file.read())
             except IOError as e:
-                print('ERROR: Could not write to local file:', e)
+                print('ERROR: Could not write to local file:', e, file=sys.stderr)
                 exit(1)
             else:
                 if self.verbosity > 0:
@@ -482,7 +484,7 @@ def main():
     #try:
     #    tahoe_config.read(tahoe_cfg_path)
     #except ConfigParser.NoSectionError:
-    #    print('ERROR: Could not parse tahoe.cfg.')
+    #    print('ERROR: Could not parse tahoe.cfg.', file=sys.stderr)
     #    exit(1)
     #else:
     #    print(tahoe_config.get('node', 'web.static'))
@@ -497,12 +499,12 @@ def main():
                         opts.tahoe_node_dir,
                         tahoe_config.get('node', 'web.static')))
     else:
-        print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.')
+        print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.', file=sys.stderr)
         exit(1)
 
     # tahoe node dir validity check (in addition to the above tahoe.cfg check)
     if not os.access(opts.tahoe_node_dir, os.W_OK):
-        print("ERROR: Need write access to", opts.tahoe_node_dir)
+        print("ERROR: Need write access to", opts.tahoe_node_dir, file=sys.stderr)
         exit(1)
 
     # DEBUG
@@ -521,7 +523,7 @@ def main():
     and not opts.check_version \
     and not opts.download_update:
         print('ERROR: You need to specify an action. Please see %s --help.' % \
-                sys.argv[0])
+                sys.argv[0], file=sys.stderr)
         exit(1)
 
     if opts.version:
@@ -531,7 +533,7 @@ def main():
     # conflicting options
     if opts.merge and opts.replace:
         print('ERROR: --merge-introducers & --replace-introducers are' \
-            ' mutually exclusive actions.')
+            ' mutually exclusive actions.', file=sys.stderr)
         exit(1)
 
     # generate URI dictionary
