@@ -76,8 +76,9 @@ class List:
         except HTTPError as e:
             print('ERROR: Could not download the introducers list:', e)
         else:
-            # convert to buffer, needed for Python 3
-            new_list = (b"response.read().split('\n')")
+            # convert to bytes, needed for Python 3
+            #new_list = (b"response.read().split('\n')")
+            new_list = response.read().split('\n')
             return new_list
 
     def filter_new_list(self):
@@ -557,8 +558,9 @@ def main():
             print('DEBUG: Selected action: --replace-introducers')
         try:
             list = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
-            # convert to a buffer, needed for Python 3
-            b"list.filter_new_list()"
+            # convert to bytes, needed for Python 3
+            #b"list.filter_new_list()"
+            list.filter_new_list()
             list.backup_original()
             if opts.merge:
                 list.merge_introducers()
