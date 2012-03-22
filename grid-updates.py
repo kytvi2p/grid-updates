@@ -69,7 +69,7 @@ class List:
     def download_new_list(self):
         """Download an introducers list from the Tahoe grid; return a list of
         strings."""
-        url = os.path.join(self.url, 'introducers')
+        url = self.url + '/introducers'
         if self.verbosity > 1: print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
@@ -143,7 +143,7 @@ class News:
 
     def download_news(self):
         """Download NEWS.tgz file to local temporary file."""
-        url = os.path.join(self.url, 'NEWS.tgz')
+        url = self.url + '/NEWS.tgz'
         if self.verbosity > 1: print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
@@ -296,7 +296,7 @@ class Updates:
         """Download script tarball."""
         if self.new_version_available:
             download_url = \
-                    os.path.join(self.url, 'grid-updates-v' + self.latest_version + '.tgz')
+                    self.url + '/grid-updates-v' + self.latest_version + '.tgz'
             if self.verbosity > 1:
                 print("INFO: Downloading", download_url)
             try:
