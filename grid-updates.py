@@ -317,8 +317,6 @@ def repair_shares(verbosity, uri_dict):
     #if is_valid_tahoe_response()
     if verbosity > 0:
         print("-- Repairing the grid-updates Tahoe shares. --")
-    if verbosity > 2:
-        print('DEBUG: This is the output of the repair operations:')
     for uri in list(uri_dict.keys()):
         repair_uri = uri_dict[uri][1]
         if verbosity > 0: print("Repairing '%s' share." % uri)
@@ -636,7 +634,7 @@ def main():
             print( "'%s' is not a valid Tahoe URI. Aborting." % uri[0])
             exit(1)
 
-    if opts.verbosity > 1: print("DEBUG: Tahoe node dir is", tahoe_node_dir)
+    if opts.verbosity > 2: print("DEBUG: Tahoe node dir is", tahoe_node_dir)
 
     # run actions
     if opts.merge or opts.replace:
