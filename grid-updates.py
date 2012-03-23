@@ -249,6 +249,8 @@ class Updates:
         # list Tahoe dir
         try:
             json_dir = urlopen(self.dir_url).read()
+            if sys.version_info[0] == 3:
+                json_dir = str(json_dir, encoding='ascii')
         except HTTPError as e:
             print('ERROR: Could not access the Tahoe directory:', e, file=sys.stderr)
             exit(1)
