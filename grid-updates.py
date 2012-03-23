@@ -368,17 +368,46 @@ def main():
     #for k in os.environ: print "%s: %s" %(k, os.environ[k])
     operating_system = platform.system()
     if operating_system == 'Windows':
-        default_tahoe_node_dir = os.path.join(os.environ['USERPROFILE'], ".tahoe")
+        default_tahoe_node_dir = os.path.join(os.environ['USERPROFILE'],
+                                                        ".tahoe")
         config_locations = [
-                os.path.join(os.environ['APPDATA'], 'grid-updates', 'config.ini'),
+                os.path.join(os.environ['APPDATA'],
+                                        'grid-updates',
+                                        'config.ini'),
                 ]
     else:
         default_tahoe_node_dir = os.path.join(os.environ['HOME'], ".tahoe")
-        config_locations = [
-                os.path.join(os.environ['HOME'], ".config", 'grid-updates', 'config.ini'),
-                os.path.join('/etc', 'grid-updates', 'config.ini'),
-                os.path.join(os.getcwd(), 'config.ini'),
-                ]
+        # Config file list
+        # Check for XDG environment variables; use defaults if not set
+        # The order of config files matters to ConfigParser
+        config_locations = []
+        # 1. XDG_CONFIG_DIRS
+        try:
+            xdg_config_dir_list = os.path.join(
+                        os.environ['XDG_CONFIG_DIRS']).split(':')
+        except KeyError:
+            print('XDG_CONFIG_DIRS not set. using defaults.')
+            config_locations.append(os.path.join('/etc', 'xdg',
+                                                'grid-updates',
+                                                'config.ini'))
+        else:
+            for dir in xdg_config_dir_list:
+                config_locations.append(os.path.join(dir,
+                                                    'grid-updates',
+                                                    'config.ini'))
+        # 2. XDG_CONFIG_HOME
+        try:
+            XDG_CONFIG_HOME = os.environ['XDG_CONFIG_HOME']
+        except KeyError:
+            config_locations.append(os.path.join(
+                                                os.environ['HOME'],
+                                                ".config",
+                                                'grid-updates',
+                                                'config.ini'))
+        else:
+            config_locations.append(os.path.join(XDG_CONFIG_HOME,
+                                                'grid-updates',
+                                                'config.ini'))
 
     # Default settings
     #tahoe_node_dir = os.path.abspath('testdir')
