@@ -317,6 +317,7 @@ def repair_shares(verbosity, uri_dict):
     #if is_valid_tahoe_response()
     if verbosity > 0:
         print("-- Repairing the grid-updates Tahoe shares. --")
+    unhealthy = 0
     for uri in list(uri_dict.keys()):
         repair_uri = uri_dict[uri][1]
         if verbosity > 0: print("Repairing '%s' share." % uri)
@@ -332,31 +333,40 @@ def repair_shares(verbosity, uri_dict):
                                                 e, file=sys.stderr)
             exit(1)
         else:
-            if verbosity > 1:
-                # read lines into a list (results) so that the next line
-                # doesn't print too soon.
-                results = f.readlines()
-                print('INFO: Post-repair results for: %s' % uri)
-                for result in results:
-                    # Parse JSON
-                    #   [u'check-and-repair-results', u'cap', u'repaircap',
-                    #   u'verifycap', u'path', u'type', u'storage-index']
-                    if not 'check-and-repair-results' in \
-                            json.loads(result).keys():
-                        # This would be the final 'stats' line.
-                        break
-                    type   = json.loads(result)['type']
-                    path   = json.loads(result)['path']
-                    status = json.loads(result) \
-                                ['check-and-repair-results'] \
-                                ['post-repair-results'] \
-                                ['summary']
+            # read lines into a list (results) so that the next line
+            # doesn't print too soon.
+            results = f.readlines()
+            print('INFO: Post-repair results for: %s' % uri)
+            for result in results:
+                # Parse JSON
+                #   [u'check-and-repair-results', u'cap', u'repaircap',
+                #   u'verifycap', u'path', u'type', u'storage-index']
+                if not 'check-and-repair-results' in \
+                        json.loads(result).keys():
+                    # This would be the final 'stats' line.
+                    break
+                type   = json.loads(result)['type']
+                path   = json.loads(result)['path']
+                status = json.loads(result) \
+                            ['check-and-repair-results'] \
+                            ['post-repair-results'] \
+                            ['summary']
+                # Print
+                if verbosity > 1:
                     if type == 'directory' and not path:
                         print('  <root>: %s' % status)
                     else:
                         print('  %s: %s' % (path[0], status))
-            elif verbosity > 0:
-                print("Deep-check of '%s' share completed." % uri)
+                # Count unhealthy
+                if status.startswith('Unhealthy'):
+                    unhealthy = +1
+            if verbosity > 0:
+                if unhealthy == 0 or 1:
+                    s = 'object'
+                else:
+                    s = 'objects'
+                print("Deep-check of '%s' share completed: %d %s unhealthy." \
+                                                        % (uri, unhealthy, s))
         finally:
             f.close()
 
