@@ -1,3 +1,4 @@
 * pid/lock file? (at least the shell version prevented multiple instances)
 * parse repair_shares() output
 * don't require multiple keyboard interrupts (need better exceptions?)
+* --config cli option?

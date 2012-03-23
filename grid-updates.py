@@ -55,10 +55,11 @@ class List:
                 old_introducers = f.read()
                 old_list = old_introducers.splitlines()
         except IOError as e:
-            print('WARN: cannot read local introducers files:', e)
-            print('WARN: Are you sure you have a compatible version of Tahoe-LAFS?')
-            if self.verbosity > 1:
-                print('INFO: Pretending to have read an empty introducers list.')
+            print('WARN: Cannot read local introducers files:', e, file=sys.stderr)
+            print('WARN: Are you sure you have a compatible version of Tahoe-LAFS?',
+                    file=sys.stderr)
+            print('WARN: Pretending to have read an empty introducers list.',
+                    file=sys.stderr)
             old_introducers = ''
             old_list = []
         return (old_introducers, old_list)
