@@ -15,9 +15,9 @@ import tempfile # use os.tmpfile()?
 # Maybe this is better than try -> except?
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser
-    from urllib import urlopen
     from urllib import urlencode
     from urllib2 import HTTPError
+    from urllib2 import urlopen
 else:
     from configparser import SafeConfigParser
     from urllib.request import urlopen
@@ -75,13 +75,8 @@ class List:
             print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
             exit(1)
         else:
-            if sys.version_info[0] == 3:
-                response = str(response, encoding='ascii')
-            if is_valid_tahoe_response(response):
-                new_list = response.split('\n')
-                return new_list
-            else:
-                exit(1)
+            new_list = response.split('\n')
+            return new_list
 
     def filter_new_list(self):
         """Compile a list of new introducers (not yet present in local
@@ -149,11 +144,8 @@ class News:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
             exit(1)
         else:
-            if is_valid_tahoe_response(response):
-                with open(self.local_archive,'wb') as output:
-                    output.write(response)
-            else:
-                exit(1)
+            with open(self.local_archive,'wb') as output:
+                output.write(response)
 
     def extract_tgz(self):
         """Extract NEWS.tgz archive into temporary directory."""
@@ -253,22 +245,19 @@ class Updates:
             print('ERROR: Could not access the Tahoe directory:', e, file=sys.stderr)
             exit(1)
         else:
-            if is_valid_tahoe_response(json_dir):
-                # parse json index of dir
-                file_list = list(json.loads(json_dir)[1]['children'].keys())
-                # parse version numbers
-                version_numbers = []
-                for filename in file_list:
-                    if re.match("^grid-updates-v.*\.tgz$", filename):
-                        v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
-                        version_numbers.append(v)
-                latest_version = sorted(version_numbers)[-1]
-                if self.verbosity > 1:
-                    print('INFO: Current version: %s; newest available: %s.' % \
-                            (__version__, latest_version))
-                return latest_version
-            else:
-                exit()
+            # parse json index of dir
+            file_list = list(json.loads(json_dir)[1]['children'].keys())
+            # parse version numbers
+            version_numbers = []
+            for filename in file_list:
+                if re.match("^grid-updates-v.*\.tgz$", filename):
+                    v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
+                    version_numbers.append(v)
+            latest_version = sorted(version_numbers)[-1]
+            if self.verbosity > 1:
+                print('INFO: Current version: %s; newest available: %s.' % \
+                        (__version__, latest_version))
+            return latest_version
 
     def new_version_available(self):
         """Determine if the local version is smaller than the available
@@ -345,17 +334,6 @@ def repair_shares(verbosity, uri_dict):
         #    break
         #else:
         #    f.close()
-
-def is_valid_tahoe_response(response):
-    """Catch Page Not Found error message from Tahoe."""
-    # <html><head><title>Page Not Found</title></head><body>Sorry, but I
-    # couldn't find the object you requested.</body></html>
-    if re.search('Page\ Not\ Found', response):
-        print('ERROR: Could not download the introducers list:',
-                'Page Not Found.', file=sys.stderr)
-        return False
-    else:
-        return True
 
 def main():
     # CONFIGURATION PARSING
