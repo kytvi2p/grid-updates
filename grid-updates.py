@@ -437,7 +437,29 @@ def main():
         'script_uri': default_script_uri,
         'output_dir': default_output_dir,
         })
-    config.read(config_locations)
+
+    # Check if any configuration files are available; get their settings if
+    # they are, apply standard settings if they aren't.
+    available_cfg_files = []
+    for loc in config_locations:
+        if os.access(loc, os.R_OK):
+            available_cfg_files.append(loc)
+    if available_cfg_files:
+        config.read(available_cfg_files)
+        tahoe_node_dir = config.get('OPTIONS', 'tahoe_node_dir')
+        tahoe_node_url = config.get('OPTIONS', 'tahoe_node_url')
+        list_uri       = config.get('OPTIONS', 'list_uri')
+        news_uri       = config.get('OPTIONS', 'news_uri')
+        script_uri     = config.get('OPTIONS', 'script_uri')
+        output_dir     = config.get('OPTIONS', 'output_dir')
+    else:
+        print('INFO: No configuration files found.')
+        tahoe_node_dir = default_tahoe_node_dir
+        tahoe_node_url = default_tahoe_node_url
+        list_uri       = default_list_uri
+        news_uri       = default_news_uri
+        script_uri     = default_script_uri
+        output_dir     = default_output_dir
 
     # 3. Optparse
     # defaults to values from Configparser
@@ -485,27 +507,27 @@ def main():
     other_opts.add_option('-d', '--node-dir',
             action = 'store',
             dest = "tahoe_node_dir",
-            default = config.get('OPTIONS', 'tahoe_node_dir'),
+            default = tahoe_node_dir,
             help = 'Specify the Tahoe node directory.')
     other_opts.add_option('-u', '--node-url',
             action = 'store',
             dest = 'tahoe_node_url',
-            default = config.get('OPTIONS', 'tahoe_node_url'),
+            default = tahoe_node_url,
             help = "Specify the Tahoe gateway node's URL.")
     other_opts.add_option('--list-uri',
             action = 'store',
             dest = 'list_uri',
-            default = config.get('OPTIONS', 'list_uri'),
+            default = list_uri,
             help = 'Override default location of introducers list.')
     other_opts.add_option('--news-uri',
             action = 'store',
             dest = 'news_uri',
-            default = config.get('OPTIONS', 'news_uri'),
+            default = news_uri,
             help = 'Override default location of news list.')
     other_opts.add_option('--script-uri',
             action = 'store',
             dest = 'script_uri',
-            default = config.get('OPTIONS', 'script_uri'),
+            default = script_uri,
             help = 'Override default location of script releases.')
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
