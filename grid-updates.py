@@ -315,27 +315,52 @@ def repair_shares(verbosity, uri_dict):
     """Run a deep-check including repair and add-lease on the grid-update
     shares."""
     #if is_valid_tahoe_response()
-    if verbosity > 0: print("-- Repairing the grid-updates Tahoe shares. --")
+    if verbosity > 0:
+        print("-- Repairing the grid-updates Tahoe shares. --")
     if verbosity > 2:
         print('DEBUG: This is the output of the repair operations:')
     for uri in list(uri_dict.keys()):
         repair_uri = uri_dict[uri][1]
-        if verbosity > 0: print("Repairing", repair_uri)
+        if verbosity > 0: print("Repairing '%s' share." % uri)
         params = urlencode({'t': 'stream-deep-check',
-            'repair': 'true', 'add-lease': 'true'}).encode('ascii')
-        f = urlopen(repair_uri, params)
-        if verbosity > 2:
-            print(f.read())
-        f.close()
-        #try:
-        #    f = urlopen(repair_uri, params)
-        #    # TODO parse output
-        #    print f.read()
-        #except HTTPError as e:
-        #    print 'ERROR: Could not repair %s URI: %s' % (uri, e)
-        #    break
-        #else:
-        #    f.close()
+                            'repair': 'true',
+                            'add-lease': 'true'}).encode('ascii')
+        if verbosity > 3:
+            print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
+        try:
+            f = urlopen(repair_uri, params)
+        except HTTPError as e:
+            print('ERROR: Could not run deep-check for $s:', uri,
+                                                e, file=sys.stderr)
+            exit(1)
+        else:
+            if verbosity > 1:
+                # read lines into a list (results) so that the next line
+                # doesn't print too soon.
+                results = f.readlines()
+                print('INFO: Post-repair results for: %s' % uri)
+                for result in results:
+                    # Parse JSON
+                    #   [u'check-and-repair-results', u'cap', u'repaircap',
+                    #   u'verifycap', u'path', u'type', u'storage-index']
+                    if not 'check-and-repair-results' in \
+                            json.loads(result).keys():
+                        # This would be the final 'stats' line.
+                        break
+                    type   = json.loads(result)['type']
+                    path   = json.loads(result)['path']
+                    status = json.loads(result) \
+                                ['check-and-repair-results'] \
+                                ['post-repair-results'] \
+                                ['summary']
+                    if type == 'directory' and not path:
+                        print('  <root>: %s' % status)
+                    else:
+                        print('  %s: %s' % (path[0], status))
+            elif verbosity > 0:
+                print("Deep-check of '%s' share completed." % uri)
+        finally:
+            f.close()
 
 def main():
     # CONFIGURATION PARSING
@@ -602,8 +627,8 @@ def main():
     def gen_full_tahoe_uri(uri):
         return tahoe_node_url + '/uri/' + uri
     uri_dict = {'list': (list_uri, gen_full_tahoe_uri(list_uri)),
-            'news': (news_uri, gen_full_tahoe_uri(news_uri)),
-            'script': (script_uri, gen_full_tahoe_uri(script_uri))}
+                'news': (news_uri, gen_full_tahoe_uri(news_uri)),
+                'script': (script_uri, gen_full_tahoe_uri(script_uri))}
 
     # Check URI validity
     for uri in uri_dict.values():
