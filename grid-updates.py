@@ -45,7 +45,7 @@ class List:
         (self.old_introducers, self.old_list) = self.read_existing_list()
         response = self.download_new_list()
         try:
-            self.new_list = json.loads(response.read())
+            self.new_list = json.loads(response.read().decode('utf8'))
         except:
             # TODO specific exception
             print("ERROR: Couldn't parse new JSON introducer list.",
