@@ -115,7 +115,7 @@ class List:
             with open(self.introducers, 'w') as f:
                 for new_introducer in self.new_list['introducers']:
                     if new_introducer['active']:
-                        f.write(new_introducer + '\n')
+                        f.write(new_introducer['uri'] + '\n')
         except IOError as e:
             print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
             exit(1)
