@@ -67,7 +67,7 @@ class List:
     def download_new_list(self):
         """Download an introducers list from the Tahoe grid; return a list of
         strings."""
-        url = self.url + '/introducers'
+        url = self.url + '/introducers.json.txt'
         if self.verbosity > 1: print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
@@ -75,15 +75,14 @@ class List:
             print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
             exit(1)
         else:
-            new_list = response.split('\n')
-            return new_list
+            return response
 
     def filter_new_list(self):
         """Compile a list of new introducers (not yet present in local
         file)."""
-        for line in self.new_list:
-            if re.match("^pb:\/\/", line):
-                self.new_introducers.append(line)
+        json_data = json.loads(self.new_list)
+        for introducer in json_data['introducers']:
+            self.new_introducers.append(introducer['uri'])
         if self.verbosity > 3:
             print(self.new_introducers)
 
