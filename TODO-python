@@ -1,2 +1,22 @@
 * pid/lock file? (at least the shell version prevented multiple instances)
 * don't require multiple keyboard interrupts (need better exceptions?)
+* --merge: INFO output about which introducers aren't in the subscription anymore
+* root
+	- might be required for patching
+	- skip tahoe node checks in this case
+* research version string sorting
+* --community-repair
+	- run new instance of Repair
+	- fetch file, repair included URIs
+	- allow config of multiple feeds?
+	- file format: JSON
+	- included info
+		* name
+		* URI
+* new introducer list file format: JSON
+	- included fields
+		Name
+		URI
+		Comment
+		Date added?
+		Date removed?
