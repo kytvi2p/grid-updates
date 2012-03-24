@@ -241,9 +241,7 @@ class Updates:
             print('DEBUG: Parsing Tahoe dir: %s.' % self.dir_url)
         # list Tahoe dir
         try:
-            json_dir = urlopen(self.dir_url).read()
-            if sys.version_info[0] == 3:
-                json_dir = str(json_dir, encoding='ascii')
+            json_dir = urlopen(self.dir_url).read().decode('utf8')
         except HTTPError as exc:
             print('ERROR: Could not access the Tahoe directory:', exc, file=sys.stderr)
             exit(1)
@@ -325,7 +323,7 @@ class Repair:
             print("Repairing '%s' share." % sharename)
         params = urlencode({'t': 'stream-deep-check',
                             'repair': 'true',
-                            'add-lease': 'true'}).encode('ascii')
+                            'add-lease': 'true'}).encode('utf8')
         if self.verbosity > 3:
             print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
         try:
@@ -679,9 +677,7 @@ def main():
             results = repair.repair_share(sharename, repair_uri)
             print('INFO: Post-repair results for: %s' % sharename)
             for result in results:
-                if sys.version_info[0] == 3:
-                    result = str(result, encoding='ascii')
-                unhealthy = repair.parse_result(result, unhealthy)
+                unhealthy = repair.parse_result(result.decode('utf8'), unhealthy)
             if opts.verbosity > 0:
                 if unhealthy == 1:
                     sub = 'object'
