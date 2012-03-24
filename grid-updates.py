@@ -42,7 +42,13 @@ class List:
         self.introducers = os.path.join(self.nodedir, 'introducers')
         self.introducers_bak = self.introducers + '.bak'
         (self.old_introducers, self.old_list) = self.read_existing_list()
-        self.new_list = self.download_new_list()
+        response = self.download_new_list()
+        try:
+            self.new_list = json.loads(response.read())
+        except:
+            # TODO specific exception
+            print("ERROR: Couldn't parse new JSON introducer list.",
+                                                        file=sys.stderr)
 
     def read_existing_list(self):
         """Read the local introducers file as a single string (to be written
@@ -86,15 +92,13 @@ class List:
             print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
             exit(1)
         else:
-            # TODO wrap json loading in try..except in case of malformated list?
-            return json.loads(response.read())
+            return response
 
     def merge_introducers(self):
         """Add newly discovered introducers to the local introducers file."""
         try:
             with open(self.introducers, 'a') as f:
                 for new_introducer in self.new_list['introducers']:
-                    print(new_introducer['name'])
                     if new_introducer['uri'] not in self.old_list and new_introducer['active']:
                         if self.verbosity > 0:
                             print("New introducer added: %s" % new_introducer['name'])
