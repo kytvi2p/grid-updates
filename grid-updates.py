@@ -718,6 +718,8 @@ def main():
             results = repair.repair_share(sharename, repair_uri)
             print('INFO: Post-repair results for: %s' % sharename)
             for result in results:
+                if sys.version_info[0] == 3:
+                    result = str(result, encoding='ascii')
                 unhealthy = repair.parse_result(result, unhealthy)
             if opts.verbosity > 0:
                 if unhealthy == 1:
