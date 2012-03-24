@@ -37,7 +37,8 @@ class List:
         self.verbosity = verbosity
         self.nodedir = nodedir
         self.url = url
-        if self.verbosity > 0: print("-- Updating introducers --")
+        if self.verbosity > 0:
+            print("-- Updating introducers --")
         self.old_list = []
         self.new_introducers = []
         self.introducers = os.path.join(self.nodedir, 'introducers')
@@ -68,7 +69,8 @@ class List:
         """Download an introducers list from the Tahoe grid; return a list of
         strings."""
         url = self.url + '/introducers'
-        if self.verbosity > 1: print("INFO: Downloading", url)
+        if self.verbosity > 1:
+            print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
         except HTTPError as e:
@@ -129,7 +131,8 @@ class News:
         self.nodedir = nodedir
         self.web_static = web_static_dir
         self.url = url
-        if self.verbosity > 0: print("-- Updating NEWS --")
+        if self.verbosity > 0:
+            print("-- Updating NEWS --")
         self.local_news = os.path.join(self.nodedir, 'NEWS')
         self.tempdir = tempfile.mkdtemp()
         self.local_archive = os.path.join(self.tempdir, 'NEWS.tgz')
@@ -137,7 +140,8 @@ class News:
     def download_news(self):
         """Download NEWS.tgz file to local temporary file."""
         url = self.url + '/NEWS.tgz'
-        if self.verbosity > 1: print("INFO: Downloading", url)
+        if self.verbosity > 1:
+            print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
         except:
@@ -154,8 +158,8 @@ class News:
                     (self.local_archive, self.tempdir))
         try:
             tar = tarfile.open(self.local_archive, 'r:gz')
-            for file in ['NEWS', 'NEWS.html', 'NEWS.atom']:
-                tar.extract(file, self.tempdir)
+            for newsfile in ['NEWS', 'NEWS.html', 'NEWS.atom']:
+                tar.extract(newsfile, self.tempdir)
             tar.close()
         except:
             print('ERROR: Could not extract NEWS.tgz archive.', file=sys.stderr)
@@ -199,9 +203,9 @@ class News:
         """Copy extracted NEWS files to their intended locations."""
         try:
             copyfile(os.path.join(self.tempdir, 'NEWS'), self.local_news)
-            for file in ['NEWS.html', 'NEWS.atom']:
-                copyfile(os.path.join(self.tempdir, file),
-                        os.path.join(self.nodedir, self.web_static, file))
+            for newsfile in ['NEWS.html', 'NEWS.atom']:
+                copyfile(os.path.join(self.tempdir, newsfile),
+                        os.path.join(self.nodedir, self.web_static, newsfile))
         except:
             print("ERROR: Couldn't copy one or more NEWS files into the" \
                   "node directory.", file=sys.stderr)
@@ -225,7 +229,8 @@ class Updates:
         self.verbosity = verbosity
         self.output_dir = output_dir
         self.url = url
-        if self.verbosity > 0: print("-- Looking for script updates --")
+        if self.verbosity > 0:
+            print("-- Looking for script updates --")
         self.dir_url = self.url + '/?t=json'
         if self.new_version_available():
             self.new_version_available = True
@@ -235,7 +240,8 @@ class Updates:
     def get_version_number(self):
         """Determine latest available version number by parsing the Tahoe
         directory."""
-        if self.verbosity > 1: print("INFO: Checking for new version.")
+        if self.verbosity > 1:
+            print("INFO: Checking for new version.")
         if self.verbosity > 2:
             print('DEBUG: Parsing Tahoe dir: %s.' % self.dir_url)
         # list Tahoe dir
@@ -320,7 +326,8 @@ class Repair:
     def repair_share(self, sharename, repair_uri):
         """Run a deep-check including repair and add-lease on a Tahoe share;
         returns response in JSON format."""
-        if self.verbosity > 0: print("Repairing '%s' share." % sharename)
+        if self.verbosity > 0:
+            print("Repairing '%s' share." % sharename)
         params = urlencode({'t': 'stream-deep-check',
                             'repair': 'true',
                             'add-lease': 'true'}).encode('ascii')
@@ -663,7 +670,8 @@ def main():
             print( "'%s' is not a valid Tahoe URI. Aborting." % uri[0])
             exit(1)
 
-    if opts.verbosity > 2: print("DEBUG: Tahoe node dir is", tahoe_node_dir)
+    if opts.verbosity > 2:
+        print("DEBUG: Tahoe node dir is", tahoe_node_dir)
 
     # run actions
     if opts.merge or opts.replace:
@@ -733,8 +741,10 @@ def main():
         try:
             # __init__ checks for new version
             up = Updates(opts.verbosity, output_dir, uri_dict['script'][1])
-            if opts.check_version: up.print_versions()
-            if opts.download_update: up.download_update()
+            if opts.check_version:
+                up.print_versions()
+            if opts.download_update:
+                up.download_update()
         except:
             if opts.verbosity > 2:
                 print("DEBUG: Couldn't finish version check operation." \
