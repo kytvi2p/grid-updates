@@ -89,8 +89,8 @@ class List:
         if self.verbosity > 1: print("INFO: Downloading", url)
         try:
             response = urlopen(url)
-        except HTTPError as e:
-            print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
+        except HTTPError as exc:
+            print('ERROR: Could not download the introducers list:', exc, file=sys.stderr)
             exit(1)
         else:
             return response
@@ -104,8 +104,8 @@ class List:
                         if self.verbosity > 0:
                             print("New introducer added: %s" % new_introducer['name'])
                         f.write(new_introducer['uri'] + '\n')
-        except IOError as e:
-            print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
+        except IOError as exc:
+            print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
             exit(1)
 
     def replace_introducers(self):
@@ -116,8 +116,8 @@ class List:
                 for new_introducer in self.new_list['introducers']:
                     if new_introducer['active']:
                         f.write(new_introducer['uri'] + '\n')
-        except IOError as e:
-            print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
+        except IOError as exc:
+            print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
             exit(1)
 
 class News:
