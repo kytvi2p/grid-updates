@@ -357,7 +357,7 @@ class Repair:
                 json.loads(result).keys():
             # This would be the final 'stats' line.
             return unhealthy
-        type   = json.loads(result)['type']
+        uritype   = json.loads(result)['type']
         path   = json.loads(result)['path']
         status = json.loads(result) \
                     ['check-and-repair-results'] \
@@ -365,7 +365,7 @@ class Repair:
                     ['summary']
         # Print
         if self.verbosity > 1:
-            if type == 'directory' and not path:
+            if uritype == 'directory' and not path:
                 print('  <root>: %s' % status)
             else:
                 print('  %s: %s' % (path[0], status))
@@ -412,8 +412,8 @@ def main():
                                                 'grid-updates',
                                                 'config.ini'))
         else:
-            for dir in xdg_config_dir_list:
-                config_locations.append(os.path.join(dir,
+            for directory in xdg_config_dir_list:
+                config_locations.append(os.path.join(directory,
                                                     'grid-updates',
                                                     'config.ini'))
         # 2. XDG_CONFIG_HOME
@@ -681,13 +681,13 @@ def main():
         if opts.replace and opts.verbosity > 2:
             print('DEBUG: Selected action: --replace-introducers')
         try:
-            list = List(opts.verbosity, tahoe_node_dir, uri_dict['list'][1])
-            list.filter_new_list()
-            list.backup_original()
+            intlist = List(opts.verbosity, tahoe_node_dir, uri_dict['list'][1])
+            intlist.filter_new_list()
+            intlist.backup_original()
             if opts.merge:
-                list.merge_introducers()
+                intlist.merge_introducers()
             elif opts.replace:
-                list.replace_introducers()
+                intlist.replace_introducers()
         except:
             if opts.verbosity > 1:
                 print("DEBUG: Couldn't finish introducer list operation." \
