@@ -40,11 +40,16 @@ class List:
         if self.verbosity > 0:
             print("-- Updating introducers --")
         self.old_list = []
-        self.new_introducers = []
         self.introducers = os.path.join(self.nodedir, 'introducers')
         self.introducers_bak = self.introducers + '.bak'
         (self.old_introducers, self.old_list) = self.read_existing_list()
-        self.new_list = self.download_new_list()
+        response = self.download_new_list()
+        try:
+            self.new_list = json.loads(response.read())
+        except:
+            # TODO specific exception
+            print("ERROR: Couldn't parse new JSON introducer list.",
+                                                        file=sys.stderr)
 
     def read_existing_list(self):
         """Read the local introducers file as a single string (to be written
@@ -65,30 +70,6 @@ class List:
             old_list = []
         return (old_introducers, old_list)
 
-    def download_new_list(self):
-        """Download an introducers list from the Tahoe grid; return a list of
-        strings."""
-        url = self.url + '/introducers'
-        if self.verbosity > 1:
-            print("INFO: Downloading", url)
-        try:
-            response = urlopen(url).read()
-        except HTTPError as exc:
-            print('ERROR: Could not download the introducers list:', exc, file=sys.stderr)
-            exit(1)
-        else:
-            new_list = response.split('\n')
-            return new_list
-
-    def filter_new_list(self):
-        """Compile a list of new introducers (not yet present in local
-        file)."""
-        for line in self.new_list:
-            if re.match("^pb:\/\/", line):
-                self.new_introducers.append(line)
-        if self.verbosity > 3:
-            print(self.new_introducers)
-
     def backup_original(self):
         """Copy the old introducers file to introducers.bak."""
         try:
@@ -101,17 +82,30 @@ class List:
             if self.verbosity > 2:
                 print('DEBUG: Created backup of local introducers.')
 
+    def download_new_list(self):
+        """Download an introducers list from the Tahoe grid; return a JSON
+        object."""
+        url = self.url + '/introducers.json.txt'
+        if self.verbosity > 1: print("INFO: Downloading", url)
+        try:
+            response = urlopen(url)
+        except HTTPError as e:
+            print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
+            exit(1)
+        else:
+            return response
+
     def merge_introducers(self):
         """Add newly discovered introducers to the local introducers file."""
         try:
             with open(self.introducers, 'a') as f:
-                for new_introducer in self.new_introducers:
-                    if new_introducer not in self.old_list:
+                for new_introducer in self.new_list['introducers']:
+                    if new_introducer['uri'] not in self.old_list and new_introducer['active']:
                         if self.verbosity > 0:
-                            print("New introducer added: %s" % new_introducer)
-                            f.write(new_introducer + '\n')
-        except IOError as exc:
-            print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
+                            print("New introducer added: %s" % new_introducer['name'])
+                        f.write(new_introducer['uri'] + '\n')
+        except IOError as e:
+            print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
             exit(1)
 
     def replace_introducers(self):
@@ -119,10 +113,11 @@ class List:
         (overwriting the existing file)."""
         try:
             with open(self.introducers, 'w') as f:
-                for new_introducer in self.new_introducers:
-                    f.write(new_introducer + '\n')
-        except IOError as exc:
-            print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
+                for new_introducer in self.new_list['introducers']:
+                    if new_introducer['active']:
+                        f.write(new_introducer + '\n')
+        except IOError as e:
+            print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
             exit(1)
 
 class News:
@@ -682,7 +677,6 @@ def main():
             print('DEBUG: Selected action: --replace-introducers')
         try:
             intlist = List(opts.verbosity, tahoe_node_dir, uri_dict['list'][1])
-            intlist.filter_new_list()
             intlist.backup_original()
             if opts.merge:
                 intlist.merge_introducers()

@@ -14,9 +14,4 @@
 		* name
 		* URI
 * new introducer list file format: JSON
-	- included fields
-		Name
-		URI
-		Comment
-		Date added?
-		Date removed?
+	- add option to add new introducers through g-u (and check syntax)?
