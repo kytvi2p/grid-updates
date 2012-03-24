@@ -676,6 +676,27 @@ def main():
         print("DEBUG: Tahoe node dir is", tahoe_node_dir)
 
     # run actions
+    if opts.repair:
+        # Iterate over known tahoe directories and all files within.
+        repair = Repair(opts.verbosity)
+        unhealthy = 0
+        # sorted() to make 'list' be checked first.
+        for sharename in sorted(uri_dict.keys()):
+            repair_uri = uri_dict[sharename][1]
+            results = repair.repair_share(sharename, repair_uri)
+            print('INFO: Post-repair results for: %s' % sharename)
+            for result in results:
+                if sys.version_info[0] == 3:
+                    result = str(result, encoding='ascii')
+                unhealthy = repair.parse_result(result, unhealthy)
+            if opts.verbosity > 0:
+                if unhealthy == 1:
+                    sub = 'object'
+                else:
+                    sub = 'objects'
+                print("Deep-check of '%s' share completed: %d %s unhealthy." \
+                                                % (sharename, unhealthy, sub))
+
     if opts.merge or opts.replace:
         # Debug info
         if opts.merge and opts.verbosity > 2:
@@ -717,27 +738,6 @@ def main():
         else:
             if opts.verbosity > 0:
                 print('Successfully updated news.')
-
-    if opts.repair:
-        # Iterate over known tahoe directories and all files within.
-        repair = Repair(opts.verbosity)
-        unhealthy = 0
-        # sorted() to make 'list' be checked first.
-        for sharename in sorted(uri_dict.keys()):
-            repair_uri = uri_dict[sharename][1]
-            results = repair.repair_share(sharename, repair_uri)
-            print('INFO: Post-repair results for: %s' % sharename)
-            for result in results:
-                if sys.version_info[0] == 3:
-                    result = str(result, encoding='ascii')
-                unhealthy = repair.parse_result(result, unhealthy)
-            if opts.verbosity > 0:
-                if unhealthy == 1:
-                    sub = 'object'
-                else:
-                    sub = 'objects'
-                print("Deep-check of '%s' share completed: %d %s unhealthy." \
-                                                % (sharename, unhealthy, sub))
 
     if opts.check_version or opts.download_update:
         try:
