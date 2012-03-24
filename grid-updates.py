@@ -411,7 +411,7 @@ def main():
                                                     'config.ini'))
         # 2. XDG_CONFIG_HOME
         try:
-            XDG_CONFIG_HOME = os.environ['XDG_CONFIG_HOME']
+            xdg_config_home = os.environ['XDG_CONFIG_HOME']
         except KeyError:
             config_locations.append(os.path.join(
                                                 os.environ['HOME'],
@@ -419,7 +419,7 @@ def main():
                                                 'grid-updates',
                                                 'config.ini'))
         else:
-            config_locations.append(os.path.join(XDG_CONFIG_HOME,
+            config_locations.append(os.path.join(xdg_config_home,
                                                 'grid-updates',
                                                 'config.ini'))
 
@@ -730,11 +730,11 @@ def main():
     if opts.check_version or opts.download_update:
         try:
             # __init__ checks for new version
-            up = Updates(opts.verbosity, output_dir, uri_dict['script'][1])
+            update = Updates(opts.verbosity, output_dir, uri_dict['script'][1])
             if opts.check_version:
-                up.print_versions()
+                update.print_versions()
             if opts.download_update:
-                up.download_update()
+                update.download_update()
         except:
             if opts.verbosity > 2:
                 print("DEBUG: Couldn't finish version check operation." \
