@@ -144,7 +144,7 @@ class News:
             print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
-        except:
+        except HTTPError:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
             exit(1)
         else:
@@ -161,7 +161,7 @@ class News:
             for newsfile in ['NEWS', 'NEWS.html', 'NEWS.atom']:
                 tar.extract(newsfile, self.tempdir)
             tar.close()
-        except:
+        except tarfile.TarError:
             print('ERROR: Could not extract NEWS.tgz archive.', file=sys.stderr)
             exit(1)
 
