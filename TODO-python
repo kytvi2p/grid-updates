@@ -7,6 +7,8 @@
 * --community-repair
 	- run new instance of Repair
 	- fetch file, repair included URIs
+	  * don't always deep-check? could take forever
+	  * modes: deep-check, check (single), single-level deep-check?
 	- allow config of multiple feeds?
 	- file format: JSON
 	- included info

@@ -374,25 +374,33 @@ class Repair:
         if self.verbosity > 0:
             print("-- Repairing the grid-updates Tahoe shares. --")
 
-    def repair_share(self, sharename, repair_uri):
+    def repair_share(self, sharename, repair_uri, mode='deep-check'):
         """Run a deep-check including repair and add-lease on a Tahoe share;
         returns response in JSON format."""
         if self.verbosity > 0:
-            print("Repairing '%s' share." % sharename)
-        params = urlencode({'t': 'stream-deep-check',
-                            'repair': 'true',
+            print("Repairing '%s' share (%s)." % (sharename, mode))
+        if mode == 'deep-check':
+            params = urlencode({'t': 'stream-deep-check',
+                                'repair': 'true',
                             'add-lease': 'true'}).encode('utf8')
+        elif mode == 'check':
+            params = urlencode({'t': 'check',
+                                'repair': 'true',
+                                'add-lease': 'true'}).encode('utf8')
+
+        else:
+            print("ERROR: 'mode' must either be 'check' or 'deep-check'.",
+                                                            file=sys.stderr)
+            exit(1)
         if self.verbosity > 3:
             print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
         try:
             f = urlopen(repair_uri, params)
         except HTTPError as exc:
-            print('ERROR: Could not run deep-check for $s:', sharename,
-                                                exc, file=sys.stderr)
+            print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
+                                                         file=sys.stderr)
             exit(1)
         else:
-            # read lines into a list (results) so that the next line
-            # doesn't print too soon.
             results = f.readlines()
             return results
         finally:
@@ -734,14 +742,17 @@ def main(opts, args):
     if opts.repair:
         # Iterate over known tahoe directories and all files within.
         repair = Repair(opts.verbosity)
+        mode = 'deep-check'
         unhealthy = 0
         # sorted() to make 'list' be checked first.
         for sharename in sorted(uri_dict.keys()):
             repair_uri = uri_dict[sharename][1]
-            results = repair.repair_share(sharename, repair_uri)
+            results = repair.repair_share(sharename, repair_uri, mode)
             print('INFO: Post-repair results for: %s' % sharename)
             for result in results:
-                unhealthy = repair.parse_result(result.decode('utf8'), unhealthy)
+                if sys.version_info[0] == 3:
+                    result = str(result, encoding='ascii')
+                unhealthy = repair.parse_result(result, unhealthy)
             if opts.verbosity > 0:
                 if unhealthy == 1:
                     sub = 'object'
@@ -793,6 +804,7 @@ def main(opts, args):
         else:
             if opts.verbosity > 0:
                 print('Successfully updated news.')
+
     if opts.check_version or opts.download_update:
         try:
             # __init__ checks for new version
