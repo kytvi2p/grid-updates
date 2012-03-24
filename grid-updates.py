@@ -73,6 +73,8 @@ class List:
             print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
+            if sys.version_info[0] == 3:
+                response = str(response, encoding='ascii')
         except HTTPError as exc:
             print('ERROR: Could not download the introducers list:', exc, file=sys.stderr)
             exit(1)
