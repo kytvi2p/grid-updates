@@ -55,8 +55,8 @@ class List:
             with open(self.introducers, 'r') as f:
                 old_introducers = f.read()
                 old_list = old_introducers.splitlines()
-        except IOError as e:
-            print('WARN: Cannot read local introducers files:', e, file=sys.stderr)
+        except IOError as exc:
+            print('WARN: Cannot read local introducers files:', exc, file=sys.stderr)
             print('WARN: Are you sure you have a compatible version of Tahoe-LAFS?',
                     file=sys.stderr)
             print('WARN: Pretending to have read an empty introducers list.',
@@ -73,8 +73,8 @@ class List:
             print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
-        except HTTPError as e:
-            print('ERROR: Could not download the introducers list:', e, file=sys.stderr)
+        except HTTPError as exc:
+            print('ERROR: Could not download the introducers list:', exc, file=sys.stderr)
             exit(1)
         else:
             new_list = response.split('\n')
@@ -110,8 +110,8 @@ class List:
                         if self.verbosity > 0:
                             print("New introducer added: %s" % new_introducer)
                             f.write(new_introducer + '\n')
-        except IOError as e:
-            print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
+        except IOError as exc:
+            print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
             exit(1)
 
     def replace_introducers(self):
@@ -121,8 +121,8 @@ class List:
             with open(self.introducers, 'w') as f:
                 for new_introducer in self.new_introducers:
                     f.write(new_introducer + '\n')
-        except IOError as e:
-            print('ERROR: Could not write to introducer file: %s' % e, file=sys.stderr)
+        except IOError as exc:
+            print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
             exit(1)
 
 class News:
@@ -172,8 +172,8 @@ class News:
         if os.access(self.local_news, os.F_OK):
             try:
                 ln = open(self.local_news, 'r+')
-            except IOError as e:
-                print('ERROR: Cannot access NEWS file: %s' % e, file=sys.stderr)
+            except IOError as exc:
+                print('ERROR: Cannot access NEWS file: %s' % exc, file=sys.stderr)
                 exit(1)
             else:
                 with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
@@ -249,8 +249,8 @@ class Updates:
             json_dir = urlopen(self.dir_url).read()
             if sys.version_info[0] == 3:
                 json_dir = str(json_dir, encoding='ascii')
-        except HTTPError as e:
-            print('ERROR: Could not access the Tahoe directory:', e, file=sys.stderr)
+        except HTTPError as exc:
+            print('ERROR: Could not access the Tahoe directory:', exc, file=sys.stderr)
             exit(1)
         else:
             # parse json index of dir
@@ -297,16 +297,16 @@ class Updates:
             try:
                 remote_file = urlopen(download_url)
                 # TODO validate_tahoe_response()
-            except HTTPError as e:
-                print('ERROR: Could not download the tarball:', e, file=sys.stderr)
+            except HTTPError as exc:
+                print('ERROR: Could not download the tarball:', exc, file=sys.stderr)
                 exit(1)
             local_file = os.path.join(self.output_dir, 'grid-updates-v' + \
                                         self.latest_version + '.tgz')
             try:
                 with open(local_file,'wb') as output:
                     output.write(remote_file.read())
-            except IOError as e:
-                print('ERROR: Could not write to local file:', e, file=sys.stderr)
+            except IOError as exc:
+                print('ERROR: Could not write to local file:', exc, file=sys.stderr)
                 exit(1)
             else:
                 if self.verbosity > 0:
@@ -335,9 +335,9 @@ class Repair:
             print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
         try:
             f = urlopen(repair_uri, params)
-        except HTTPError as e:
+        except HTTPError as exc:
             print('ERROR: Could not run deep-check for $s:', sharename,
-                                                e, file=sys.stderr)
+                                                exc, file=sys.stderr)
             exit(1)
         else:
             # read lines into a list (results) so that the next line
