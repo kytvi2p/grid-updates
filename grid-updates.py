@@ -166,6 +166,7 @@ class List:
                     else:
                         print('Removed unknown introducer: %s' % introducer)
 
+
 class News:
     def __init__(self, verbosity, nodedir, web_static_dir, url):
         self.verbosity = verbosity
@@ -264,6 +265,7 @@ class News:
         else:
             if self.verbosity > 2:
                 print('DEBUG: Removed temporary dir: %s.' % self.tempdir)
+
 
 class Updates:
     def __init__(self, verbosity, output_dir, url):
@@ -413,7 +415,9 @@ class Repair:
             unhealthy += 1
         return unhealthy
 
-def main():
+
+def parse_opts(argv):
+
     # CONFIGURATION PARSING
     # =====================
 
@@ -423,8 +427,6 @@ def main():
     #       (Apply defaults if necessary.)
     #   3. Parse command line options.
     #       (Use values from 2. as defaults.)
-    #   4. Parse config file specified using --config
-    #       (Ignore anything from step 3.; use defaults from 2.)
 
     # OS-dependent settings
     #for k in os.environ: print "%s: %s" %(k, os.environ[k])
@@ -494,10 +496,18 @@ def main():
     # Check if any configuration files are available; get their settings if
     # they are, apply standard settings if they aren't.
     available_cfg_files = []
+
+    # Determine which config files are available
     for loc in config_locations:
         if os.access(loc, os.R_OK):
             available_cfg_files.append(loc)
+    # Also parse specified config file
+    if '--config' in argv:
+        pos = argv.index('--config')
+        available_cfg_files.append(argv[pos + 1])
+
     if available_cfg_files:
+        # Parse config files in standard locations if available
         config.read(available_cfg_files)
         tahoe_node_dir = config.get('OPTIONS', 'tahoe_node_dir')
         tahoe_node_url = config.get('OPTIONS', 'tahoe_node_url')
@@ -506,6 +516,7 @@ def main():
         script_uri     = config.get('OPTIONS', 'script_uri')
         output_dir     = config.get('OPTIONS', 'output_dir')
     else:
+        # Set standard fallback values if no config files found
         print('INFO: No configuration files found.')
         tahoe_node_dir = default_tahoe_node_dir
         tahoe_node_url = default_tahoe_node_url
@@ -606,6 +617,9 @@ def main():
             action = "store_true",
             default = False,
             help = 'Display version information.')
+    # Fake option: this option will not be accessed directly; --config is used
+    # for ConfigParser (see above); this entry exists here for completeness of
+    # --help
     parser.add_option('-c', '--config',
             action = 'store',
             dest = 'config',
@@ -613,37 +627,24 @@ def main():
     # parse arguments
     (opts, args) = parser.parse_args()
 
-    # 4. Parse --config file
-    # This maps all options from the specified config file to the local
-    # variables. If a setting isn't present in the config.ini, this defaults to
-    # the ConfigParser defaults (not the OptionParser defaults!). In other
-    # words it ignores/overrides any arguments given on the command line.
-    if opts.config:
-        config.read(opts.config)
-        tahoe_node_dir = config.get('OPTIONS', 'tahoe_node_dir')
-        tahoe_node_url = config.get('OPTIONS', 'tahoe_node_url')
-        list_uri       = config.get('OPTIONS', 'list_uri')
-        news_uri       = config.get('OPTIONS', 'news_uri')
-        script_uri     = config.get('OPTIONS', 'script_uri')
-        output_dir     = config.get('OPTIONS', 'output_dir')
-    else:
-        tahoe_node_dir = opts.tahoe_node_dir
-        tahoe_node_url = opts.tahoe_node_url
-        list_uri       = opts.list_uri
-        news_uri       = opts.news_uri
-        script_uri     = opts.script_uri
-        output_dir     = opts.output_dir
-
     # DEBUG
     if opts.verbosity > 2:
         print('DEBUG: The following options have been set:')
-        for opt in [tahoe_node_dir, tahoe_node_url, list_uri,
-                    news_uri, script_uri, output_dir]:
+        for opt in [
+                opts.tahoe_node_dir,
+                opts.tahoe_node_url,
+                opts.list_uri,
+                opts.news_uri,
+                opts.script_uri,
+                opts.output_dir]:
             print('  %s' % opt)
 
+    return (opts, args)
 
-    # Parse tahoe options
-    tahoe_cfg_path = os.path.join(tahoe_node_dir, 'tahoe.cfg')
+
+def main(opts, args):
+    # Parse tahoe options (find web.static for NEWS files)
+    tahoe_cfg_path = os.path.join(opts.tahoe_node_dir, 'tahoe.cfg')
     tahoe_config = SafeConfigParser({'web.static': 'public_html'})
     # TODO figure out why try..except doesn't work
     #try:
@@ -658,18 +659,20 @@ def main():
     #                    tahoe_node_dir,
     #                    tahoe_config.get('node', 'web.static')))
     if os.access(tahoe_cfg_path, os.R_OK):
+        # Also use existence of tahoe.cfg as an indicator of a Tahoe node
+        # directory
         tahoe_config.read(tahoe_cfg_path)
         web_static_dir = os.path.abspath(
                 os.path.join(
-                        tahoe_node_dir,
+                        opts.tahoe_node_dir,
                         tahoe_config.get('node', 'web.static')))
     else:
         print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.', file=sys.stderr)
         exit(1)
 
-    # tahoe node dir validity check (in addition to the above tahoe.cfg check)
-    if not os.access(tahoe_node_dir, os.W_OK):
-        print("ERROR: Need write access to", tahoe_node_dir, file=sys.stderr)
+    # Tahoe node dir validity check (in addition to the above tahoe.cfg check)
+    if not os.access(opts.tahoe_node_dir, os.W_OK):
+        print("ERROR: Need write access to", opts.tahoe_node_dir, file=sys.stderr)
         exit(1)
 
     # ACTION PARSING AND EXECUTION
@@ -699,10 +702,10 @@ def main():
 
     # generate URI dictionary
     def gen_full_tahoe_uri(uri):
-        return tahoe_node_url + '/uri/' + uri
-    uri_dict = {'list': (list_uri, gen_full_tahoe_uri(list_uri)),
-                'news': (news_uri, gen_full_tahoe_uri(news_uri)),
-                'script': (script_uri, gen_full_tahoe_uri(script_uri))}
+        return opts.tahoe_node_url + '/uri/' + uri
+    uri_dict = {'list': (opts.list_uri, gen_full_tahoe_uri(opts.list_uri)),
+                'news': (opts.news_uri, gen_full_tahoe_uri(opts.news_uri)),
+                'script': (opts.script_uri, gen_full_tahoe_uri(opts.script_uri))}
 
     # Check URI validity
     for uri in uri_dict.values():
@@ -711,9 +714,10 @@ def main():
             exit(1)
 
     if opts.verbosity > 2:
-        print("DEBUG: Tahoe node dir is", tahoe_node_dir)
+        print("DEBUG: Tahoe node dir is", opts.tahoe_node_dir)
 
-    # run actions
+    # Run actions
+    # -----------
     if opts.repair:
         # Iterate over known tahoe directories and all files within.
         repair = Repair(opts.verbosity)
@@ -732,7 +736,6 @@ def main():
                     sub = 'objects'
                 print("Deep-check of '%s' share completed: %d %s unhealthy." \
                                                 % (sharename, unhealthy, sub))
-
     if opts.merge or opts.sync:
         # Debug info
         if opts.merge and opts.verbosity > 2:
@@ -740,7 +743,7 @@ def main():
         if opts.sync and opts.verbosity > 2:
             print('DEBUG: Selected action: --sync-introducers')
         try:
-            intlist = List(opts.verbosity, tahoe_node_dir, uri_dict['list'][1])
+            intlist = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
             intlist.backup_original()
             if intlist.lists_differ():
                 if opts.merge:
@@ -754,12 +757,11 @@ def main():
         else:
             if opts.verbosity > 0:
                 print('Successfully updated the introducer list.')
-
     if opts.news:
         try:
             if opts.verbosity > 2:
                 print('DEBUG: Selected action: --download-news')
-            news = News(opts.verbosity, tahoe_node_dir, web_static_dir, uri_dict['news'][1])
+            news = News(opts.verbosity, opts.tahoe_node_dir, web_static_dir, uri_dict['news'][1])
             news.download_news()
             news.extract_tgz()
             news.news_differ()
@@ -774,11 +776,10 @@ def main():
         else:
             if opts.verbosity > 0:
                 print('Successfully updated news.')
-
     if opts.check_version or opts.download_update:
         try:
             # __init__ checks for new version
-            update = Updates(opts.verbosity, output_dir, uri_dict['script'][1])
+            update = Updates(opts.verbosity, opts.output_dir, uri_dict['script'][1])
             if opts.check_version:
                 update.print_versions()
             if opts.download_update:
@@ -791,9 +792,11 @@ def main():
             if opts.verbosity > 1:
                 print('DEBUG: Successfully ran script update operation.')
 
+
 if __name__ == "__main__":
     try:
-        main()
+        (opts, args) = parse_opts(sys.argv)
+        main(opts, args)
     except KeyboardInterrupt:
         print("\ngrid-updates interrupted by user.")
         exit(1)
