@@ -15,3 +15,6 @@
 		* URI
 * new introducer list file format: JSON
 	- add option to add new introducers through g-u (and check syntax)?
+* --make-news
+	- requires pandoc; shell script good enough?
+* set() for local lists in case of manually added dupicates
