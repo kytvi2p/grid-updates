@@ -102,17 +102,40 @@ class List:
         else:
             return response
 
+    def lists_differ(self):
+        """Compile lists of introducers: all active, locally missing and
+        expired."""
+        self.subscription_uris = []
+        for introducer in self.intro_dict.keys():
+            # only include active introducers
+            if self.intro_dict[introducer][1]:
+                self.subscription_uris.append(introducer)
+            else:
+                if self.verbosity > 1:
+                    print('INFO: Skipping inactive introducer: %s' %
+                            self.intro_dict[introducer][0])
+        if sorted(self.subscription_uris) == sorted(self.old_list):
+            if self.verbosity > 0:
+                print('INFO: Introducer list already up-to-date.')
+            return False
+        # Compile lists of new (to be added and outdated (to be removed) #
+        # introducers
+        self.new_intros = list(set(self.subscription_uris) - set(self.old_list))
+        self.expired_intros = list(set(self.old_list) - set(self.subscription_uris))
+        return True
+
     def merge_introducers(self):
-        """Add newly discovered introducers to the local introducers file."""
-        subscription_uris = self.intro_dict.keys()
-        new_intros = list(set(subscription_uris) - set(self.old_list))
+        """Add newly discovered introducers to the local introducers file;
+        remove nothing."""
+        if not self.lists_differ():
+            return
         if self.verbosity > 1:
-            expired_intros = list(set(self.old_list) - set(subscription_uris))
+            expired_intros = list(set(self.old_list) - set(self.subscription_uris))
             for intro in expired_intros:
-                print("INFO: Introducer not in subcription list: %s" % intro)
+                print("INFO: Introducer not in subscription list: %s" % intro)
         try:
             with open(self.introducers, 'a') as f:
-                for new_intro in new_intros:
+                for new_intro in self.new_intros:
                     if self.intro_dict[new_intro][1]:
                         if self.verbosity > 0:
                             print('New introducer: %s.' %
@@ -125,28 +148,11 @@ class List:
     def sync_introducers(self):
         """Add and remove introducers in the local list to make it identical to
         the subscription's."""
-        # Compile list of introducers in the subscription file
-        subscription_uris = []
-        for introducer in self.intro_dict.keys():
-            # only include active introducers
-            if self.intro_dict[introducer][1]:
-                subscription_uris.append(introducer)
-            else:
-                if self.verbosity > 1:
-                    print('INFO: Skipping inactive introducer: %s' %
-                            self.intro_dict[introducer][0])
-        if sorted(subscription_uris) == sorted(self.old_list):
-            if self.verbosity > 0:
-                print('INFO: Introducer list already up-to-date.')
+        if not self.lists_differ():
             return
-        # Compile lists of new (to be added and outdated (to be removed) #
-        # introducers
-        new_intros = list(set(subscription_uris) - set(self.old_list))
-        expired_intros = list(set(self.old_list) - set(subscription_uris))
-        # Open local file and append new introdcers
         try:
             with open(self.introducers, 'w') as f:
-                for introducer in subscription_uris:
+                for introducer in self.subscription_uris:
                     f.write(introducer + '\n')
         except IOError as exc:
             print('ERROR: Could not write to introducer file: %s' %
@@ -154,10 +160,10 @@ class List:
             exit(1)
         else:
             if self.verbosity > 0:
-                for introducer in new_intros:
+                for introducer in self.new_intros:
                     print('Added introducer: %s' %
                             self.intro_dict[introducer][0])
-                for introducer in expired_intros:
+                for introducer in self.expired_intros:
                     if introducer in self.intro_dict:
                         print('Removed introducer: %s' %
                                 self.intro_dict[introducer][0])
