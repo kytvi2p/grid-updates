@@ -106,6 +106,10 @@ class List:
         """Add newly discovered introducers to the local introducers file."""
         subscription_uris = self.intro_dict.keys()
         new_intros = list(set(subscription_uris) - set(self.old_list))
+        if self.verbosity > 1:
+            expired_intros = list(set(self.old_list) - set(subscription_uris))
+            for intro in expired_intros:
+                print("INFO: Introducer not in subcription list: %s" % intro)
         try:
             with open(self.introducers, 'a') as f:
                 for new_intro in new_intros:
