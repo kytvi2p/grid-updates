@@ -58,7 +58,6 @@ class List:
             intro_dict[introducer['uri']] = (introducer['name'], introducer['active'])
         return intro_dict
 
-
     def read_existing_list(self):
         """Read the local introducers file as a single string (to be written
         again) and as individual lines. """
@@ -119,17 +118,47 @@ class List:
             print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
             exit(1)
 
-    def replace_introducers(self):
-        """Write the downloaded list of introducers to the local file
-        (overwriting the existing file)."""
+    def sync_introducers(self):
+        """Add and remove introducers in the local list to make it identical to
+        the subscription's."""
+        # Compile list of introducers in the subscription file
+        subscription_uris = []
+        for introducer in self.intro_dict.keys():
+            # only include active introducers
+            if self.intro_dict[introducer][1]:
+                subscription_uris.append(introducer)
+            else:
+                if self.verbosity > 1:
+                    print('INFO: Skipping inactive introducer: %s' %
+                            self.intro_dict[introducer][0])
+        if sorted(subscription_uris) == sorted(self.old_list):
+            if self.verbosity > 0:
+                print('INFO: Introducer list already up-to-date.')
+            return
+        # Compile lists of new (to be added and outdated (to be removed) #
+        # introducers
+        new_intros = list(set(subscription_uris) - set(self.old_list))
+        expired_intros = list(set(self.old_list) - set(subscription_uris))
+        # Open local file and append new introdcers
         try:
             with open(self.introducers, 'w') as f:
-                for new_introducer in self.new_list['introducers']:
-                    if new_introducer['active']:
-                        f.write(new_introducer['uri'] + '\n')
+                for introducer in subscription_uris:
+                    f.write(introducer + '\n')
         except IOError as exc:
-            print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
+            print('ERROR: Could not write to introducer file: %s' %
+                    exc, file=sys.stderr)
             exit(1)
+        else:
+            if self.verbosity > 0:
+                for introducer in new_intros:
+                    print('Added introducer: %s' %
+                            self.intro_dict[introducer][0])
+                for introducer in expired_intros:
+                    if introducer in self.intro_dict:
+                        print('Removed introducer: %s' %
+                                self.intro_dict[introducer][0])
+                    else:
+                        print('Removed unknown introducer: %s' % introducer)
 
 class News:
     def __init__(self, verbosity, nodedir, web_static_dir, url):
@@ -486,17 +515,18 @@ def main():
     action_opts = optparse.OptionGroup(
         parser, 'Actions',
         'These arguments control which actions will be executed.')
+    action_opts.add_option('-s', '--sync-introducers',
+            action = 'store_true',
+            dest = "sync",
+            default = False,
+            help = "Synchronize the local list of introducers with the " \
+                    "subscription's.")
     action_opts.add_option('-m', '--merge-introducers',
             action = 'store_true',
             dest = "merge",
             default = False,
             help = 'Downloads and merges list of introducers into your '\
                     'local list.')
-    action_opts.add_option('-r', '--replace-introducers',
-            action = 'store_true',
-            dest = "replace",
-            default = False,
-            help = 'Downloads and installs list of introducers.')
     action_opts.add_option('-n', '--download-news',
             action = 'store_true',
             dest = "news",
@@ -642,7 +672,7 @@ def main():
     # Check for at least 1 mandatory option
     if not opts.version \
     and not opts.merge \
-    and not opts.replace \
+    and not opts.sync \
     and not opts.news \
     and not opts.repair \
     and not opts.check_version \
@@ -656,8 +686,8 @@ def main():
         exit(0)
 
     # conflicting options
-    if opts.merge and opts.replace:
-        print('ERROR: --merge-introducers & --replace-introducers are' \
+    if opts.merge and opts.sync:
+        print('ERROR: --merge-introducers & --sync-introducers are' \
             ' mutually exclusive actions.', file=sys.stderr)
         exit(1)
 
@@ -697,19 +727,19 @@ def main():
                 print("Deep-check of '%s' share completed: %d %s unhealthy." \
                                                 % (sharename, unhealthy, sub))
 
-    if opts.merge or opts.replace:
+    if opts.merge or opts.sync:
         # Debug info
         if opts.merge and opts.verbosity > 2:
             print('DEBUG: Selected action: --merge-introducers')
-        if opts.replace and opts.verbosity > 2:
-            print('DEBUG: Selected action: --replace-introducers')
+        if opts.sync and opts.verbosity > 2:
+            print('DEBUG: Selected action: --sync-introducers')
         try:
             intlist = List(opts.verbosity, tahoe_node_dir, uri_dict['list'][1])
             intlist.backup_original()
             if opts.merge:
                 intlist.merge_introducers()
-            elif opts.replace:
-                intlist.replace_introducers()
+            elif opts.sync:
+                intlist.sync_introducers()
         except:
             if opts.verbosity > 1:
                 print("DEBUG: Couldn't finish introducer list operation." \
