@@ -127,8 +127,6 @@ class List:
     def merge_introducers(self):
         """Add newly discovered introducers to the local introducers file;
         remove nothing."""
-        if not self.lists_differ():
-            return
         if self.verbosity > 1:
             expired_intros = list(set(self.old_list) - set(self.subscription_uris))
             for intro in expired_intros:
@@ -148,8 +146,6 @@ class List:
     def sync_introducers(self):
         """Add and remove introducers in the local list to make it identical to
         the subscription's."""
-        if not self.lists_differ():
-            return
         try:
             with open(self.introducers, 'w') as f:
                 for introducer in self.subscription_uris:
@@ -746,10 +742,11 @@ def main():
         try:
             intlist = List(opts.verbosity, tahoe_node_dir, uri_dict['list'][1])
             intlist.backup_original()
-            if opts.merge:
-                intlist.merge_introducers()
-            elif opts.sync:
-                intlist.sync_introducers()
+            if intlist.lists_differ():
+                if opts.merge:
+                    intlist.merge_introducers()
+                elif opts.sync:
+                    intlist.sync_introducers()
         except:
             if opts.verbosity > 1:
                 print("DEBUG: Couldn't finish introducer list operation." \
