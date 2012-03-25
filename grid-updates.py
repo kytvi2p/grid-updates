@@ -43,13 +43,21 @@ class List:
         self.introducers = os.path.join(self.nodedir, 'introducers')
         self.introducers_bak = self.introducers + '.bak'
         (self.old_introducers, self.old_list) = self.read_existing_list()
-        response = self.download_new_list()
+        json_response = self.download_new_list()
+        self.intro_dict = self.create_intro_dict(json_response)
+
+    def create_intro_dict(self, json_response):
         try:
-            self.new_list = json.loads(response.read().decode('utf8'))
+            new_list = json.loads(json_response.read().decode('utf8'))
         except:
             # TODO specific exception
             print("ERROR: Couldn't parse new JSON introducer list.",
                                                         file=sys.stderr)
+        intro_dict = {}
+        for introducer in new_list['introducers']:
+            intro_dict[introducer['uri']] = (introducer['name'], introducer['active'])
+        return intro_dict
+
 
     def read_existing_list(self):
         """Read the local introducers file as a single string (to be written
@@ -97,13 +105,16 @@ class List:
 
     def merge_introducers(self):
         """Add newly discovered introducers to the local introducers file."""
+        subscription_uris = self.intro_dict.keys()
+        new_intros = list(set(subscription_uris) - set(self.old_list))
         try:
             with open(self.introducers, 'a') as f:
-                for new_introducer in self.new_list['introducers']:
-                    if new_introducer['uri'] not in self.old_list and new_introducer['active']:
+                for new_intro in new_intros:
+                    if self.intro_dict[new_intro][1]:
                         if self.verbosity > 0:
-                            print("New introducer added: %s" % new_introducer['name'])
-                        f.write(new_introducer['uri'] + '\n')
+                            print('New introducer: %s.' %
+                                    self.intro_dict[new_intro][0])
+                        f.write(new_intro + '\n')
         except IOError as exc:
             print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
             exit(1)
