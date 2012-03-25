@@ -1,6 +1,5 @@
 * pid/lock file? (at least the shell version prevented multiple instances)
 * don't require multiple keyboard interrupts (need better exceptions?)
-* --merge: INFO output about which introducers aren't in the subscription anymore
 * root
 	- might be required for patching
 	- skip tahoe node checks in this case
@@ -18,3 +17,4 @@
 * --make-news
 	- requires pandoc; shell script good enough?
 * set() for local lists in case of manually added dupicates
+* always make sure there is at least a NEWS.html stub in web.static
