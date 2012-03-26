@@ -31,6 +31,18 @@ __maintainer__ = ['darrob', 'KillYourTV']
 __email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"
 
+def tahoe_dl_file(verbosity, url):
+    """Download a file from the Tahoe grid; returns the raw response."""
+    if verbosity > 1: print("INFO: Downloading", url)
+    try:
+        response = urlopen(url)
+    except HTTPError as exc:
+        print('ERROR: Could not download the file:', exc, file=sys.stderr)
+        exit(1)
+    else:
+        return response
+
+
 class List:
     def __init__(self, verbosity, nodedir, url):
         self.verbosity = verbosity
@@ -91,6 +103,7 @@ class List:
             if self.verbosity > 2:
                 print('DEBUG: Created backup of local introducers.')
 
+    # TODO turn into function
     def download_new_list(self):
         """Download an introducers list from the Tahoe grid; return a JSON
         object."""
@@ -372,6 +385,7 @@ class Repair:
     def __init__(self, verbosity):
         self.verbosity = verbosity
         if self.verbosity > 0:
+            # TODO rephrase
             print("-- Repairing the grid-updates Tahoe shares. --")
 
     def repair_share(self, sharename, repair_uri, mode='deep-check'):
@@ -386,7 +400,9 @@ class Repair:
         elif mode == 'check':
             params = urlencode({'t': 'check',
                                 'repair': 'true',
-                                'add-lease': 'true'}).encode('utf8')
+                                'add-lease': 'true',
+                                'output': 'json'}
+                                ).encode('utf8')
 
         else:
             print("ERROR: 'mode' must either be 'check' or 'deep-check'.",
@@ -397,6 +413,7 @@ class Repair:
         try:
             f = urlopen(repair_uri, params)
         except HTTPError as exc:
+            # TODO Doesn't catch all errors
             print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
                                                          file=sys.stderr)
             exit(1)
@@ -404,12 +421,15 @@ class Repair:
             results = f.readlines()
             return results
         finally:
+            # TODO This can cause: UnboundLocalError: local variable 'f'
+            # referenced before assignment
             f.close()
 
     def parse_result(self, result, unhealthy):
         """Parse JSON response from Tahoe deep-check operation.
         Optionally prints status output; returns number of unhealthy shares.
         """
+        # TODO adapt for check (non-deep-check) operations
         #   [u'check-and-repair-results', u'cap', u'repaircap',
         #   u'verifycap', u'path', u'type', u'storage-index']
         if not 'check-and-repair-results' in \
@@ -498,6 +518,8 @@ def parse_opts(argv):
             'hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q'
     default_script_uri = 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'\
             'eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
+    default_comrepair_uri = 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:'\
+            'nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a'
     default_output_dir = os.path.abspath(os.getcwd())
 
     # 2. Configparser
@@ -508,6 +530,7 @@ def parse_opts(argv):
         'list_uri': default_list_uri,
         'news_uri': default_news_uri,
         'script_uri': default_script_uri,
+        'comrepair_uri': default_comrepair_uri,
         'output_dir': default_output_dir,
         })
 
@@ -532,6 +555,7 @@ def parse_opts(argv):
         list_uri       = config.get('OPTIONS', 'list_uri')
         news_uri       = config.get('OPTIONS', 'news_uri')
         script_uri     = config.get('OPTIONS', 'script_uri')
+        comrepair_uri  = config.get('OPTIONS', 'comrepair_uri')
         output_dir     = config.get('OPTIONS', 'output_dir')
     else:
         # Set standard fallback values if no config files found
@@ -541,6 +565,7 @@ def parse_opts(argv):
         list_uri       = default_list_uri
         news_uri       = default_news_uri
         script_uri     = default_script_uri
+        comrepair_uri  = default_comrepair_uri
         output_dir     = default_output_dir
 
     # 3. Optparse
@@ -582,6 +607,11 @@ def parse_opts(argv):
             dest = "download_update",
             default = False,
             help = 'Download a new version of grid-updates.')
+    action_opts.add_option('--community-repair',
+            action = 'store_true',
+            dest = "comrepair",
+            default = False,
+            help = 'TODO')
     parser.add_option_group(action_opts)
     # options
     other_opts = optparse.OptionGroup(
@@ -612,6 +642,12 @@ def parse_opts(argv):
             dest = 'script_uri',
             default = script_uri,
             help = 'Override default location of script releases.')
+    # TODO rename
+    other_opts.add_option('--comrepair-uri',
+            action = 'store',
+            dest = 'comrepair_uri',
+            default = comrepair_uri,
+            help = 'Override default location of additional repair subscription.')
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
             dest = 'output_dir',
@@ -654,6 +690,7 @@ def parse_opts(argv):
                 opts.list_uri,
                 opts.news_uri,
                 opts.script_uri,
+                opts.comrepair_uri,
                 opts.output_dir]:
             print('  %s' % opt)
 
@@ -705,7 +742,8 @@ def main(opts, args):
     and not opts.news \
     and not opts.repair \
     and not opts.check_version \
-    and not opts.download_update:
+    and not opts.download_update \
+    and not opts.comrepair:
         print('ERROR: You need to specify an action. Please see %s --help.' % \
                 sys.argv[0], file=sys.stderr)
         exit(1)
@@ -725,7 +763,10 @@ def main(opts, args):
         return opts.tahoe_node_url + '/uri/' + uri
     uri_dict = {'list': (opts.list_uri, gen_full_tahoe_uri(opts.list_uri)),
                 'news': (opts.news_uri, gen_full_tahoe_uri(opts.news_uri)),
-                'script': (opts.script_uri, gen_full_tahoe_uri(opts.script_uri))
+                'script': (opts.script_uri,
+                            gen_full_tahoe_uri(opts.script_uri)),
+                'comrepair': (opts.comrepair_uri,
+                            gen_full_tahoe_uri(opts.comrepair_uri))
                 }
 
     # Check URI validity
@@ -760,6 +801,40 @@ def main(opts, args):
                     sub = 'objects'
                 print("Deep-check of '%s' share completed: %d %s unhealthy." \
                                                 % (sharename, unhealthy, sub))
+
+    if opts.comrepair:
+        # --community-repair
+        # TODO This action should probably be renamed to something less
+        # specific, because there is a variety of use cases for it that don't
+        # have to be community oriented.
+        comrepair = Repair(opts.verbosity)
+        unhealthy = 0
+        url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
+        subscriptionfile = tahoe_dl_file(opts.verbosity, url).read()
+        for share in json.loads(subscriptionfile)['community-shares']:
+            sharename  = share['name']
+            repair_uri = gen_full_tahoe_uri(share['uri'])
+            mode       = share['mode']
+            # TODO: turn repair_share method a function?
+            if mode == 'deep-check':
+                results = comrepair.repair_share(sharename, repair_uri, mode)
+                print('INFO: Post-repair results for: %s' % sharename)
+                for result in results:
+                    if sys.version_info[0] == 3:
+                        result = str(result, encoding='ascii')
+                    unhealthy = comrepair.parse_result(result, unhealthy)
+                if opts.verbosity > 0:
+                    if unhealthy == 1:
+                        sub = 'object'
+                    else:
+                        sub = 'objects'
+                    print("Deep-check of '%s' share completed: %d %s unhealthy." \
+                                                    % (sharename, unhealthy, sub))
+            if mode == 'check':
+                # TODO
+                results = comrepair.repair_share(sharename, repair_uri, mode)
+
+
     if opts.merge or opts.sync:
         # Debug info
         if opts.merge and opts.verbosity > 2:
