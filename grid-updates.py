@@ -32,7 +32,6 @@ __email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"
 
 class List:
-    # TODO compare lists first? don't backup identical lists?
     def __init__(self, verbosity, nodedir, url):
         self.verbosity = verbosity
         self.nodedir = nodedir
@@ -744,8 +743,8 @@ def main(opts, args):
             print('DEBUG: Selected action: --sync-introducers')
         try:
             intlist = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
-            intlist.backup_original()
             if intlist.lists_differ():
+                intlist.backup_original()
                 if opts.merge:
                     intlist.merge_introducers()
                 elif opts.sync:
