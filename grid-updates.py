@@ -411,33 +411,39 @@ class Repair:
             # referenced before assignment
             f.close()
 
-    def parse_result(self, result, unhealthy):
+    def parse_result(self, result, mode, unhealthy):
         """Parse JSON response from Tahoe deep-check operation.
         Optionally prints status output; returns number of unhealthy shares.
         """
-        # TODO adapt for check (non-deep-check) operations
         #   [u'check-and-repair-results', u'cap', u'repaircap',
         #   u'verifycap', u'path', u'type', u'storage-index']
-        if not 'check-and-repair-results' in \
-                json.loads(result).keys():
-            # This would be the final 'stats' line.
-            return unhealthy
-        uritype   = json.loads(result)['type']
-        path   = json.loads(result)['path']
-        status = json.loads(result) \
-                    ['check-and-repair-results'] \
-                    ['post-repair-results'] \
-                    ['summary']
-        # Print
-        if self.verbosity > 1:
-            if uritype == 'directory' and not path:
-                print('  <root>: %s' % status)
-            else:
-                print('  %s: %s' % (path[0], status))
-        # Count unhealthy
-        if status.startswith('Unhealthy'):
-            unhealthy += 1
-        return unhealthy
+        if mode == 'deep-check':
+            if not 'check-and-repair-results' in \
+                    json.loads(result).keys():
+                # This would be the final 'stats' line.
+                return 'unchecked', unhealthy
+            uritype   = json.loads(result)['type']
+            path   = json.loads(result)['path']
+            status = json.loads(result) \
+                        ['check-and-repair-results'] \
+                        ['post-repair-results'] \
+                        ['summary']
+            # Print
+            if self.verbosity > 1:
+                if uritype == 'directory' and not path:
+                    print('  <root>: %s' % status)
+                else:
+                    print('  %s: %s' % (path[0], status))
+            # Count unhealthy
+            if status.startswith('Unhealthy'):
+                unhealthy += 1
+            return status, unhealthy
+        elif mode == 'check':
+            status = json.loads(result)['post-repair-results']['summary']
+            # Count unhealthy
+            if status.startswith('Unhealthy'):
+                unhealthy += 1
+            return status, unhealthy
 
 
 def parse_opts(argv):
@@ -814,7 +820,7 @@ def main(opts, args):
                 for result in results:
                     if sys.version_info[0] == 3:
                         result = str(result, encoding='ascii')
-                    unhealthy = comrepair.parse_result(result, unhealthy)
+                    status, unhealthy = comrepair.parse_result(result, mode, unhealthy)
                 if opts.verbosity > 0:
                     if unhealthy == 1:
                         sub = 'object'
@@ -823,8 +829,14 @@ def main(opts, args):
                     print("Deep-check of '%s' share completed: %d %s unhealthy." \
                                                     % (sharename, unhealthy, sub))
             if mode == 'check':
-                # TODO
-                results = comrepair.repair_share(sharename, repair_uri, mode)
+                result = comrepair.repair_share(sharename, repair_uri, mode)
+                # FIXME Prepare results to be parsed as a JSON object (until I
+                # fix the parsing code
+                json_result = "".join(eval(str(result)))
+                status, unhealthy = comrepair.parse_result(json_result, mode, unhealthy)
+                if opts.verbosity > 1:
+                    print("Health status of '%s': %s" % (sharename, status))
+        print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
 
     if opts.merge or opts.sync:
