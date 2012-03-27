@@ -23,6 +23,7 @@ else:
     from urllib.request import urlopen
     from urllib.parse import urlencode
     from urllib.error import HTTPError
+import random
 
 __author__ = ['darrob', 'KillYourTV']
 __license__ = "Public Domain"
@@ -770,8 +771,11 @@ def main(opts, args):
         repair = Repair(opts.verbosity)
         mode = 'deep-check'
         unhealthy = 0
-        # sorted() to make 'list' be checked first.
-        for sharename in sorted(uri_dict.keys()):
+        # shuffle() to even out chances of all shares to get repaired
+        # (Is this useful?)
+        sharelist = uri_dict.keys()
+        random.shuffle(sharelist)
+        for sharename in sharelist:
             repair_uri = uri_dict[sharename][1]
             results = repair.repair_share(sharename, repair_uri, mode)
             print('INFO: Post-repair results for: %s' % sharename)
@@ -796,7 +800,10 @@ def main(opts, args):
         unhealthy = 0
         url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
         subscriptionfile = tahoe_dl_file(opts.verbosity, url).read()
-        for share in json.loads(subscriptionfile)['community-shares']:
+        # shuffle() to even out chances of all shares to get repaired
+        sharelist = json.loads(subscriptionfile)['community-shares']
+        random.shuffle(sharelist)
+        for share in sharelist:
             sharename  = share['name']
             repair_uri = gen_full_tahoe_uri(share['uri'])
             mode       = share['mode']
