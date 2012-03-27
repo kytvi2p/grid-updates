@@ -370,85 +370,81 @@ class Updates:
                 print('No update available.')
 
 
-class Repair:
-    def __init__(self, verbosity):
-        self.verbosity = verbosity
-
-    def repair_share(self, sharename, repair_uri, mode):
-        """Run (deep-)checks including repair and add-lease on a Tahoe share;
-        returns response in JSON format."""
-        if self.verbosity > 0:
-            print("Repairing '%s' share (%s)." % (sharename, mode))
+def repair_share(verbosity, sharename, repair_uri, mode):
+    """Run (deep-)checks including repair and add-lease on a Tahoe share;
+    returns response in JSON format."""
+    if verbosity > 0:
+        print("Repairing '%s' share (%s)." % (sharename, mode))
+    if mode == 'deep-check':
+        params = urlencode({'t': 'stream-deep-check',
+                            'repair': 'true',
+                            'add-lease': 'true'}
+                            ).encode('utf8')
+    elif mode == 'check':
+        params = urlencode({'t': 'check',
+                            'repair': 'true',
+                            'add-lease': 'true',
+                            'output': 'json'}
+                            ).encode('utf8')
+    else:
+        print("ERROR: 'mode' must either be 'check' or 'deep-check'.",
+                                                        file=sys.stderr)
+        exit(1)
+    if verbosity > 3:
+        print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
+    try:
+        f = urlopen(repair_uri, params)
+    except HTTPError as exc:
+        # TODO Doesn't catch all errors
+        print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
+                                                        file=sys.stderr)
+        exit(1)
+    else:
         if mode == 'deep-check':
-            params = urlencode({'t': 'stream-deep-check',
-                                'repair': 'true',
-                                'add-lease': 'true'}
-                                ).encode('utf8')
+            # deep-check returns multiple JSON objects, 1 per line
+            result = f.readlines()
         elif mode == 'check':
-            params = urlencode({'t': 'check',
-                                'repair': 'true',
-                                'add-lease': 'true',
-                                'output': 'json'}
-                                ).encode('utf8')
-        else:
-            print("ERROR: 'mode' must either be 'check' or 'deep-check'.",
-                                                            file=sys.stderr)
-            exit(1)
-        if self.verbosity > 3:
-            print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
-        try:
-            f = urlopen(repair_uri, params)
-        except HTTPError as exc:
-            # TODO Doesn't catch all errors
-            print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
-                                                         file=sys.stderr)
-            exit(1)
-        else:
-            if mode == 'deep-check':
-                # deep-check returns multiple JSON objects, 1 per line
-                result = f.readlines()
-            elif mode == 'check':
-                # one-check returns a single JSON object
-                result = f.read()
-            return result
-        finally:
-            # TODO This can cause: UnboundLocalError: local variable 'f'
-            # referenced before assignment
-            f.close()
+            # one-check returns a single JSON object
+            result = f.read()
+        return result
+    finally:
+        # TODO This can cause: UnboundLocalError: local variable 'f'
+        # referenced before assignment
+        f.close()
 
-    def parse_result(self, result, mode, unhealthy):
-        """Parse JSON response from Tahoe deep-check operation.
-        Optionally prints status output; returns number of unhealthy shares.
-        """
-        #   [u'check-and-repair-results', u'cap', u'repaircap',
-        #   u'verifycap', u'path', u'type', u'storage-index']
-        if mode == 'deep-check':
-            if not 'check-and-repair-results' in \
-                    json.loads(result).keys():
-                # This would be the final 'stats' line.
-                return 'unchecked', unhealthy
-            uritype   = json.loads(result)['type']
-            path   = json.loads(result)['path']
-            status = json.loads(result) \
-                        ['check-and-repair-results'] \
-                        ['post-repair-results'] \
-                        ['summary']
-            # Print
-            if self.verbosity > 1:
-                if uritype == 'directory' and not path:
-                    print('  <root>: %s' % status)
-                else:
-                    print('  %s: %s' % (path[0], status))
-            # Count unhealthy
-            if status.startswith('Unhealthy'):
-                unhealthy += 1
-            return status, unhealthy
-        elif mode == 'check':
-            status = json.loads(result)['post-repair-results']['summary']
-            # Count unhealthy
-            if status.startswith('Unhealthy'):
-                unhealthy += 1
-            return status, unhealthy
+def parse_result(verbosity, result, mode, unhealthy):
+    """Parse JSON response from Tahoe deep-check operation.
+    Optionally prints status output; returns number of unhealthy shares.
+    """
+    #   [u'check-and-repair-results', u'cap', u'repaircap',
+    #   u'verifycap', u'path', u'type', u'storage-index']
+    if mode == 'deep-check':
+        if not 'check-and-repair-results' in \
+                json.loads(result).keys():
+            # This would be the final 'stats' line.
+            return 'unchecked', unhealthy
+        uritype   = json.loads(result)['type']
+        path   = json.loads(result)['path']
+        status = json.loads(result) \
+                    ['check-and-repair-results'] \
+                    ['post-repair-results'] \
+                    ['summary']
+        # Print
+        if verbosity > 1:
+            if uritype == 'directory' and not path:
+                print('  <root>: %s' % status)
+            else:
+                print('  %s: %s' % (path[0], status))
+        # Count unhealthy
+        if status.startswith('Unhealthy'):
+            unhealthy += 1
+        return status, unhealthy
+    elif mode == 'check':
+        status = json.loads(result)['post-repair-results']['summary']
+        # Count unhealthy
+        if status.startswith('Unhealthy'):
+            unhealthy += 1
+        return status, unhealthy
 
 
 def parse_opts(argv):
@@ -781,7 +777,6 @@ def main(opts, args):
         # Iterate over known tahoe directories and all files within.
         if opts.verbosity > 0:
             print("-- Repairing the grid-updates Tahoe shares. --")
-        repair = Repair(opts.verbosity)
         mode = 'deep-check'
         unhealthy = 0
         # shuffle() to even out chances of all shares to get repaired
@@ -790,13 +785,13 @@ def main(opts, args):
         random.shuffle(sharelist)
         for sharename in sharelist:
             repair_uri = uri_dict[sharename][1]
-            results = repair.repair_share(sharename, repair_uri, mode)
+            results = repair_share(opts.verbosity, sharename, repair_uri, mode)
             if opts.verbosity >1:
                 print('INFO: Post-repair results for: %s' % sharename)
             for result in results:
                 if sys.version_info[0] == 3:
                     result = str(result, encoding='ascii')
-                status, unhealthy = repair.parse_result(result, mode, unhealthy)
+                status, unhealthy = parse_result(opts.verbosity, result, mode, unhealthy)
             if opts.verbosity > 0:
                 if unhealthy == 1:
                     sub = 'object'
@@ -812,7 +807,6 @@ def main(opts, args):
         # TODO This action should probably be renamed to something less
         # specific, because there is a variety of use cases for it that don't
         # have to be community oriented.
-        comrepair = Repair(opts.verbosity)
         unhealthy = 0
         url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
         subscriptionfile = tahoe_dl_file(opts.verbosity, url).read()
@@ -825,13 +819,13 @@ def main(opts, args):
             mode       = share['mode']
             # TODO: turn repair_share method a function?
             if mode == 'deep-check':
-                results = comrepair.repair_share(sharename, repair_uri, mode)
+                results = repair_share(opts.verbosity, sharename, repair_uri,
+                                                                        mode)
                 for result in results:
                     if sys.version_info[0] == 3:
                         result = str(result, encoding='ascii')
-                    status, unhealthy = comrepair.parse_result(result,
-                                                                mode,
-                                                                unhealthy)
+                    status, unhealthy = parse_result(opts.verbosity, result,
+                                                            mode, unhealthy)
                 if opts.verbosity > 1:
                     if unhealthy == 1:
                         sub = 'object'
@@ -840,8 +834,9 @@ def main(opts, args):
                     print("  Deep-check completed: %d %s unhealthy." \
                                                     % (unhealthy, sub))
             if mode == 'check':
-                result = comrepair.repair_share(sharename, repair_uri, mode)
-                status, unhealthy = comrepair.parse_result(result, mode, unhealthy)
+                result = repair_share(opts.verbosity, sharename, repair_uri,
+                                                                        mode)
+                status, unhealthy = parse_result(result, mode, unhealthy)
                 if opts.verbosity > 1:
                     print("  Status: %s" % status)
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
