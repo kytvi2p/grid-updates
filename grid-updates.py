@@ -47,14 +47,14 @@ class List:
     def __init__(self, verbosity, nodedir, url):
         self.verbosity = verbosity
         self.nodedir = nodedir
-        self.url = url
+        self.url = url + '/introducers.json.txt'
         if self.verbosity > 0:
             print("-- Updating introducers --")
         self.old_list = []
         self.introducers = os.path.join(self.nodedir, 'introducers')
         self.introducers_bak = self.introducers + '.bak'
         (self.old_introducers, self.old_list) = self.read_existing_list()
-        json_response = self.download_new_list()
+        json_response = tahoe_dl_file(verbosity, self.url)
         self.intro_dict = self.create_intro_dict(json_response)
 
     def create_intro_dict(self, json_response):
@@ -102,21 +102,6 @@ class List:
         else:
             if self.verbosity > 2:
                 print('DEBUG: Created backup of local introducers.')
-
-    # TODO turn into function
-    def download_new_list(self):
-        """Download an introducers list from the Tahoe grid; return a JSON
-        object."""
-        url = self.url + '/introducers.json.txt'
-        if self.verbosity > 1: print("INFO: Downloading", url)
-        try:
-            response = urlopen(url)
-        except HTTPError as exc:
-            print('ERROR: Could not download the introducers list:', exc,
-                    file=sys.stderr)
-            exit(1)
-        else:
-            return response
 
     def lists_differ(self):
         """Compile lists of introducers: all active, locally missing and
