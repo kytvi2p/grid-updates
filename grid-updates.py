@@ -34,7 +34,10 @@ __status__ = "Development"
 
 def tahoe_dl_file(verbosity, url):
     """Download a file from the Tahoe grid; returns the raw response."""
-    if verbosity > 1: print("INFO: Downloading", url)
+    if verbosity > 1:
+        print('INFO: Downloading subscription from the Tahoe grid.')
+    if verbosity > 2:
+        print("DEBUG: Downloading from: %s" % url)
     try:
         response = urlopen(url)
     except HTTPError as exc:
@@ -370,26 +373,23 @@ class Updates:
 class Repair:
     def __init__(self, verbosity):
         self.verbosity = verbosity
-        if self.verbosity > 0:
-            # TODO rephrase
-            print("-- Repairing the grid-updates Tahoe shares. --")
 
-    def repair_share(self, sharename, repair_uri, mode='deep-check'):
-        """Run a deep-check including repair and add-lease on a Tahoe share;
+    def repair_share(self, sharename, repair_uri, mode):
+        """Run (deep-)checks including repair and add-lease on a Tahoe share;
         returns response in JSON format."""
         if self.verbosity > 0:
             print("Repairing '%s' share (%s)." % (sharename, mode))
         if mode == 'deep-check':
             params = urlencode({'t': 'stream-deep-check',
                                 'repair': 'true',
-                            'add-lease': 'true'}).encode('utf8')
+                                'add-lease': 'true'}
+                                ).encode('utf8')
         elif mode == 'check':
             params = urlencode({'t': 'check',
                                 'repair': 'true',
                                 'add-lease': 'true',
                                 'output': 'json'}
                                 ).encode('utf8')
-
         else:
             print("ERROR: 'mode' must either be 'check' or 'deep-check'.",
                                                             file=sys.stderr)
@@ -779,6 +779,8 @@ def main(opts, args):
     # -----------
     if opts.repair:
         # Iterate over known tahoe directories and all files within.
+        if opts.verbosity > 0:
+            print("-- Repairing the grid-updates Tahoe shares. --")
         repair = Repair(opts.verbosity)
         mode = 'deep-check'
         unhealthy = 0
@@ -789,11 +791,12 @@ def main(opts, args):
         for sharename in sharelist:
             repair_uri = uri_dict[sharename][1]
             results = repair.repair_share(sharename, repair_uri, mode)
-            print('INFO: Post-repair results for: %s' % sharename)
+            if opts.verbosity >1:
+                print('INFO: Post-repair results for: %s' % sharename)
             for result in results:
                 if sys.version_info[0] == 3:
                     result = str(result, encoding='ascii')
-                unhealthy = repair.parse_result(result, unhealthy)
+                status, unhealthy = repair.parse_result(result, mode, unhealthy)
             if opts.verbosity > 0:
                 if unhealthy == 1:
                     sub = 'object'
@@ -804,6 +807,8 @@ def main(opts, args):
 
     if opts.comrepair:
         # --community-repair
+        if opts.verbosity > 0:
+            print("-- Repairing community Tahoe shares. --")
         # TODO This action should probably be renamed to something less
         # specific, because there is a variety of use cases for it that don't
         # have to be community oriented.
@@ -821,26 +826,24 @@ def main(opts, args):
             # TODO: turn repair_share method a function?
             if mode == 'deep-check':
                 results = comrepair.repair_share(sharename, repair_uri, mode)
-                print('INFO: Post-repair results for: %s' % sharename)
                 for result in results:
                     if sys.version_info[0] == 3:
                         result = str(result, encoding='ascii')
-                    status, unhealthy = comrepair.parse_result(result, mode, unhealthy)
-                if opts.verbosity > 0:
+                    status, unhealthy = comrepair.parse_result(result,
+                                                                mode,
+                                                                unhealthy)
+                if opts.verbosity > 1:
                     if unhealthy == 1:
                         sub = 'object'
                     else:
                         sub = 'objects'
-                    print("Deep-check of '%s' share completed: %d %s unhealthy." \
-                                                    % (sharename, unhealthy, sub))
+                    print("  Deep-check completed: %d %s unhealthy." \
+                                                    % (unhealthy, sub))
             if mode == 'check':
                 result = comrepair.repair_share(sharename, repair_uri, mode)
-                # FIXME Prepare results to be parsed as a JSON object (until I
-                # fix the parsing code
-                json_result = "".join(eval(str(result)))
-                status, unhealthy = comrepair.parse_result(json_result, mode, unhealthy)
+                status, unhealthy = comrepair.parse_result(result, mode, unhealthy)
                 if opts.verbosity > 1:
-                    print("Health status of '%s': %s" % (sharename, status))
+                    print("  Status: %s" % status)
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
 
