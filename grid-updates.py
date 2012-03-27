@@ -54,7 +54,8 @@ class List:
                                                         file=sys.stderr)
         intro_dict = {}
         for introducer in new_list['introducers']:
-            intro_dict[introducer['uri']] = (introducer['name'], introducer['active'])
+            intro_dict[introducer['uri']] = (introducer['name'],
+                    introducer['active'])
         return intro_dict
 
     def read_existing_list(self):
@@ -67,7 +68,8 @@ class List:
                 old_introducers = f.read()
                 old_list = old_introducers.splitlines()
         except IOError as exc:
-            print('WARN: Cannot read local introducers files:', exc, file=sys.stderr)
+            print('WARN: Cannot read local introducers files:', exc,
+                    file=sys.stderr)
             print('WARN: Are you sure you have a compatible version of Tahoe-LAFS?',
                     file=sys.stderr)
             print('WARN: Pretending to have read an empty introducers list.',
@@ -82,7 +84,8 @@ class List:
             with open(self.introducers_bak, 'w') as f:
                 f.write(self.old_introducers)
         except IOError:
-            print('ERROR: Cannot create backup file introducers.bak', file=sys.stderr)
+            print('ERROR: Cannot create backup file introducers.bak',
+                    file=sys.stderr)
             exit(1)
         else:
             if self.verbosity > 2:
@@ -96,7 +99,8 @@ class List:
         try:
             response = urlopen(url)
         except HTTPError as exc:
-            print('ERROR: Could not download the introducers list:', exc, file=sys.stderr)
+            print('ERROR: Could not download the introducers list:', exc,
+                    file=sys.stderr)
             exit(1)
         else:
             return response
@@ -120,7 +124,8 @@ class List:
         # Compile lists of new (to be added and outdated (to be removed) #
         # introducers
         self.new_intros = list(set(self.subscription_uris) - set(self.old_list))
-        self.expired_intros = list(set(self.old_list) - set(self.subscription_uris))
+        self.expired_intros = list(set(self.old_list) -
+                set(self.subscription_uris))
         return True
 
     def merge_introducers(self):
@@ -139,7 +144,8 @@ class List:
                                     self.intro_dict[new_intro][0])
                         f.write(new_intro + '\n')
         except IOError as exc:
-            print('ERROR: Could not write to introducer file: %s' % exc, file=sys.stderr)
+            print('ERROR: Could not write to introducer file: %s' % exc,
+                    file=sys.stderr)
             exit(1)
 
     def sync_introducers(self):
@@ -214,7 +220,8 @@ class News:
             try:
                 ln = open(self.local_news, 'r+')
             except IOError as exc:
-                print('ERROR: Cannot access NEWS file: %s' % exc, file=sys.stderr)
+                print('ERROR: Cannot access NEWS file: %s' % exc,
+                        file=sys.stderr)
                 exit(1)
             else:
                 with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
@@ -229,7 +236,8 @@ class News:
                         if self.verbosity > 1:
                             print('INFO: NEWS files seem to be identical.')
                 if self.verbosity > 2:
-                    print('DEBUG: Successfully extracted and compared NEWS files.')
+                    print('DEBUG: Successfully extracted and' \
+                            'compared NEWS files.')
             finally:
                 ln.close()
         else:
@@ -260,7 +268,8 @@ class News:
         try:
             rmtree(self.tempdir)
         except:
-            print("ERROR: Couldn't remove temporary dir: %s." % self.tempdir, file=sys.stderr)
+            print("ERROR: Couldn't remove temporary dir: %s." % self.tempdir,
+                    file=sys.stderr)
         else:
             if self.verbosity > 2:
                 print('DEBUG: Removed temporary dir: %s.' % self.tempdir)
@@ -290,7 +299,8 @@ class Updates:
         try:
             json_dir = urlopen(self.dir_url).read().decode('utf8')
         except HTTPError as exc:
-            print('ERROR: Could not access the Tahoe directory:', exc, file=sys.stderr)
+            print('ERROR: Could not access the Tahoe directory:', exc,
+                    file=sys.stderr)
             exit(1)
         else:
             # parse json index of dir
@@ -336,9 +346,9 @@ class Updates:
                 print("INFO: Downloading", download_url)
             try:
                 remote_file = urlopen(download_url)
-                # TODO validate_tahoe_response()
             except HTTPError as exc:
-                print('ERROR: Could not download the tarball:', exc, file=sys.stderr)
+                print('ERROR: Could not download the tarball:', exc,
+                        file=sys.stderr)
                 exit(1)
             local_file = os.path.join(self.output_dir, 'grid-updates-v' + \
                                         self.latest_version + '.tgz')
@@ -346,7 +356,8 @@ class Updates:
                 with open(local_file,'wb') as output:
                     output.write(remote_file.read())
             except IOError as exc:
-                print('ERROR: Could not write to local file:', exc, file=sys.stderr)
+                print('ERROR: Could not write to local file:', exc,
+                        file=sys.stderr)
                 exit(1)
             else:
                 if self.verbosity > 0:
@@ -596,7 +607,7 @@ def parse_opts(argv):
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
             dest = 'output_dir',
-            default = os.getcwd(),
+            default = output_dir,
             help = 'Override default output directory (%s) for script '\
                     'update downloads.' % os.getcwd())
     parser.add_option_group(other_opts)
@@ -666,12 +677,14 @@ def main(opts, args):
                         opts.tahoe_node_dir,
                         tahoe_config.get('node', 'web.static')))
     else:
-        print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.', file=sys.stderr)
+        print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
+                file=sys.stderr)
         exit(1)
 
     # Tahoe node dir validity check (in addition to the above tahoe.cfg check)
     if not os.access(opts.tahoe_node_dir, os.W_OK):
-        print("ERROR: Need write access to", opts.tahoe_node_dir, file=sys.stderr)
+        print("ERROR: Need write access to", opts.tahoe_node_dir,
+                file=sys.stderr)
         exit(1)
 
     # ACTION PARSING AND EXECUTION
@@ -704,7 +717,8 @@ def main(opts, args):
         return opts.tahoe_node_url + '/uri/' + uri
     uri_dict = {'list': (opts.list_uri, gen_full_tahoe_uri(opts.list_uri)),
                 'news': (opts.news_uri, gen_full_tahoe_uri(opts.news_uri)),
-                'script': (opts.script_uri, gen_full_tahoe_uri(opts.script_uri))}
+                'script': (opts.script_uri, gen_full_tahoe_uri(opts.script_uri))
+                }
 
     # Check URI validity
     for uri in uri_dict.values():
@@ -742,7 +756,8 @@ def main(opts, args):
         if opts.sync and opts.verbosity > 2:
             print('DEBUG: Selected action: --sync-introducers')
         try:
-            intlist = List(opts.verbosity, opts.tahoe_node_dir, uri_dict['list'][1])
+            intlist = List(opts.verbosity,
+                    opts.tahoe_node_dir, uri_dict['list'][1])
             if intlist.lists_differ():
                 intlist.backup_original()
                 if opts.merge:
@@ -760,7 +775,10 @@ def main(opts, args):
         try:
             if opts.verbosity > 2:
                 print('DEBUG: Selected action: --download-news')
-            news = News(opts.verbosity, opts.tahoe_node_dir, web_static_dir, uri_dict['news'][1])
+            news = News(opts.verbosity,
+                    opts.tahoe_node_dir,
+                    web_static_dir,
+                    uri_dict['news'][1])
             news.download_news()
             news.extract_tgz()
             news.news_differ()
@@ -778,7 +796,9 @@ def main(opts, args):
     if opts.check_version or opts.download_update:
         try:
             # __init__ checks for new version
-            update = Updates(opts.verbosity, opts.output_dir, uri_dict['script'][1])
+            update = Updates(opts.verbosity,
+                    opts.output_dir,
+                    uri_dict['script'][1])
             if opts.check_version:
                 update.print_versions()
             if opts.download_update:
