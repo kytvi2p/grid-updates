@@ -404,8 +404,13 @@ class Repair:
                                                          file=sys.stderr)
             exit(1)
         else:
-            results = f.readlines()
-            return results
+            if mode == 'deep-check':
+                # deep-check returns multiple JSON objects, 1 per line
+                result = f.readlines()
+            elif mode == 'check':
+                # one-check returns a single JSON object
+                result = f.read()
+            return result
         finally:
             # TODO This can cause: UnboundLocalError: local variable 'f'
             # referenced before assignment
