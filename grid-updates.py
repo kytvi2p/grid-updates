@@ -61,6 +61,13 @@ class List:
         json_response = tahoe_dl_file(verbosity, self.url)
         self.intro_dict = self.create_intro_dict(json_response)
 
+    def is_valid_introducer(self, uri):
+        """Check if the introducer address has the correct format."""
+        if re.match(r'^pb:\/\/.*@', uri):
+            return True
+        else:
+            return False
+
     def create_intro_dict(self, json_response):
         """Compile a dictionary of introducers (uri->name,active) from a JSON
         object."""
@@ -72,8 +79,15 @@ class List:
                                                         file=sys.stderr)
         intro_dict = {}
         for introducer in new_list['introducers']:
-            intro_dict[introducer['uri']] = (introducer['name'],
-                    introducer['active'])
+            uri = introducer['uri']
+            if self.is_valid_introducer(uri):
+                if self.verbosity > 2:
+                    print('DEBUG: Valid intruducer address: %s' % uri)
+                intro_dict[uri] = (introducer['name'], introducer['active'])
+            else:
+                if self.verbosity > 0:
+                    print("WARN: '%s' is not a valid Tahoe-LAFS introducer "\
+                            "address. Skipping.")
         return intro_dict
 
     def read_existing_list(self):
