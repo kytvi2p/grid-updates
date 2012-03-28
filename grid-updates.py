@@ -585,7 +585,7 @@ def parse_opts(argv):
             dest = "news",
             default = False,
             help = 'Downloads news feed.')
-    action_opts.add_option('-R', '--repair-subscriptions',
+    action_opts.add_option('-r', '--repair',
             action = 'store_true',
             dest = "repair",
             default = False,
@@ -600,7 +600,7 @@ def parse_opts(argv):
             dest = "download_update",
             default = False,
             help = 'Download a new version of grid-updates.')
-    action_opts.add_option('--community-repair',
+    action_opts.add_option('-R', '--community-repair',
             action = 'store_true',
             dest = "comrepair",
             default = False,
