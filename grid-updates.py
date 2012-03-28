@@ -120,7 +120,7 @@ class List:
                     print('INFO: Skipping inactive introducer: %s' %
                             self.intro_dict[introducer][0])
         if sorted(self.subscription_uris) == sorted(self.old_list):
-            if self.verbosity > 0:
+            if self.verbosity > 1:
                 print('INFO: Introducer list already up-to-date.')
             return False
         # Compile lists of new (to be added and outdated (to be removed) #
