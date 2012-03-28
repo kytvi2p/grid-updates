@@ -127,7 +127,7 @@ class List:
         """Compile lists of introducers: all active, locally missing and
         expired."""
         self.subscription_uris = []
-        for introducer in self.intro_dict.keys():
+        for introducer in list(self.intro_dict.keys()):
             # only include active introducers
             if self.intro_dict[introducer][1]:
                 self.subscription_uris.append(introducer)
@@ -328,7 +328,8 @@ class Updates:
             version_numbers = []
             for filename in file_list:
                 if re.match("^grid-updates-v.*\.tgz$", filename):
-                    version = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
+                    version = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1',
+                                                               filename))
                     version_numbers.append(version)
             latest_version = sorted(version_numbers)[-1]
             if self.verbosity > 1:
@@ -437,7 +438,7 @@ def parse_result(verbosity, result, mode, unhealthy):
     #   u'verifycap', u'path', u'type', u'storage-index']
     if mode == 'deep-check':
         if not 'check-and-repair-results' in \
-                json.loads(result).keys():
+                list(json.loads(result).keys()):
             # This would be the final 'stats' line.
             return 'unchecked', unhealthy
         uritype   = json.loads(result)['type']
@@ -783,7 +784,7 @@ def main(opts, args):
                 }
 
     # Check URI validity
-    for uri in uri_dict.values():
+    for uri in list(uri_dict.values()):
         if not re.match('^URI:', uri[0]):
             print( "'%s' is not a valid Tahoe URI. Aborting." % uri[0])
             exit(1)
@@ -801,7 +802,7 @@ def main(opts, args):
         unhealthy = 0
         # shuffle() to even out chances of all shares to get repaired
         # (Is this useful?)
-        sharelist = uri_dict.keys()
+        sharelist = list(uri_dict.keys())
         random.shuffle(sharelist)
         for sharename in sharelist:
             repair_uri = uri_dict[sharename][1]
@@ -810,10 +811,8 @@ def main(opts, args):
             if opts.verbosity > 1:
                 print('INFO: Post-repair results for: %s' % sharename)
             for result in results:
-                if sys.version_info[0] == 3:
-                    result = str(result, encoding='ascii')
-                status, unhealthy = parse_result(opts.verbosity, result,
-                                                        mode, unhealthy)
+                status, unhealthy = parse_result(opts.verbosity,
+                        result.decode('utf8'), mode, unhealthy)
             if opts.verbosity > 0:
                 if unhealthy == 1:
                     sub = 'object'
@@ -834,7 +833,8 @@ def main(opts, args):
         url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
         subscriptionfile = tahoe_dl_file(opts.verbosity, url).read()
         # shuffle() to even out chances of all shares to get repaired
-        sharelist = json.loads(subscriptionfile)['community-shares']
+        sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
+                                               ['community-shares']))
         random.shuffle(sharelist)
         for share in sharelist:
             sharename  = share['name']
@@ -845,10 +845,8 @@ def main(opts, args):
                 results = repair_share(opts.verbosity, sharename, repair_uri,
                                                                         mode)
                 for result in results:
-                    if sys.version_info[0] == 3:
-                        result = str(result, encoding='ascii')
-                    status, unhealthy = parse_result(opts.verbosity, result,
-                                                            mode, unhealthy)
+                    status, unhealthy = parse_result(opts.verbosity,
+                            result.decode('utf8'), mode, unhealthy)
                 if opts.verbosity > 1:
                     if unhealthy == 1:
                         sub = 'object'
@@ -858,9 +856,9 @@ def main(opts, args):
                                                     % (unhealthy, sub))
             if mode == 'one-check':
                 result = repair_share(opts.verbosity, sharename,
-                                                            repair_uri, mode)
-                status, unhealthy = parse_result(opts.verbosity, result,
-                                                            mode, unhealthy)
+                                                repair_uri, mode)
+                status, unhealthy = parse_result(opts.verbosity,
+                          result.decode('utf8'), mode, unhealthy)
                 if opts.verbosity > 1:
                     print("  Status: %s" % status)
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
