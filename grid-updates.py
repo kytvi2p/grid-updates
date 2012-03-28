@@ -62,6 +62,8 @@ class List:
         self.intro_dict = self.create_intro_dict(json_response)
 
     def create_intro_dict(self, json_response):
+        """Compile a dictionary of introducers (uri->name,active) from a JSON
+        object."""
         try:
             new_list = json.loads(json_response.read().decode('utf8'))
         except:
@@ -80,14 +82,14 @@ class List:
         if self.verbosity > 2:
             print('DEBUG: Reading the local introducers file.')
         try:
-            with open(self.introducers, 'r') as f:
-                old_introducers = f.read()
+            with open(self.introducers, 'r') as intlist:
+                old_introducers = intlist.read()
                 old_list = old_introducers.splitlines()
         except IOError as exc:
             print('WARN: Cannot read local introducers files:', exc,
                     file=sys.stderr)
-            print('WARN: Are you sure you have a compatible version of Tahoe-LAFS?',
-                    file=sys.stderr)
+            print('WARN: Are you sure you have a compatible version of ' \
+                    'Tahoe-LAFS?', file=sys.stderr)
             print('WARN: Pretending to have read an empty introducers list.',
                     file=sys.stderr)
             old_introducers = ''
@@ -97,8 +99,8 @@ class List:
     def backup_original(self):
         """Copy the old introducers file to introducers.bak."""
         try:
-            with open(self.introducers_bak, 'w') as f:
-                f.write(self.old_introducers)
+            with open(self.introducers_bak, 'w') as intbak:
+                intbak.write(self.old_introducers)
         except IOError:
             print('ERROR: Cannot create backup file introducers.bak',
                     file=sys.stderr)
@@ -134,17 +136,18 @@ class List:
         """Add newly discovered introducers to the local introducers file;
         remove nothing."""
         if self.verbosity > 1:
-            expired_intros = list(set(self.old_list) - set(self.subscription_uris))
+            expired_intros = list(set(self.old_list) -
+                    set(self.subscription_uris))
             for intro in expired_intros:
                 print("INFO: Introducer not in subscription list: %s" % intro)
         try:
-            with open(self.introducers, 'a') as f:
+            with open(self.introducers, 'a') as intlist:
                 for new_intro in self.new_intros:
                     if self.intro_dict[new_intro][1]:
                         if self.verbosity > 0:
                             print('New introducer: %s.' %
                                     self.intro_dict[new_intro][0])
-                        f.write(new_intro + '\n')
+                        intlist.write(new_intro + '\n')
         except IOError as exc:
             print('ERROR: Could not write to introducer file: %s' % exc,
                     file=sys.stderr)
@@ -154,9 +157,9 @@ class List:
         """Add and remove introducers in the local list to make it identical to
         the subscription's."""
         try:
-            with open(self.introducers, 'w') as f:
+            with open(self.introducers, 'w') as intlist:
                 for introducer in self.subscription_uris:
-                    f.write(introducer + '\n')
+                    intlist.write(introducer + '\n')
         except IOError as exc:
             print('ERROR: Could not write to introducer file: %s' %
                     exc, file=sys.stderr)
@@ -220,19 +223,19 @@ class News:
         # TODO convoluted; can probably be solved with a single try..except
         if os.access(self.local_news, os.F_OK):
             try:
-                ln = open(self.local_news, 'r+')
+                locnews = open(self.local_news, 'r+')
             except IOError as exc:
                 print('ERROR: Cannot access NEWS file: %s' % exc,
                         file=sys.stderr)
                 exit(1)
             else:
-                with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
-                    if ln.read() != tn.read():
+                with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
+                    if locnews.read() != tempnews.read():
                         if self.verbosity > 2:
                             print('DEBUG: NEWS files differ.')
                         if self.verbosity > 0:
-                            tn.seek(0)
-                            for line in tn.readlines():
+                            tempnews.seek(0)
+                            for line in tempnews.readlines():
                                 print('  | ' + line, end='')
                     else:
                         if self.verbosity > 1:
@@ -241,13 +244,13 @@ class News:
                     print('DEBUG: Successfully extracted and' \
                             'compared NEWS files.')
             finally:
-                ln.close()
+                locnews.close()
         else:
-            with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tn:
+            with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
                 if self.verbosity > 2:
                     print('DEBUG: No NEWS file found in node directory.')
                 if self.verbosity > 0:
-                    for line in tn.readlines():
+                    for line in tempnews.readlines():
                         print('  | ' + line, end='')
 
     def install_files(self):
@@ -311,8 +314,8 @@ class Updates:
             version_numbers = []
             for filename in file_list:
                 if re.match("^grid-updates-v.*\.tgz$", filename):
-                    v = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
-                    version_numbers.append(v)
+                    version = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1', filename))
+                    version_numbers.append(version)
             latest_version = sorted(version_numbers)[-1]
             if self.verbosity > 1:
                 print('INFO: Current version: %s; newest available: %s.' % \
@@ -393,7 +396,7 @@ def repair_share(verbosity, sharename, repair_uri, mode):
     if verbosity > 3:
         print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
     try:
-        f = urlopen(repair_uri, params)
+        response = urlopen(repair_uri, params)
     except HTTPError as exc:
         # TODO Doesn't catch all errors
         print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
@@ -402,15 +405,15 @@ def repair_share(verbosity, sharename, repair_uri, mode):
     else:
         if mode == 'deep-check':
             # deep-check returns multiple JSON objects, 1 per line
-            result = f.readlines()
+            result = response.readlines()
         elif mode == 'one-check':
             # one-check returns a single JSON object
-            result = f.read()
+            result = response.read()
         return result
     finally:
-        # TODO This can cause: UnboundLocalError: local variable 'f'
+        # TODO This can cause: UnboundLocalError: local variable 'response'
         # referenced before assignment
-        f.close()
+        response.close()
 
 def parse_result(verbosity, result, mode, unhealthy):
     """Parse JSON response from Tahoe deep-check operation.
@@ -448,7 +451,7 @@ def parse_result(verbosity, result, mode, unhealthy):
 
 
 def parse_opts(argv):
-
+    """Parse options given in config files or the command line."""
     # CONFIGURATION PARSING
     # =====================
 
@@ -640,7 +643,8 @@ def parse_opts(argv):
             action = 'store',
             dest = 'comrepair_uri',
             default = comrepair_uri,
-            help = 'Override default location of additional repair subscription.')
+            help = 'Override default location of additional repair ' \
+                    'subscription.')
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
             dest = 'output_dir',
@@ -691,6 +695,7 @@ def parse_opts(argv):
 
 
 def main(opts, args):
+    """Main function: run selected actions."""
     # Parse tahoe options (find web.static for NEWS files)
     tahoe_cfg_path = os.path.join(opts.tahoe_node_dir, 'tahoe.cfg')
     tahoe_config = SafeConfigParser({'web.static': 'public_html'})
@@ -753,6 +758,7 @@ def main(opts, args):
 
     # generate URI dictionary
     def gen_full_tahoe_uri(uri):
+        """Generate a complete, accessible URL from a Tahoe URI."""
         return opts.tahoe_node_url + '/uri/' + uri
     uri_dict = {'list': (opts.list_uri, gen_full_tahoe_uri(opts.list_uri)),
                 'news': (opts.news_uri, gen_full_tahoe_uri(opts.news_uri)),
@@ -787,7 +793,7 @@ def main(opts, args):
             repair_uri = uri_dict[sharename][1]
             results = repair_share(opts.verbosity, sharename,
                                             repair_uri, mode)
-            if opts.verbosity >1:
+            if opts.verbosity > 1:
                 print('INFO: Post-repair results for: %s' % sharename)
             for result in results:
                 if sys.version_info[0] == 3:
@@ -800,8 +806,8 @@ def main(opts, args):
                 else:
                     sub = 'objects'
         if opts.verbosity > 0:
-            print("Deep-check of grid-updates shares completed: ' \
-                                '%d %s unhealthy." % (unhealthy, sub))
+            print("Deep-check of grid-updates shares completed: " \
+                                "%d %s unhealthy." % (unhealthy, sub))
 
     if opts.comrepair:
         # --community-repair
