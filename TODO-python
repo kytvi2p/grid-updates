@@ -5,15 +5,8 @@
 	- skip tahoe node checks in this case
 * research version string sorting
 * --community-repair
-	- run new instance of Repair
-	- fetch file, repair included URIs
-	  * don't always deep-check? could take forever
-	  * modes: deep-check, check (single), single-level deep-check?
+	- modes: deep-check, one-check, custom single-level deep-check?
 	- allow config of multiple feeds?
-	- file format: JSON
-	- included info
-		* name
-		* URI
 * new introducer list file format: JSON
 	- add option to add new introducers through g-u (and check syntax)?
 * --make-news
