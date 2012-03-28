@@ -797,8 +797,9 @@ def main(opts, args):
                     sub = 'object'
                 else:
                     sub = 'objects'
-                print("Deep-check of '%s' share completed: %d %s unhealthy." \
-                                                % (sharename, unhealthy, sub))
+        if opts.verbosity > 0:
+            print("Deep-check of grid-updates shares completed: ' \
+                                '%d %s unhealthy." % (unhealthy, sub))
 
     if opts.comrepair:
         # --community-repair
