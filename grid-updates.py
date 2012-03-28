@@ -380,14 +380,14 @@ def repair_share(verbosity, sharename, repair_uri, mode):
                             'repair': 'true',
                             'add-lease': 'true'}
                             ).encode('utf8')
-    elif mode == 'check':
+    elif mode == 'one-check':
         params = urlencode({'t': 'check',
                             'repair': 'true',
                             'add-lease': 'true',
                             'output': 'json'}
                             ).encode('utf8')
     else:
-        print("ERROR: 'mode' must either be 'check' or 'deep-check'.",
+        print("ERROR: 'mode' must either be 'one-check' or 'deep-check'.",
                                                         file=sys.stderr)
         exit(1)
     if verbosity > 3:
@@ -403,7 +403,7 @@ def repair_share(verbosity, sharename, repair_uri, mode):
         if mode == 'deep-check':
             # deep-check returns multiple JSON objects, 1 per line
             result = f.readlines()
-        elif mode == 'check':
+        elif mode == 'one-check':
             # one-check returns a single JSON object
             result = f.read()
         return result
@@ -439,7 +439,7 @@ def parse_result(verbosity, result, mode, unhealthy):
         if status.startswith('Unhealthy'):
             unhealthy += 1
         return status, unhealthy
-    elif mode == 'check':
+    elif mode == 'one-check':
         status = json.loads(result)['post-repair-results']['summary']
         # Count unhealthy
         if status.startswith('Unhealthy'):
@@ -785,13 +785,15 @@ def main(opts, args):
         random.shuffle(sharelist)
         for sharename in sharelist:
             repair_uri = uri_dict[sharename][1]
-            results = repair_share(opts.verbosity, sharename, repair_uri, mode)
+            results = repair_share(opts.verbosity, sharename,
+                                            repair_uri, mode)
             if opts.verbosity >1:
                 print('INFO: Post-repair results for: %s' % sharename)
             for result in results:
                 if sys.version_info[0] == 3:
                     result = str(result, encoding='ascii')
-                status, unhealthy = parse_result(opts.verbosity, result, mode, unhealthy)
+                status, unhealthy = parse_result(opts.verbosity, result,
+                                                        mode, unhealthy)
             if opts.verbosity > 0:
                 if unhealthy == 1:
                     sub = 'object'
@@ -804,7 +806,7 @@ def main(opts, args):
     if opts.comrepair:
         # --community-repair
         if opts.verbosity > 0:
-            print("-- Repairing community Tahoe shares. --")
+            print("-- Repairing Tahoe shares. --")
         # TODO This action should probably be renamed to something less
         # specific, because there is a variety of use cases for it that don't
         # have to be community oriented.
@@ -834,7 +836,7 @@ def main(opts, args):
                         sub = 'objects'
                     print("  Deep-check completed: %d %s unhealthy." \
                                                     % (unhealthy, sub))
-            if mode == 'check':
+            if mode == 'one-check':
                 result = repair_share(opts.verbosity, sharename,
                                                             repair_uri, mode)
                 status, unhealthy = parse_result(opts.verbosity, result,
