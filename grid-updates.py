@@ -835,9 +835,10 @@ def main(opts, args):
                     print("  Deep-check completed: %d %s unhealthy." \
                                                     % (unhealthy, sub))
             if mode == 'check':
-                result = repair_share(opts.verbosity, sharename, repair_uri,
-                                                                        mode)
-                status, unhealthy = parse_result(result, mode, unhealthy)
+                result = repair_share(opts.verbosity, sharename,
+                                                            repair_uri, mode)
+                status, unhealthy = parse_result(opts.verbosity, result,
+                                                            mode, unhealthy)
                 if opts.verbosity > 1:
                     print("  Status: %s" % status)
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
