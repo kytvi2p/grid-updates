@@ -32,6 +32,8 @@ __maintainer__ = ['darrob', 'KillYourTV']
 __email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"
 
+__patch_version__ = '1.8.3-gu5'
+
 def tahoe_dl_file(verbosity, url):
     """Download a file from the Tahoe grid; returns the raw response."""
     if verbosity > 1:
@@ -430,6 +432,96 @@ def repair_share(verbosity, sharename, repair_uri, mode):
         # referenced before assignment
         response.close()
 
+class PatchWebUI:
+    def __init__(self, verbosity, tahoe_node_url):
+        self.verbosity = verbosity
+        self.datadir = self.find_datadir()
+        self.webdir = self.find_tahoe_dir(tahoe_node_url)
+        self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
+        self.add_patch_filepaths()
+        self.add_target_filepaths()
+        if self.verbosity > 3:
+            print('DEBUG: Data dir is: %s' % self.datadir)
+            print('DEBUG: Tahoe web dir is: %s' % self.webdir)
+            print('DEBUG: File paths:')
+            print(self.filepaths)
+
+    def find_datadir(self):
+        bindir = os.path.dirname(sys.argv[0])
+        if bindir == '/usr/bin' or bindir == '/usr/local/bin':
+            datadir = '/usr/share/grid-updates'
+        else:
+            datadir = os.path.join(bindir, 'etc')
+        if not os.path.exists(datadir):
+            print('ERROR: Does not exist: %s.' % datadir, file=sys.stderr)
+        return datadir
+
+    def add_patch_filepaths(self):
+        for patchfile in self.filepaths.keys():
+            filepath = os.path.join(self.datadir, patchfile + '.patched')
+            if not os.path.exists(filepath):
+                print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
+                sys.exit(1)
+            self.filepaths[patchfile].append(filepath)
+
+    def find_tahoe_dir(self, tahoe_node_url):
+        webconsole = urlopen(tahoe_node_url)
+        match = re.search(r'.*\ \'(.*__init__.pyc)', webconsole.read())
+        tahoepath = os.path.dirname(match.group(1))
+        webdir = os.path.join(tahoepath, 'web')
+        return webdir
+
+    def add_target_filepaths(self):
+        for targetfile in self.filepaths.keys():
+            filepath = (os.path.join(self.webdir, targetfile))
+            if not os.path.exists(filepath):
+                print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
+                sys.exit(1)
+            self.filepaths[targetfile].append(filepath)
+
+    def read_patch_version(self, file):
+        with open(file, 'r') as f:
+            match = re.search(r'grid-updates\ patch\ VERSION=(.*)\ ',
+                    f.readlines()[-1])
+            if match:
+                patch_version = match.group(1)
+                if self.verbosity > 2:
+                    print('DEBUG: Patch version of %s is: %s' %
+                                            (file, patch_version))
+                return patch_version
+            else:
+                return False
+
+    def backup_file(self, file):
+        # TODO exception
+        targetfile = self.filepaths[file][1]
+        backupfile = targetfile + '.grid-updates.original'
+        if not os.path.exists(backupfile):
+            if self.verbosity > 2:
+                print('DEBUG: Backing up %s' % targetfile)
+            copyfile(targetfile, backupfile)
+        else:
+            if self.verbosity > 2:
+                print('DEBUG: Backup of %s already exists.' % targetfile)
+
+
+    def restore_file(self, file):
+        # TODO exception
+        targetfile  = self.filepaths[file][1]
+        backupfile = targetfile + '.grid-updates.original'
+        if self.verbosity > 2:
+            print('DEBUG: Restoring %s' % backupfile)
+        copyfile(backupfile, targetfile)
+
+
+    def install_file(self, file):
+        # TODO exception
+        patchedfile = self.filepaths[file][0]
+        targetfile  = self.filepaths[file][1]
+        if self.verbosity > 2:
+            print('DEBUG: Installing patched version of %s' % targetfile)
+        copyfile(patchedfile, targetfile)
+
 def parse_result(verbosity, result, mode, unhealthy):
     """Parse JSON response from Tahoe deep-check operation.
     Optionally prints status output; returns number of unhealthy shares.
@@ -623,6 +715,16 @@ def parse_opts(argv):
             dest = "comrepair",
             default = False,
             help = 'TODO')
+    action_opts.add_option('--patch-tahoe',
+            action = 'store_true',
+            dest = "patch_ui",
+            default = False,
+            help = 'Patch the Tahoe Web UI to display grid-updates news in an IFrame.')
+    action_opts.add_option('--undo-patch-tahoe',
+            action = 'store_true',
+            dest = "undo_patch_ui",
+            default = False,
+            help = 'Restore the original Tahoe Web console files.')
     parser.add_option_group(action_opts)
     # options
     other_opts = optparse.OptionGroup(
@@ -840,7 +942,7 @@ def main(opts, args):
             sharename  = share['name']
             repair_uri = gen_full_tahoe_uri(share['uri'])
             mode       = share['mode']
-            # TODO: turn repair_share method a function?
+            # TODO: turn repair_share method into a function?
             if mode == 'deep-check':
                 results = repair_share(opts.verbosity, sharename, repair_uri,
                                                                         mode)
@@ -862,7 +964,6 @@ def main(opts, args):
                 if opts.verbosity > 1:
                     print("  Status: %s" % status)
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
-
 
     if opts.merge or opts.sync:
         # Debug info
@@ -886,6 +987,7 @@ def main(opts, args):
         else:
             if opts.verbosity > 0:
                 print('Successfully updated the introducer list.')
+
     if opts.news:
         try:
             if opts.verbosity > 2:
@@ -926,6 +1028,31 @@ def main(opts, args):
         else:
             if opts.verbosity > 1:
                 print('DEBUG: Successfully ran script update operation.')
+
+    if opts.patch_ui or opts.undo_patch_ui:
+        if opts.patch_ui and opts.verbosity > 2:
+            print('DEBUG: Selected action: --patch-tahoe')
+        elif opts.undo_patch_ui and opts.verbosity > 2:
+            print('DEBUG: Selected action: --undo-patch-tahoe')
+        webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
+        if opts.patch_ui:
+            for file in webui.filepaths.keys():
+                patch_version = webui.read_patch_version(webui.filepaths[file][1])
+                if patch_version:
+                    # file is patched
+                    if not patch_version == __patch_version__:
+                        if opts.verbosity > 1:
+                            print('INFO: A newer patch is available. Installing.')
+                        webui.install_file(file)
+                    else:
+                        if opts.verbosity > 2:
+                            print('DEBUG: Patch is up-to-date.')
+                else:
+                    webui.backup_file(file)
+                    webui.install_file(file)
+        elif opts.undo_patch_ui:
+            for file in webui.filepaths.keys():
+                webui.restore_file(file)
 
 
 if __name__ == "__main__":
