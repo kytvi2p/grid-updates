@@ -858,7 +858,9 @@ def main(opts, args):
     and not opts.repair
     and not opts.check_version
     and not opts.download_update
-    and not opts.comrepair):
+    and not opts.comrepair
+    and not opts.patch_ui
+    and not opts.undo_patch_ui):
         print('ERROR: You need to specify an action. Please see %s --help.' %
                 sys.argv[0], file=sys.stderr)
         sys.exit(1)
