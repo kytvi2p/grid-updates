@@ -46,6 +46,13 @@ def tahoe_dl_file(verbosity, url):
     else:
         return response
 
+def is_valid_introducer(uri):
+    """Check if the introducer address has the correct format."""
+    if re.match(r'^pb:\/\/.*@', uri):
+        return True
+    else:
+        return False
+
 
 class List:
     def __init__(self, verbosity, nodedir, url):
@@ -61,13 +68,6 @@ class List:
         json_response = tahoe_dl_file(verbosity, self.url)
         self.intro_dict = self.create_intro_dict(json_response)
 
-    def is_valid_introducer(self, uri):
-        """Check if the introducer address has the correct format."""
-        if re.match(r'^pb:\/\/.*@', uri):
-            return True
-        else:
-            return False
-
     def create_intro_dict(self, json_response):
         """Compile a dictionary of introducers (uri->name,active) from a JSON
         object."""
@@ -80,7 +80,7 @@ class List:
         intro_dict = {}
         for introducer in new_list['introducers']:
             uri = introducer['uri']
-            if self.is_valid_introducer(uri):
+            if is_valid_introducer(uri):
                 if self.verbosity > 2:
                     print('DEBUG: Valid intruducer address: %s' % uri)
                 intro_dict[uri] = (introducer['name'], introducer['active'])
