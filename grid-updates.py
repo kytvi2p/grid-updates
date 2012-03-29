@@ -479,22 +479,22 @@ class PatchWebUI:
                 sys.exit(1)
             self.filepaths[targetfile].append(filepath)
 
-    def read_patch_version(self, file):
-        with open(file, 'r') as f:
+    def read_patch_version(self, uifile):
+        with open(uifile, 'r') as f:
             match = re.search(r'grid-updates\ patch\ VERSION=(.*)\ ',
                     f.readlines()[-1])
             if match:
                 patch_version = match.group(1)
                 if self.verbosity > 2:
                     print('DEBUG: Patch version of %s is: %s' %
-                                            (file, patch_version))
+                                            (uifile, patch_version))
                 return patch_version
             else:
                 return False
 
-    def backup_file(self, file):
+    def backup_file(self, uifile):
         # TODO exception
-        targetfile = self.filepaths[file][1]
+        targetfile = self.filepaths[uifile][1]
         backupfile = targetfile + '.grid-updates.original'
         if not os.path.exists(backupfile):
             if self.verbosity > 2:
@@ -505,19 +505,19 @@ class PatchWebUI:
                 print('DEBUG: Backup of %s already exists.' % targetfile)
 
 
-    def restore_file(self, file):
+    def restore_file(self, uifile):
         # TODO exception
-        targetfile  = self.filepaths[file][1]
+        targetfile  = self.filepaths[uifile][1]
         backupfile = targetfile + '.grid-updates.original'
         if self.verbosity > 2:
             print('DEBUG: Restoring %s' % backupfile)
         copyfile(backupfile, targetfile)
 
 
-    def install_file(self, file):
+    def install_file(self, uifile):
         # TODO exception
-        patchedfile = self.filepaths[file][0]
-        targetfile  = self.filepaths[file][1]
+        patchedfile = self.filepaths[uifile][0]
+        targetfile  = self.filepaths[uifile][1]
         if self.verbosity > 2:
             print('DEBUG: Installing patched version of %s' % targetfile)
         copyfile(patchedfile, targetfile)
@@ -719,7 +719,8 @@ def parse_opts(argv):
             action = 'store_true',
             dest = "patch_ui",
             default = False,
-            help = 'Patch the Tahoe Web UI to display grid-updates news in an IFrame.')
+            help = ('Patch the Tahoe Web UI to display grid-updates news '
+                                                'in an IFrame.'))
     action_opts.add_option('--undo-patch-tahoe',
             action = 'store_true',
             dest = "undo_patch_ui",
@@ -1038,23 +1039,25 @@ def main(opts, args):
             print('DEBUG: Selected action: --undo-patch-tahoe')
         webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
         if opts.patch_ui:
-            for file in webui.filepaths.keys():
-                patch_version = webui.read_patch_version(webui.filepaths[file][1])
+            for uifile in webui.filepaths.keys():
+                patch_version = webui.read_patch_version(
+                                        webui.filepaths [uifile][1])
                 if patch_version:
                     # file is patched
                     if not patch_version == __patch_version__:
                         if opts.verbosity > 1:
-                            print('INFO: A newer patch is available. Installing.')
-                        webui.install_file(file)
+                            print('INFO: A newer patch is available. '
+                                                        'Installing.')
+                        webui.install_file(uifile)
                     else:
                         if opts.verbosity > 2:
                             print('DEBUG: Patch is up-to-date.')
                 else:
-                    webui.backup_file(file)
-                    webui.install_file(file)
+                    webui.backup_file(uifile)
+                    webui.install_file(uifile)
         elif opts.undo_patch_ui:
-            for file in webui.filepaths.keys():
-                webui.restore_file(file)
+            for uifile in webui.filepaths.keys():
+                webui.restore_file(uifile)
 
 
 if __name__ == "__main__":
