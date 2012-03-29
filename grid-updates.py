@@ -86,7 +86,7 @@ class List:
                 intro_dict[uri] = (introducer['name'], introducer['active'])
             else:
                 if self.verbosity > 0:
-                    print("WARN: '%s' is not a valid Tahoe-LAFS introducer "\
+                    print("WARN: '%s' is not a valid Tahoe-LAFS introducer "
                             "address. Skipping.")
         return intro_dict
 
@@ -102,7 +102,7 @@ class List:
         except IOError as exc:
             print('WARN: Cannot read local introducers files:', exc,
                     file=sys.stderr)
-            print('WARN: Are you sure you have a compatible version of ' \
+            print('WARN: Are you sure you have a compatible version of '
                     'Tahoe-LAFS?', file=sys.stderr)
             print('WARN: Pretending to have read an empty introducers list.',
                     file=sys.stderr)
@@ -220,7 +220,7 @@ class News:
     def extract_tgz(self):
         """Extract NEWS.tgz archive into temporary directory."""
         if self.verbosity > 2:
-            print('DEBUG: Extracting %s to %s.' % \
+            print('DEBUG: Extracting %s to %s.' %
                     (self.local_archive, self.tempdir))
         try:
             tar = tarfile.open(self.local_archive, 'r:gz')
@@ -255,7 +255,7 @@ class News:
                         if self.verbosity > 1:
                             print('INFO: NEWS files seem to be identical.')
                 if self.verbosity > 2:
-                    print('DEBUG: Successfully extracted and' \
+                    print('DEBUG: Successfully extracted and'
                             'compared NEWS files.')
             finally:
                 locnews.close()
@@ -275,7 +275,7 @@ class News:
                 copyfile(os.path.join(self.tempdir, newsfile),
                         os.path.join(self.nodedir, self.web_static, newsfile))
         except:
-            print("ERROR: Couldn't copy one or more NEWS files into the" \
+            print("ERROR: Couldn't copy one or more NEWS files into the"
                   "node directory.", file=sys.stderr)
             sys.exit(1)
         else:
@@ -333,7 +333,7 @@ class Updates:
                     version_numbers.append(version)
             latest_version = sorted(version_numbers)[-1]
             if self.verbosity > 1:
-                print('INFO: Current version: %s; newest available: %s.' % \
+                print('INFO: Current version: %s; newest available: %s.' %
                         (__version__, latest_version))
             return latest_version
 
@@ -351,17 +351,17 @@ class Updates:
         # verbosity doesn't matter in this case; it's a user request:
         #if self.verbosity > 0:
         if self.new_ver_available:
-            print('There is a new version available: %s (currently %s).' %\
+            print('There is a new version available: %s (currently %s).' %
                     (self.latest_version, __version__))
         else:
-            print('This version of grid-updates (%s) is up-to-date.' % \
+            print('This version of grid-updates (%s) is up-to-date.' %
                                                              __version__)
 
     def download_update(self):
         """Download script tarball."""
         if self.new_ver_available:
-            download_url = \
-                    self.url + '/grid-updates-v' + self.latest_version + '.tgz'
+            download_url = (
+                    self.url + '/grid-updates-v' + self.latest_version + '.tgz')
             if self.verbosity > 1:
                 print("INFO: Downloading", download_url)
             try:
@@ -370,7 +370,7 @@ class Updates:
                 print('ERROR: Could not download the tarball:', exc,
                         file=sys.stderr)
                 sys.exit(1)
-            local_file = os.path.join(self.output_dir, 'grid-updates-v' + \
+            local_file = os.path.join(self.output_dir, 'grid-updates-v' +
                                         self.latest_version + '.tgz')
             try:
                 with open(local_file,'wb') as output:
@@ -381,7 +381,7 @@ class Updates:
                 sys.exit(1)
             else:
                 if self.verbosity > 0:
-                    print('Success: downloaded an update to %s.' % \
+                    print('Success: downloaded an update to %s.' %
                             os.path.abspath(local_file))
         else:
             if self.verbosity > 0:
@@ -437,16 +437,16 @@ def parse_result(verbosity, result, mode, unhealthy):
     #   [u'check-and-repair-results', u'cap', u'repaircap',
     #   u'verifycap', u'path', u'type', u'storage-index']
     if mode == 'deep-check':
-        if not 'check-and-repair-results' in \
-                list(json.loads(result).keys()):
+        if not ('check-and-repair-results' in
+                list(json.loads(result).keys())):
             # This would be the final 'stats' line.
             return 'unchecked', unhealthy
         uritype   = json.loads(result)['type']
         path   = json.loads(result)['path']
-        status = json.loads(result) \
-                    ['check-and-repair-results'] \
-                    ['post-repair-results'] \
-                    ['summary']
+        status = (json.loads(result)
+                    ['check-and-repair-results']
+                    ['post-repair-results']
+                    ['summary'])
         # Print
         if verbosity > 1:
             if uritype == 'directory' and not path:
@@ -523,14 +523,14 @@ def parse_opts(argv):
     # 1. Default settings
     #tahoe_node_dir = os.path.abspath('testdir')
     default_tahoe_node_url = 'http://127.0.0.1:3456'
-    default_list_uri = 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:'\
-            'gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua'
-    default_news_uri = 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:'\
-            'hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q'
-    default_script_uri = 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'\
-            'eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a'
-    default_comrepair_uri = 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:'\
-            'nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a'
+    default_list_uri = ('URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:'
+            'gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua')
+    default_news_uri = ('URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:'
+            'hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q')
+    default_script_uri = ('URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'
+            'eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a')
+    default_comrepair_uri = ('URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:'
+            'nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a')
     default_output_dir = os.path.abspath(os.getcwd())
 
     # 2. Configparser
@@ -590,13 +590,13 @@ def parse_opts(argv):
             action = 'store_true',
             dest = "sync",
             default = False,
-            help = "Synchronize the local list of introducers with the " \
+            help = "Synchronize the local list of introducers with the "
                     "subscription's.")
     action_opts.add_option('-m', '--merge-introducers',
             action = 'store_true',
             dest = "merge",
             default = False,
-            help = 'Downloads and merges list of introducers into your '\
+            help = 'Downloads and merges list of introducers into your '
                     'local list.')
     action_opts.add_option('-n', '--download-news',
             action = 'store_true',
@@ -658,14 +658,14 @@ def parse_opts(argv):
             action = 'store',
             dest = 'comrepair_uri',
             default = comrepair_uri,
-            help = 'Override default location of additional repair ' \
-                    'subscription.')
+            help = ('Override default location of additional repair '
+                    'subscription.'))
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
             dest = 'output_dir',
             default = output_dir,
-            help = 'Override default output directory (%s) for script '\
-                    'update downloads.' % os.getcwd())
+            help = ('Override default output directory (%s) for script '
+                    'update downloads.' % os.getcwd()))
     parser.add_option_group(other_opts)
     # remaining
     parser.add_option('-v',
@@ -749,15 +749,15 @@ def main(opts, args):
     # ============================
 
     # Check for at least 1 mandatory option
-    if not opts.version \
-    and not opts.merge \
-    and not opts.sync \
-    and not opts.news \
-    and not opts.repair \
-    and not opts.check_version \
-    and not opts.download_update \
-    and not opts.comrepair:
-        print('ERROR: You need to specify an action. Please see %s --help.' % \
+    if (not opts.version
+    and not opts.merge
+    and not opts.sync
+    and not opts.news
+    and not opts.repair
+    and not opts.check_version
+    and not opts.download_update
+    and not opts.comrepair):
+        print('ERROR: You need to specify an action. Please see %s --help.' %
                 sys.argv[0], file=sys.stderr)
         sys.exit(1)
 
@@ -767,7 +767,7 @@ def main(opts, args):
 
     # conflicting options
     if opts.merge and opts.sync:
-        print('ERROR: --merge-introducers & --sync-introducers are' \
+        print('ERROR: --merge-introducers & --sync-introducers are'
             ' mutually exclusive actions.', file=sys.stderr)
         sys.exit(1)
 
@@ -819,7 +819,7 @@ def main(opts, args):
                 else:
                     sub = 'objects'
         if opts.verbosity > 0:
-            print("Deep-check of grid-updates shares completed: " \
+            print("Deep-check of grid-updates shares completed: "
                                 "%d %s unhealthy." % (unhealthy, sub))
 
     if opts.comrepair:
@@ -852,7 +852,7 @@ def main(opts, args):
                         sub = 'object'
                     else:
                         sub = 'objects'
-                    print("  Deep-check completed: %d %s unhealthy." \
+                    print("  Deep-check completed: %d %s unhealthy."
                                                     % (unhealthy, sub))
             if mode == 'one-check':
                 result = repair_share(opts.verbosity, sharename,
@@ -881,7 +881,7 @@ def main(opts, args):
                     intlist.sync_introducers()
         except:
             if opts.verbosity > 1:
-                print("DEBUG: Couldn't finish introducer list operation." \
+                print("DEBUG: Couldn't finish introducer list operation."
                     " Continuing...")
         else:
             if opts.verbosity > 0:
@@ -903,7 +903,7 @@ def main(opts, args):
             news.remove_temporary()
         except:
             if opts.verbosity > 2:
-                print("DEBUG: Couldn't finish news update operation." \
+                print("DEBUG: Couldn't finish news update operation."
                     " Continuing...")
         else:
             if opts.verbosity > 0:
@@ -921,7 +921,7 @@ def main(opts, args):
                 update.download_update()
         except:
             if opts.verbosity > 2:
-                print("DEBUG: Couldn't finish version check operation." \
+                print("DEBUG: Couldn't finish version check operation."
                     " Continuing...")
         else:
             if opts.verbosity > 1:
