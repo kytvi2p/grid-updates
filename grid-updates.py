@@ -439,7 +439,10 @@ class PatchWebUI:
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
         self.add_patch_filepaths()
         self.add_target_filepaths()
-        if self.verbosity > 2:
+        if self.verbosity > 3:
+            print('DEBUG: Data dir is: %s' % self.datadir)
+            print('DEBUG: Tahoe web dir is: %s' % self.webdir)
+            print('DEBUG: File paths:')
             print(self.filepaths)
 
     def find_datadir(self):
@@ -481,6 +484,9 @@ class PatchWebUI:
                     f.readlines()[-1])
             if match:
                 patch_version = match.group(1)
+                if self.verbosity > 2:
+                    print('DEBUG: Patch version of %s is: %s' %
+                                            (file, patch_version))
                 return patch_version
             else:
                 return False
@@ -490,12 +496,20 @@ class PatchWebUI:
         targetfile = self.filepaths[file][1]
         backupfile = targetfile + '.grid-updates.original'
         if not os.path.exists(backupfile):
+            if self.verbosity > 2:
+                print('DEBUG: Backing up %s' % targetfile)
             copyfile(targetfile, backupfile)
+        else:
+            if self.verbosity > 2:
+                print('DEBUG: Backup of %s already exists.' % targetfile)
+
 
     def restore_file(self, file):
         # TODO exception
         targetfile  = self.filepaths[file][1]
         backupfile = targetfile + '.grid-updates.original'
+        if self.verbosity > 2:
+            print('DEBUG: Restoring %s' % backupfile)
         copyfile(backupfile, targetfile)
 
 
@@ -503,6 +517,8 @@ class PatchWebUI:
         # TODO exception
         patchedfile = self.filepaths[file][0]
         targetfile  = self.filepaths[file][1]
+        if self.verbosity > 2:
+            print('DEBUG: Installing patched version of %s' % targetfile)
         copyfile(patchedfile, targetfile)
 
 def parse_result(verbosity, result, mode, unhealthy):
@@ -1015,6 +1031,10 @@ def main(opts, args):
                 print('DEBUG: Successfully ran script update operation.')
 
     if opts.patch_ui or opts.undo_patch_ui:
+        if opts.patch_ui and opts.verbosity > 2:
+            print('DEBUG: Selected action: --patch-tahoe')
+        elif opts.undo_patch_ui and opts.verbosity > 2:
+            print('DEBUG: Selected action: --undo-patch-tahoe')
         webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
         if opts.patch_ui:
             for file in webui.filepaths.keys():
@@ -1022,11 +1042,12 @@ def main(opts, args):
                 if patch_version:
                     # file is patched
                     if not patch_version == __patch_version__:
-                        # patch is outdated
+                        if opts.verbosity > 1:
+                            print('INFO: A newer patch is available. Installing.')
                         webui.install_file(file)
                     else:
-                        # everything is up-to-date
-                        pass
+                        if opts.verbosity > 2:
+                            print('DEBUG: Patch is up-to-date.')
                 else:
                     webui.backup_file(file)
                     webui.install_file(file)
