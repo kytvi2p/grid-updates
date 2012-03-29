@@ -42,7 +42,7 @@ def tahoe_dl_file(verbosity, url):
         response = urlopen(url)
     except HTTPError as exc:
         print('ERROR: Could not download the file:', exc, file=sys.stderr)
-        exit(1)
+        sys.exit(1)
     else:
         return response
 
@@ -118,7 +118,7 @@ class List:
         except IOError:
             print('ERROR: Cannot create backup file introducers.bak',
                     file=sys.stderr)
-            exit(1)
+            sys.exit(1)
         else:
             if self.verbosity > 2:
                 print('DEBUG: Created backup of local introducers.')
@@ -165,7 +165,7 @@ class List:
         except IOError as exc:
             print('ERROR: Could not write to introducer file: %s' % exc,
                     file=sys.stderr)
-            exit(1)
+            sys.exit(1)
 
     def sync_introducers(self):
         """Add and remove introducers in the local list to make it identical to
@@ -177,7 +177,7 @@ class List:
         except IOError as exc:
             print('ERROR: Could not write to introducer file: %s' %
                     exc, file=sys.stderr)
-            exit(1)
+            sys.exit(1)
         else:
             if self.verbosity > 0:
                 for introducer in self.new_intros:
@@ -212,7 +212,7 @@ class News:
             response = urlopen(url).read()
         except HTTPError:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
-            exit(1)
+            sys.exit(1)
         else:
             with open(self.local_archive,'wb') as output:
                 output.write(response)
@@ -229,7 +229,7 @@ class News:
             tar.close()
         except tarfile.TarError:
             print('ERROR: Could not extract NEWS.tgz archive.', file=sys.stderr)
-            exit(1)
+            sys.exit(1)
 
     def news_differ(self):
         """Compare NEWS files and print to stdout if they differ (if allowed
@@ -241,7 +241,7 @@ class News:
             except IOError as exc:
                 print('ERROR: Cannot access NEWS file: %s' % exc,
                         file=sys.stderr)
-                exit(1)
+                sys.exit(1)
             else:
                 with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
                     if locnews.read() != tempnews.read():
@@ -277,7 +277,7 @@ class News:
         except:
             print("ERROR: Couldn't copy one or more NEWS files into the" \
                   "node directory.", file=sys.stderr)
-            exit(1)
+            sys.exit(1)
         else:
             if self.verbosity > 2:
                 print('DEBUG: Copied NEWS files into the node directory.')
@@ -320,7 +320,7 @@ class Updates:
         except HTTPError as exc:
             print('ERROR: Could not access the Tahoe directory:', exc,
                     file=sys.stderr)
-            exit(1)
+            sys.exit(1)
         else:
             # parse json index of dir
             file_list = list(json.loads(json_dir)[1]['children'].keys())
@@ -369,7 +369,7 @@ class Updates:
             except HTTPError as exc:
                 print('ERROR: Could not download the tarball:', exc,
                         file=sys.stderr)
-                exit(1)
+                sys.exit(1)
             local_file = os.path.join(self.output_dir, 'grid-updates-v' + \
                                         self.latest_version + '.tgz')
             try:
@@ -378,7 +378,7 @@ class Updates:
             except IOError as exc:
                 print('ERROR: Could not write to local file:', exc,
                         file=sys.stderr)
-                exit(1)
+                sys.exit(1)
             else:
                 if self.verbosity > 0:
                     print('Success: downloaded an update to %s.' % \
@@ -407,7 +407,7 @@ def repair_share(verbosity, sharename, repair_uri, mode):
     else:
         print("ERROR: 'mode' must either be 'one-check' or 'deep-check'.",
                                                         file=sys.stderr)
-        exit(1)
+        sys.exit(1)
     if verbosity > 3:
         print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
     try:
@@ -416,7 +416,7 @@ def repair_share(verbosity, sharename, repair_uri, mode):
         # TODO Doesn't catch all errors
         print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
                                                         file=sys.stderr)
-        exit(1)
+        sys.exit(1)
     else:
         if mode == 'deep-check':
             # deep-check returns multiple JSON objects, 1 per line
@@ -719,7 +719,7 @@ def main(opts, args):
     #    tahoe_config.read(tahoe_cfg_path)
     #except ConfigParser.NoSectionError:
     #    print('ERROR: Could not parse tahoe.cfg.', file=sys.stderr)
-    #    exit(1)
+    #    sys.exit(1)
     #else:
     #    print(tahoe_config.get('node', 'web.static'))
     #    web_static_dir = os.path.abspath(
@@ -737,13 +737,13 @@ def main(opts, args):
     else:
         print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
                 file=sys.stderr)
-        exit(1)
+        sys.exit(1)
 
     # Tahoe node dir validity check (in addition to the above tahoe.cfg check)
     if not os.access(opts.tahoe_node_dir, os.W_OK):
         print("ERROR: Need write access to", opts.tahoe_node_dir,
                 file=sys.stderr)
-        exit(1)
+        sys.exit(1)
 
     # ACTION PARSING AND EXECUTION
     # ============================
@@ -759,17 +759,17 @@ def main(opts, args):
     and not opts.comrepair:
         print('ERROR: You need to specify an action. Please see %s --help.' % \
                 sys.argv[0], file=sys.stderr)
-        exit(1)
+        sys.exit(1)
 
     if opts.version:
         print('grid-updates version: %s.' % __version__)
-        exit(0)
+        sys.exit(0)
 
     # conflicting options
     if opts.merge and opts.sync:
         print('ERROR: --merge-introducers & --sync-introducers are' \
             ' mutually exclusive actions.', file=sys.stderr)
-        exit(1)
+        sys.exit(1)
 
     # generate URI dictionary
     def gen_full_tahoe_uri(uri):
@@ -787,7 +787,7 @@ def main(opts, args):
     for uri in list(uri_dict.values()):
         if not re.match('^URI:', uri[0]):
             print( "'%s' is not a valid Tahoe URI. Aborting." % uri[0])
-            exit(1)
+            sys.exit(1)
 
     if opts.verbosity > 2:
         print("DEBUG: Tahoe node dir is", opts.tahoe_node_dir)
@@ -934,6 +934,6 @@ if __name__ == "__main__":
         main(opts, args)
     except KeyboardInterrupt:
         print("\ngrid-updates interrupted by user.")
-        exit(1)
+        sys.exit(1)
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
