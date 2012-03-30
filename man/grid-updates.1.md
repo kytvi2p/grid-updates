@@ -121,21 +121,18 @@ NOTES
 `URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq`  
 or regular FQDNs like `http://example.i2p/` or `http://www.example.com/`.
 
-ERRORS
-======
+SHARE HEALTH
+============
 
-If the script repeatedly fails to retrieve a file from the grid, the share may
-be damaged.  Run `--repair-subscriptions` which will attempt to deep-check the
-share.
+All *grid-updates* subscriptions reside on the Tahoe grid, which means that
+they need to be maintained (renewal of leases, repairs).  Please contribute to
+their maintenance by running `--repair-subscriptions` from time to time.
 
-If that doesn't help, you will most likely have to find new URIs to subscribe
-to.
-
-Use `--check-version` to see if there is a new version of *grid-updates*
-available, which may already include new default URIs.
-
-Finally, you can check on IRC, mailing lists and Wikis for updated
-information.
+If the script repeatedly fails to retrieve files from the grid, the share may
+be damaged and you will have to find a new set of URIs to subscribe to.  One
+way to possibly get them is to run `--check-version` to see if there is a new
+version of *grid-updates* available.  Newer versions might already include new
+default URIs.
 
 NEWS
 ====

@@ -177,22 +177,20 @@ like
 or
 regular FQDNs like \f[B]http://example.i2p/\f[] or
 \f[B]http://www.example.com/\f[].
-.SH ERRORS
+.SH SHARE HEALTH
 .PP
-If the script repeatedly fails to retrieve a file from the grid,
-the share may be damaged.
-Run \f[B]--repair-subscriptions\f[] which will attempt to
-deep-check the share.
+All \f[I]grid-updates\f[] subscriptions reside on the Tahoe grid,
+which means that they need to be maintained (renewal of leases,
+repairs).
+Please contribute to their maintenance by running
+\f[B]--repair-subscriptions\f[] from time to time.
 .PP
-If that doesn't help, you will most likely have to find new URIs to
+If the script repeatedly fails to retrieve files from the grid, the
+share may be damaged and you will have to find a new set of URIs to
 subscribe to.
-.PP
-Use \f[B]--check-version\f[] to see if there is a new version of
-\f[I]grid-updates\f[] available, which may already include new
-default URIs.
-.PP
-Finally, you can check on IRC, mailing lists and Wikis for updated
-information.
+One way to possibly get them is to run \f[B]--check-version\f[] to
+see if there is a new version of \f[I]grid-updates\f[] available.
+Newer versions might already include new default URIs.
 .SH NEWS
 .PP
 If you choose to download the news feed, \f[I]grid-updates\f[] will
