@@ -457,7 +457,7 @@ class PatchWebUI:
         return datadir
 
     def add_patch_filepaths(self):
-        for patchfile in self.filepaths.keys():
+        for patchfile in list(self.filepaths.keys()):
             filepath = os.path.join(self.datadir, patchfile + '.patched')
             if not os.path.exists(filepath):
                 print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
@@ -472,7 +472,7 @@ class PatchWebUI:
         return webdir
 
     def add_target_filepaths(self):
-        for targetfile in self.filepaths.keys():
+        for targetfile in list(self.filepaths.keys()):
             filepath = (os.path.join(self.webdir, targetfile))
             if not os.path.exists(filepath):
                 print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
@@ -1039,7 +1039,7 @@ def main(opts, args):
             print('DEBUG: Selected action: --undo-patch-tahoe')
         webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
         if opts.patch_ui:
-            for uifile in webui.filepaths.keys():
+            for uifile in list(webui.filepaths.keys()):
                 patch_version = webui.read_patch_version(
                                         webui.filepaths [uifile][1])
                 if patch_version:
@@ -1056,7 +1056,7 @@ def main(opts, args):
                     webui.backup_file(uifile)
                     webui.install_file(uifile)
         elif opts.undo_patch_ui:
-            for uifile in webui.filepaths.keys():
+            for uifile in list(webui.filepaths.keys()):
                 webui.restore_file(uifile)
 
 
