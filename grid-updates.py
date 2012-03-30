@@ -417,7 +417,10 @@ class MakeNews:
         tar = tarfile.open(tarball, mode='w:gz')
         try:
             for item in include_list:
-                tar.add(item, arcname=os.path.basename(item))
+                tarinfo = tar.gettarinfo(item, arcname=os.path.basename(item))
+                tarinfo.uid = tarinfo.gid = 0
+                tarinfo.uname = tarinfo.gname = "root"
+                tar.addfile(tarinfo, open(item, 'rb'))
         finally:
             tar.close()
 
