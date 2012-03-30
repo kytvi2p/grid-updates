@@ -372,6 +372,8 @@ class MakeNews:
         self.datadir = find_datadir()
 
     def compile_md(self, mdfile):
+        """Compile an HTML version of the Markdown source of NEWS; return the
+        file path."""
         source = mdfile
         output_html = os.path.join(self.tempdir, 'NEWS.html')
         pandoc_tmplt = os.path.join(self.datadir, 'pandoc-template.html')
@@ -391,6 +393,9 @@ class MakeNews:
             return output_html
 
     def compile_atom(self):
+        """Create an Atom news feed file from a template by adding the current
+        date and an UUID (uuid4 is supposed to be generated randomly); returns
+        the file path."""
         atom_tmplt = os.path.join(self.datadir, 'NEWS.atom.template')
         output_atom = os.path.join(self.tempdir, 'NEWS.atom')
         with open(atom_tmplt, 'r') as f:
@@ -406,6 +411,8 @@ class MakeNews:
         return output_atom
 
     def make_tarball(self, include_list, output_dir):
+        """Add files from a list to NEWS.tgz in --output-dir; remove directory
+        structure."""
         tarball = os.path.join(output_dir, 'NEWS.tgz')
         tar = tarfile.open(tarball, mode='w:gz')
         try:
