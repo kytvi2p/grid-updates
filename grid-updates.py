@@ -24,6 +24,7 @@ else:
     from urllib.parse import urlencode
     from urllib.error import HTTPError
 import random
+from distutils.version import LooseVersion
 
 __author__ = ['darrob', 'KillYourTV']
 __license__ = "Public Domain"
@@ -109,7 +110,7 @@ def find_tahoe_dir(tahoe_node_url):
     tahoe_dir = os.path.dirname(match.group(1))
     return tahoe_dir
 
-def tahoe_version(tahoe_node_url):
+def get_tahoe_version(tahoe_node_url):
     """Determine Tahoe-LAFS version number from web console."""
     webconsole = urlopen(tahoe_node_url)
     match = re.search(r'allmydata-tahoe:\ (.*),', webconsole.read())
@@ -506,6 +507,20 @@ class PatchWebUI:
             print('DEBUG: Tahoe web dir is: %s' % self.webdir)
             print('DEBUG: File paths:')
             print(self.filepaths)
+
+    def compatible_version(self, tahoe_node_url):
+        tahoe_version = LooseVersion(get_tahoe_version(tahoe_node_url))
+        if tahoe_version >= LooseVersion('1.8.3') and \
+                tahoe_version < LooseVersion('1.9'):
+            if self.verbosity > 2:
+                print('DEBUG: Found compatible version of Tahoe-LAFS (%s)'
+                        % tahoe_version)
+            return True
+        else:
+            if self.verbosity > 2:
+                print('DEBUG: Incompatible version of Tahoe-LAFS (%s).'
+                      ' Cannot patch web UI.' % tahoe_version)
+            return False
 
     def add_patch_filepaths(self):
         """Add locations of patched web UI files to the location dict."""
@@ -1055,26 +1070,28 @@ def main(opts, args):
         elif opts.undo_patch_ui and opts.verbosity > 2:
             print('DEBUG: Selected action: --undo-patch-tahoe')
         webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
-        if opts.patch_ui:
-            for uifile in list(webui.filepaths.keys()):
-                patch_version = webui.read_patch_version(
-                                        webui.filepaths [uifile][1])
-                if patch_version:
-                    # file is patched
-                    if not patch_version == __patch_version__:
-                        if opts.verbosity > 1:
-                            print('INFO: A newer patch is available. '
-                                                        'Installing.')
-                        webui.install_file(uifile)
+        if webui.compatible_version(opts.tahoe_node_url):
+
+            if opts.patch_ui:
+                for uifile in list(webui.filepaths.keys()):
+                    patch_version = webui.read_patch_version(
+                                            webui.filepaths [uifile][1])
+                    if patch_version:
+                        # file is patched
+                        if not patch_version == __patch_version__:
+                            if opts.verbosity > 1:
+                                print('INFO: A newer patch is available. '
+                                                            'Installing.')
+                            webui.install_file(uifile)
+                        else:
+                            if opts.verbosity > 2:
+                                print('DEBUG: Patch is up-to-date.')
                     else:
-                        if opts.verbosity > 2:
-                            print('DEBUG: Patch is up-to-date.')
-                else:
-                    webui.backup_file(uifile)
-                    webui.install_file(uifile)
-        elif opts.undo_patch_ui:
-            for uifile in list(webui.filepaths.keys()):
-                webui.restore_file(uifile)
+                        webui.backup_file(uifile)
+                        webui.install_file(uifile)
+            elif opts.undo_patch_ui:
+                for uifile in list(webui.filepaths.keys()):
+                    webui.restore_file(uifile)
 
 
 if __name__ == "__main__":
