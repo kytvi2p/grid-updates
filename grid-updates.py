@@ -1173,10 +1173,11 @@ def main(opts, args):
         md_file = opts.mknews_md_file
         mknews = MakeNews(opts.verbosity)
         html_file = mknews.compile_md(md_file)
-        atom_file = mknews.compile_atom()
-        include_list = [md_file, html_file, atom_file]
-        mknews.make_tarball(include_list, opts.output_dir)
-        remove_temporary_dir(opts.verbosity, mknews.tempdir)
+        if html_file:
+            atom_file = mknews.compile_atom()
+            include_list = [md_file, html_file, atom_file]
+            mknews.make_tarball(include_list, opts.output_dir)
+            remove_temporary_dir(opts.verbosity, mknews.tempdir)
 
 if __name__ == "__main__":
     try:
