@@ -120,6 +120,17 @@ def get_tahoe_version(tahoe_node_url):
     version = match.group(1)
     return version
 
+def remove_temporary_dir(verbosity, directory):
+    """Remove a (temprorary) directory."""
+    try:
+        rmtree(directory)
+    except:
+        print("ERROR: Couldn't remove temporary dir: %s." % directory,
+                file=sys.stderr)
+    else:
+        if verbosity > 2:
+            print('DEBUG: Removed temporary dir: %s.' % directory)
+
 
 class List:
     def __init__(self, verbosity, nodedir, url):
@@ -349,17 +360,6 @@ class News:
             if self.verbosity > 2:
                 print('DEBUG: Copied NEWS files into the node directory.')
 
-    def remove_temporary(self):
-        """Clean up temporary NEWS files."""
-        try:
-            rmtree(self.tempdir)
-        except:
-            print("ERROR: Couldn't remove temporary dir: %s." % self.tempdir,
-                    file=sys.stderr)
-        else:
-            if self.verbosity > 2:
-                print('DEBUG: Removed temporary dir: %s.' % self.tempdir)
-
 
 class MakeNews:
     def __init__(self, verbosity):
@@ -420,19 +420,6 @@ class MakeNews:
                 tar.add(item, arcname=os.path.basename(item))
         finally:
             tar.close()
-
-    def remove_temporary(self):
-        """Clean up temporary NEWS files."""
-        # TODO duplicate; make universal function
-        try:
-            rmtree(self.tempdir)
-        except:
-            print("ERROR: Couldn't remove temporary dir: %s." % self.tempdir,
-                    file=sys.stderr)
-        else:
-            if self.verbosity > 2:
-                print('DEBUG: Removed temporary dir: %s.' % self.tempdir)
-
 
 class Updates:
     def __init__(self, verbosity, output_dir, url):
@@ -1122,7 +1109,6 @@ def main(opts, args):
             # Copy in any case to make easily make sure that all versions
             # (escpecially the HTML version) are always present:
             news.install_files()
-            news.remove_temporary()
         except:
             if opts.verbosity > 2:
                 print("DEBUG: Couldn't finish news update operation."
@@ -1130,6 +1116,8 @@ def main(opts, args):
         else:
             if opts.verbosity > 0:
                 print('Successfully updated news.')
+        finally:
+            remove_temporary_dir(opts.verbosity, news.tempdir)
 
     if opts.check_version or opts.download_update:
         try:
@@ -1185,7 +1173,7 @@ def main(opts, args):
         atom_file = mknews.compile_atom()
         include_list = [md_file, html_file, atom_file]
         mknews.make_tarball(include_list, opts.output_dir)
-        mknews.remove_temporary()
+        remove_temporary_dir(opts.verbosity, mknews.tempdir)
 
 if __name__ == "__main__":
     try:
