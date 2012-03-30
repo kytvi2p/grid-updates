@@ -1,10 +1,10 @@
 Introduction to grid-updates
 ============================
 
-`grid-updates` is a shell script intended to help keep [Tahoe-LAFS] nodes'
-configurations up-to-date.  It can retrieve lists of introducers[^1] as well
-as news feeds from the Tahoe grid.  This is useful for any public grid that
-relies solely on volunteers.
+`grid-updates` is a Python script intended to help keep [Tahoe-LAFS] nodes'
+configurations up-to-date.  It can retrieve lists of introducers[^1] as well as
+news feeds from the Tahoe grid.  This is useful for any public grid that relies
+solely on volunteers.
 
 On some public grids (especially the one on I2P) all nodes, even introducers,
 are run by volunteers and may disappear at any given time.  Maintaining a list
@@ -43,14 +43,14 @@ Running the script
 `grid-updates` was designed as a cron job script but can be run manually just
 as well.
 
-Run this script with either `--merge-introducers` or `--replace-introducers` to
+Run this script with either `--sync-introducers` or `--merge-introducers` to
 make sure your Tahoe-LAFS node will know about as many introducers as possible.
 
-If you also want to receive the news feed, add the `--download-news` action.
-It will fetch and display (email if run by a cron job) the news feed from the
+If you also want to receive the news feed, add the `--download-news` action. It
+will fetch and display (email if run by a cron job) the news feed from the
 grid.  It will also allow you to view the news your browser (using
---patch-tahoe even in Tahoe's web console) and to be notified of news by a
-regular news reader using an Atom news feed.  Following the grid-updates news
+`--patch-tahoe` even in Tahoe's web console) and to be notified of news by
+a regular news reader using an Atom news feed.  Following the grid-updates news
 is recommended.
 
 The list, news and script installation files are stored on the grid itself and
@@ -64,7 +64,7 @@ Please refer to the [man page] for detailed usage information.
 Example cron job setup
 ----------------------
 
-     0 0 *   * * grid-updates --merge-introducers --download-news --check-version
+     0 0 *   * * grid-updates --sync-introducers --download-news --check-version
     30 0 */2 * * grid-updates --repair-subscriptions
 
 Authors

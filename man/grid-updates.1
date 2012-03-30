@@ -1,4 +1,4 @@
-.TH GRID-UPDATES 1 "January 2012" "User Commands"
+.TH GRID-UPDATES 1 "March 2012" "User Commands"
 .SH NAME
 .PP
 grid-updates - Helper Script for Tahoe-LAFS Nodes
@@ -7,7 +7,7 @@ grid-updates - Helper Script for Tahoe-LAFS Nodes
 \f[B]grid-updates\f[] [\f[I]OPTIONS\f[]] \f[I]ACTION\f[]
 .SH DESCRIPTION
 .PP
-\f[I]grid-updates\f[] is a shell script intended to help keep
+\f[I]grid-updates\f[] is a Python script intended to help keep
 Tahoe-LAFS nodes' configurations up-to-date.
 It can retrieve lists of introducers as well as news feeds from the
 Tahoe grid.
@@ -15,13 +15,14 @@ This is useful for any public grid that relies solely on
 volunteers.
 .SH ACTIONS
 .TP
-.B -m, --merge-introducers
-Merge your node's local introducers list with the subscription's.
+.B -s, --sync-introducers
+Synchronize your node's local list of introducers with the master
+list.
 .RS
 .RE
 .TP
-.B -r, --replace-introducers
-Replace your node's local list of introducers with the master list.
+.B -m, --merge-introducers
+Merge your node's local introducers list with the subscription's.
 .RS
 .RE
 .TP
@@ -31,16 +32,13 @@ See the \f[B]NEWS\f[] section below.
 .RS
 .RE
 .TP
-.B -R, --repair-subscriptions
+.B -r, --repair-subscriptions
 Maintain or repair the health of the subscription service's URIs.
 .RS
 .RE
 .TP
-.B -C \f[I][file]\f[], --create-config \f[I][file]\f[]
-Generate a grid-updates config file.
-If \f[I]file\f[] is not specified,
-\f[I]$XDG_HOME_CONFIG/grid-updates/config\f[] will be used.
-See \f[B]CONFIG FILES\f[] section below.
+.B -R, --community-repair
+Retrieve a list of shares and maintain/repair them.
 .RS
 .RE
 .TP
@@ -67,7 +65,7 @@ Check for a new version of this script on the grid.
 .RS
 .RE
 .TP
-.B --download-update \f[I][target_directory]\f[]
+.B --download-update
 Download a new version of this script from the grid to the
 specified directory (implies \f[B]--check-update\f[]).
 .RS
@@ -77,6 +75,11 @@ specified directory (implies \f[B]--check-update\f[]).
 .B -c \f[I]config file\f[], --config \f[I]config file\f[]
 Specify a grid-updates config file.
 See \f[B]CONFIG FILES\f[] section below.
+.RS
+.RE
+.TP
+.B -u \f[I]URL\f[], --node-url \f[I]URL\f[]
+Specify the gateway node's URL (default: http://127.0.0.1:3456),
 .RS
 .RE
 .TP
@@ -100,20 +103,14 @@ Override the default location of script updates.
 .RS
 .RE
 .TP
-.B --download-tool \f[I]eepget|wget|fetch|curl\f[]
-Specifiy the desired download tool.
-Without this option \f[I]grid-updates\f[] will try to find the best
-available tool automatically.
+.B --comrepair-uri \f[I]URI\f[]
+Override the default location of the --community-repair
+subscription file.
 .RS
 .RE
 .TP
-.B --no-proxy
-Disable proxy when downloading from non-tahoe URIs
-.RS
-.RE
-.TP
-.B -v, --verbose
-Display more verbose output.
+.B -v
+Increase verbosity of output.
 .RS
 .RE
 .TP
@@ -129,38 +126,40 @@ Print usage information.
 .SH CONFIG FILES
 .PP
 \f[I]grid-updates\f[] will look for configuration files in
-$XDG_CONFIG_HOME and $XDG_CONFIG_DIRS.
+$XDG_CONFIG_HOME/grid-updates/config.ini and
+$XDG_CONFIG_DIRS/grid-updates/config.ini.
+.PP
+All options must be listed below the section \f[B][OPTIONS]\f[].
 .PP
 Accepted options are:
 .TP
-.B LISTURI = \f[I]URI\f[]
+.B tahoe_node_dir = \f[I]directory\f[]
+Same as --node-dir above
+.RS
+.RE
+.TP
+.B tahoe_node_url = \f[I]URL\f[]
+Same as --node-url above
+.RS
+.RE
+.TP
+.B list_uri = \f[I]URI\f[]
 Same as --list-uri option above
 .RS
 .RE
 .TP
-.B NEWSURI = \f[I]URI\f[]
+.B news_uri = \f[I]URI\f[]
 Same as --news-uri option above
 .RS
 .RE
 .TP
-.B SCRIPTURI = \f[I]URI\f[]
+.B script_uri = \f[I]URI\f[]
 Same as --script-uri option above
 .RS
 .RE
 .TP
-.B HTTP_PROXY = \f[I]address\f[]
-(The default is 127.0.0.1:4444)
-.RS
-.RE
-.TP
-.B USE_PROXY = \f[I]yes\f[]/\f[I]no\f[]
-\[lq]USE_PROXY = no\[rq] equals the --no-proxy option above.
-Default is \f[I]yes\f[].
-.RS
-.RE
-.TP
-.B DOWNLOAD_TOOL = \f[I]name\f[]
-Same as --download-tool option above
+.B comrepair_uri = \f[I]URI\f[]
+Same as --comrepair-uri option above
 .RS
 .RE
 .SH NOTES
@@ -218,17 +217,14 @@ first.)
 .PP
 If you want to offer a \f[I]grid-updates\f[] subscription service,
 you will have to provide users with URIs to directories that
-contain the news feed (called \f[B]NEWS.tgz\f[]) and the introducer
-list (called \f[B]introducers\f[]).
-Please note that \f[I]grid-updates\f[] will append the filenames
-itself and expects the URIs of directories, not of the files
-themselves.
-.PP
-The NEWS.tgz file can be compiled with the \f[B]--make-news\f[]
-action.
-The introducers' FURLs must be listed one per line in the
-introducer list, but can be mixed with other text.
-\f[I]grid-updates\f[] will filter out only the pb:// FURLs.
+contain the subscription files.
+The available subscription types are the news feed (called
+\f[B]NEWS.tgz\f[]), the introducer list (called
+\f[B]introducers.json.txt\f[]) and the community repair list of
+shares (called \f[B]community-repair.json.txt\f[]).
+Please note that \f[I]grid-updates\f[] expects the URIs of
+directories, not of the files themselves.
+It will append the filenames itself.
 .SH FILES
 .IP \[bu] 2
 \f[I]~/.tahoe/introducers\f[]

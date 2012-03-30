@@ -1,6 +1,6 @@
 % GRID-UPDATES(1) User Commands
 % darrob <darrob@mail.i2p>, KillYourTV <killyourtv@mail.i2p>
-% January 2012
+% March 2012
 
 NAME
 ====
@@ -15,30 +15,28 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-*grid-updates* is a shell script intended to help keep Tahoe-LAFS nodes'
+*grid-updates* is a Python script intended to help keep Tahoe-LAFS nodes'
 configurations up-to-date.  It can retrieve lists of introducers as well as
-news feeds from the Tahoe grid.  This is useful for any public grid that
-relies solely on volunteers.
+news feeds from the Tahoe grid.  This is useful for any public grid that relies
+solely on volunteers.
 
 ACTIONS
 =======
 
+-s, \--sync-introducers
+:   Synchronize your node's local list of introducers with the master list.
+
 -m, \--merge-introducers
 :   Merge your node's local introducers list with the subscription's.
-
--r, \--replace-introducers
-:   Replace your node's local list of introducers with the master list.
 
 -n, \--download-news
 :   Retrieve the news feed.  See the **NEWS** section below.
 
--R, \--repair-subscriptions
+-r, \--repair-subscriptions
 :   Maintain or repair the health of the subscription service's URIs.
 
--C *[file]*, \--create-config *[file]*
-:   Generate a grid-updates config file. If *file* is not specified,
-	*$XDG_HOME_CONFIG/grid-updates/config* will be used.  See **CONFIG
-	FILES** section below.
+-R, \--community-repair
+:   Retrieve a list of shares and maintain/repair them.
 
 \--patch-tahoe
 :   Patch the Tahoe-LAFS web console to display the grid-updates news feed in
@@ -55,7 +53,7 @@ ACTIONS
 \--check-version
 :   Check for a new version of this script on the grid.
 
-\--download-update *[target_directory]*
+\--download-update
 :   Download a new version of this script from the grid to the specified
     directory (implies `--check-update`).
 
@@ -64,6 +62,9 @@ OPTIONS
 
 -c *config file*, \--config *config file*
 :   Specify a grid-updates config file. See **CONFIG FILES** section below.
+
+-u *URL*, \--node-url *URL*
+:   Specify the gateway node's URL (default: http://127.0.0.1:3456),
 
 -d *directory*, \--node-directory *directory*
 :   Specify the node directory (default: *~/.tahoe*),
@@ -77,15 +78,11 @@ OPTIONS
 \--script-uri *URI*
 :   Override the default location of script updates.
 
-\--download-tool *eepget|wget|fetch|curl*
-:   Specifiy the desired download tool. Without this option *grid-updates* will
-    try to find the best available tool automatically.
+\--comrepair-uri *URI*
+:   Override the default location of the \--community-repair subscription file.
 
-\--no-proxy
-:   Disable proxy when downloading from non-tahoe URIs
-
--v, \--verbose
-:   Display more verbose output.
+-v
+:   Increase verbosity of output.
 
 -V, \--version
 :   Display version information.
@@ -96,23 +93,26 @@ OPTIONS
 CONFIG FILES
 ============
 
-*grid-updates* will look for configuration files in $XDG_CONFIG_HOME and
-$XDG_CONFIG_DIRS.
+*grid-updates* will look for configuration files in
+$XDG_CONFIG_HOME/grid-updates/config.ini and
+$XDG_CONFIG_DIRS/grid-updates/config.ini.
+
+All options must be listed below the section `[OPTIONS]`.
 
 Accepted options are:
 
-LISTURI = *URI*
+tahoe\_node\_dir = *directory*
+:    Same as \--node-dir above
+tahoe\_node\_url = *URL*
+:    Same as \--node-url above
+list_uri = *URI*
 :    Same as \--list-uri option above
-NEWSURI = *URI*
+news_uri = *URI*
 :    Same as \--news-uri option above
-SCRIPTURI = *URI*
+script_uri = *URI*
 :    Same as \--script-uri option above
-HTTP_PROXY = *address*
-:    (The default is 127.0.0.1:4444)
-USE_PROXY = *yes*/*no*
-:    "USE_PROXY = no" equals the \--no-proxy option above. Default is *yes*.
-DOWNLOAD_TOOL = *name*
-:    Same as \--download-tool option above
+comrepair_uri = *URI*
+:    Same as \--comrepair-uri option above
 
 NOTES
 =====
@@ -157,14 +157,12 @@ INFORMATION FOR SUBSCRIPTION MAINTAINERS
 ========================================
 
 If you want to offer a *grid-updates* subscription service, you will have to
-provide users with URIs to directories that contain the news feed (called
-**NEWS.tgz**) and the introducer list (called **introducers**). Please note
-that *grid-updates* will append the filenames itself and expects the URIs of
-directories, not of the files themselves.
-
-The NEWS.tgz file can be compiled with the `--make-news` action.  The
-introducers' FURLs must be listed one per line in the introducer list, but can
-be mixed with other text. *grid-updates* will filter out only the pb:// FURLs.
+provide users with URIs to directories that contain the subscription files. The
+available subscription types are the news feed (called **NEWS.tgz**), the
+introducer list (called **introducers.json.txt**) and the community repair list
+of shares (called **community-repair.json.txt**). Please note that
+*grid-updates* expects the URIs of directories, not of the files themselves. It
+will append the filenames itself.
 
 FILES
 =====

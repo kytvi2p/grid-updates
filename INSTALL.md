@@ -6,12 +6,12 @@ See [README.md] and the [man page] for more information about grid-updates.
 Requirements
 ------------
 
-Bourne-compatible shell, Tahoe-LAFS
+Python version 2.? and above.
 
 Installation
 ------------
 
-`grid-updates` is a shell script, so you can run it by calling it directly or
+`grid-updates` is a Python script that you can run it by calling it directly or
 adding it to your PATH.
 
 It is probably more conventient to run `make install` which will install the
