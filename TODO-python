@@ -3,15 +3,7 @@
 * root
 	- might be required for patching
 	- skip tahoe node checks in this case
-* research version string sorting
-* --community-repair
-	- modes: deep-check, one-check, custom single-level deep-check?
-	- allow config of multiple feeds?
 * new introducer list file format: JSON
 	- add option to add new introducers through g-u (and check syntax)?
-* --make-news
-	- requires pandoc; shell script good enough?
 * set() for local lists in case of manually added dupicates
 * always make sure there is at least a NEWS.html stub in web.static
-* patches
-	- check tahoe version
