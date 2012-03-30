@@ -6,7 +6,7 @@
 	<link href="http://127.0.0.1:3456/static/NEWS.atom" rel="self" />
 	<link href="127.0.0.1:3456/static/NEWS.html" />
 	<id>urn:uuid:a602a98e-3962-11e1-a2fb-001125491f79</id>
-	<updated>REPLACEUPDATED</updated>
+	<updated>REPLACEDATE</updated>
 	<author>
 		<name>grid-updates</name>
 		<uri>URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a</uri>
@@ -18,7 +18,7 @@
 	<entry>
 		<title>Latest update: REPLACEDATE</title>
 		<link href="http://127.0.0.1:3456/static/NEWS.html" />
-		<updated>REPLACEUPDATED</updated>
+		<updated>REPLACEDATE</updated>
 		<id>REPLACEID</id>
 		<summary>There are news regarding the Tahoe-LAFS grid. Please read.</summary>
 	</entry>
