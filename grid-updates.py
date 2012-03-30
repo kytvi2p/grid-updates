@@ -509,6 +509,8 @@ class PatchWebUI:
             print(self.filepaths)
 
     def compatible_version(self, tahoe_node_url):
+        """Check Tahoe-LAFS's version to be known. We don't want to replace an
+        unexpected and possibly redesigned web UI."""
         tahoe_version = LooseVersion(get_tahoe_version(tahoe_node_url))
         if tahoe_version >= LooseVersion('1.8.3') and \
                 tahoe_version < LooseVersion('1.9'):
