@@ -26,7 +26,7 @@ else:
 import random
 from distutils.version import LooseVersion
 import subprocess
-from datetime import datetime, date, time
+from datetime import datetime
 from uuid import uuid4
 
 __author__ = ['darrob', 'KillYourTV']
