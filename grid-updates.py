@@ -55,6 +55,61 @@ def is_valid_introducer(uri):
     else:
         return False
 
+def parse_result(verbosity, result, mode, unhealthy):
+    """Parse JSON response from Tahoe deep-check operation.
+    Optionally prints status output; returns number of unhealthy shares.
+    """
+    #   [u'check-and-repair-results', u'cap', u'repaircap',
+    #   u'verifycap', u'path', u'type', u'storage-index']
+    if mode == 'deep-check':
+        if not ('check-and-repair-results' in
+                list(json.loads(result).keys())):
+            # This would be the final 'stats' line.
+            return 'unchecked', unhealthy
+        uritype   = json.loads(result)['type']
+        path   = json.loads(result)['path']
+        status = (json.loads(result)
+                    ['check-and-repair-results']
+                    ['post-repair-results']
+                    ['summary'])
+        # Print
+        if verbosity > 1:
+            if uritype == 'directory' and not path:
+                print('  <root>: %s' % status)
+            else:
+                print('  %s: %s' % (path[0], status))
+        # Count unhealthy
+        if status.startswith('Unhealthy'):
+            unhealthy += 1
+        return status, unhealthy
+    elif mode == 'one-check':
+        status = json.loads(result)['post-repair-results']['summary']
+        # Count unhealthy
+        if status.startswith('Unhealthy'):
+            unhealthy += 1
+        return status, unhealthy
+
+def find_datadir():
+    """Determine datadir (e.g. /usr/share) from the grid-updates executable's
+    location."""
+    bindir = os.path.dirname(sys.argv[0])
+    if bindir == '/usr/bin' or bindir == '/usr/local/bin':
+        datadir = '/usr/share/grid-updates'
+    else:
+        datadir = os.path.join(bindir, 'etc')
+    if not os.path.exists(datadir):
+        print('ERROR: Does not exist: %s.' % datadir, file=sys.stderr)
+    return datadir
+
+def find_tahoe_dir(tahoe_node_url):
+    """Determine the location of the tahoe installation directory and included
+    'web' directory by parsing the tahoe web console."""
+    webconsole = urlopen(tahoe_node_url)
+    match = re.search(r'.*\ \'(.*__init__.pyc)', webconsole.read())
+    tahoepath = os.path.dirname(match.group(1))
+    webdir = os.path.join(tahoepath, 'web')
+    return webdir
+
 
 class List:
     def __init__(self, verbosity, nodedir, url):
@@ -435,8 +490,8 @@ def repair_share(verbosity, sharename, repair_uri, mode):
 class PatchWebUI:
     def __init__(self, verbosity, tahoe_node_url):
         self.verbosity = verbosity
-        self.datadir = self.find_datadir()
-        self.webdir = self.find_tahoe_dir(tahoe_node_url)
+        self.datadir = find_datadir()
+        self.webdir = find_tahoe_dir(tahoe_node_url)
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
         self.add_patch_filepaths()
         self.add_target_filepaths()
@@ -446,18 +501,6 @@ class PatchWebUI:
             print('DEBUG: File paths:')
             print(self.filepaths)
 
-    def find_datadir(self):
-        """Determine datadir (e.g. /usr/share) from the grid-updates
-        executable's location."""
-        bindir = os.path.dirname(sys.argv[0])
-        if bindir == '/usr/bin' or bindir == '/usr/local/bin':
-            datadir = '/usr/share/grid-updates'
-        else:
-            datadir = os.path.join(bindir, 'etc')
-        if not os.path.exists(datadir):
-            print('ERROR: Does not exist: %s.' % datadir, file=sys.stderr)
-        return datadir
-
     def add_patch_filepaths(self):
         """Add locations of patched web UI files to the location dict."""
         for patchfile in list(self.filepaths.keys()):
@@ -466,15 +509,6 @@ class PatchWebUI:
                 print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
                 sys.exit(1)
             self.filepaths[patchfile].append(filepath)
-
-    def find_tahoe_dir(self, tahoe_node_url):
-        """Determine the location of the tahoe installation directory and
-        included 'web' directory by parsing the tahoe web console."""
-        webconsole = urlopen(tahoe_node_url)
-        match = re.search(r'.*\ \'(.*__init__.pyc)', webconsole.read())
-        tahoepath = os.path.dirname(match.group(1))
-        webdir = os.path.join(tahoepath, 'web')
-        return webdir
 
     def add_target_filepaths(self):
         """Add locations of original web UI files to the location dict."""
@@ -531,40 +565,6 @@ class PatchWebUI:
         if self.verbosity > 2:
             print('DEBUG: Installing patched version of %s' % targetfile)
         copyfile(patchedfile, targetfile)
-
-def parse_result(verbosity, result, mode, unhealthy):
-    """Parse JSON response from Tahoe deep-check operation.
-    Optionally prints status output; returns number of unhealthy shares.
-    """
-    #   [u'check-and-repair-results', u'cap', u'repaircap',
-    #   u'verifycap', u'path', u'type', u'storage-index']
-    if mode == 'deep-check':
-        if not ('check-and-repair-results' in
-                list(json.loads(result).keys())):
-            # This would be the final 'stats' line.
-            return 'unchecked', unhealthy
-        uritype   = json.loads(result)['type']
-        path   = json.loads(result)['path']
-        status = (json.loads(result)
-                    ['check-and-repair-results']
-                    ['post-repair-results']
-                    ['summary'])
-        # Print
-        if verbosity > 1:
-            if uritype == 'directory' and not path:
-                print('  <root>: %s' % status)
-            else:
-                print('  %s: %s' % (path[0], status))
-        # Count unhealthy
-        if status.startswith('Unhealthy'):
-            unhealthy += 1
-        return status, unhealthy
-    elif mode == 'one-check':
-        status = json.loads(result)['post-repair-results']['summary']
-        # Count unhealthy
-        if status.startswith('Unhealthy'):
-            unhealthy += 1
-        return status, unhealthy
 
 
 def parse_opts(argv):
