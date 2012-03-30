@@ -27,7 +27,7 @@ uninstall:
 	@echo "$(APP) successfully uninstalled."
 
 clean:
-	@rm -f README.html INSTALL.html MAN.html
+	@rm -f README.html INSTALL.html MAN.html *.log *.pyc
 
 man:
 	pandoc -s -w man man/grid-updates.1.md -o $(MAN)
@@ -70,4 +70,14 @@ help:
 	@echo "Type 'make html' to compile HTML versions of the documentation."
 	@echo "Type 'make release' to create a release tarball."
 
-.PHONY: man viewman clean install help html tahoehtml default installpatch
+lint:
+	for f in *.py; \
+		do \
+		echo "$$f" ;\
+		pychecker "$$f" > "$$f".pychecker.log; \
+		pyflakes "$$f" > "$$f".pyflakes.log; \
+		pylint "$$f" > "$$f".pylint.log; \
+		done; \
+		exit 0
+
+.PHONY: man viewman clean install help html tahoehtml default installpatch lint
