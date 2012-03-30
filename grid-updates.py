@@ -106,9 +106,8 @@ def find_tahoe_dir(tahoe_node_url):
     'web' directory by parsing the tahoe web console."""
     webconsole = urlopen(tahoe_node_url)
     match = re.search(r'.*\ \'(.*__init__.pyc)', webconsole.read())
-    tahoepath = os.path.dirname(match.group(1))
-    webdir = os.path.join(tahoepath, 'web')
-    return webdir
+    tahoe_dir = os.path.dirname(match.group(1))
+    return tahoe_dir
 
 
 class List:
@@ -491,7 +490,7 @@ class PatchWebUI:
     def __init__(self, verbosity, tahoe_node_url):
         self.verbosity = verbosity
         self.datadir = find_datadir()
-        self.webdir = find_tahoe_dir(tahoe_node_url)
+        self.webdir = os.path.join(find_tahoe_dir(tahoe_node_url), 'web')
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
         self.add_patch_filepaths()
         self.add_target_filepaths()
