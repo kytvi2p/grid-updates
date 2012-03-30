@@ -25,6 +25,9 @@ else:
     from urllib.error import HTTPError
 import random
 from distutils.version import LooseVersion
+import subprocess
+from datetime import datetime, date, time
+from uuid import uuid4
 
 __author__ = ['darrob', 'KillYourTV']
 __license__ = "Public Domain"
@@ -348,6 +351,72 @@ class News:
 
     def remove_temporary(self):
         """Clean up temporary NEWS files."""
+        try:
+            rmtree(self.tempdir)
+        except:
+            print("ERROR: Couldn't remove temporary dir: %s." % self.tempdir,
+                    file=sys.stderr)
+        else:
+            if self.verbosity > 2:
+                print('DEBUG: Removed temporary dir: %s.' % self.tempdir)
+
+
+class MakeNews:
+    def __init__(self, verbosity):
+        self.verbosity = verbosity
+        self.tempdir = tempfile.mkdtemp()
+        if self.verbosity > 2:
+            print('DEBUG: tempdir is: %s' % self.tempdir)
+        # check for pandoc and markdown
+        # find template locations
+        self.datadir = find_datadir()
+
+    def compile_md(self, mdfile):
+        source = mdfile
+        output_html = os.path.join(self.tempdir, 'NEWS.html')
+        pandoc_tmplt = os.path.join(self.datadir, 'pandoc-template.html')
+        if self.verbosity > 2:
+            print('DEBUG: HTML file is: %s' % output_html)
+        try:
+            subprocess.call(["pandoc",
+                            "-w", "html",
+                            "-r", "markdown",
+                            "--email-obfuscation", "none",
+                            "--template", pandoc_tmplt,
+                            "--output", output_html,
+                            source])
+        except OSError as ose:
+            print("ERROR: Couldn't run pandoc subprocess: %s" % ose)
+        else:
+            return output_html
+
+    def compile_atom(self):
+        atom_tmplt = os.path.join(self.datadir, 'NEWS.atom.template')
+        output_atom = os.path.join(self.tempdir, 'NEWS.atom')
+        with open(atom_tmplt, 'r') as f:
+            formatted = f.read()
+        # insert date
+        now = datetime.now()
+        formatted = re.sub(r'REPLACEDATE', now.isoformat(), formatted)
+        # insert UUID
+        uuid = str(uuid4())
+        formatted = re.sub(r'REPLACEID', uuid, formatted)
+        with open(output_atom, 'w') as f:
+            f.write(formatted)
+        return output_atom
+
+    def make_tarball(self, include_list, output_dir):
+        tarball = os.path.join(output_dir, 'NEWS.tgz')
+        tar = tarfile.open(tarball, mode='w:gz')
+        try:
+            for item in include_list:
+                tar.add(item, arcname=os.path.basename(item))
+        finally:
+            tar.close()
+
+    def remove_temporary(self):
+        """Clean up temporary NEWS files."""
+        # TODO duplicate; make universal function
         try:
             rmtree(self.tempdir)
         except:
@@ -759,6 +828,11 @@ def parse_opts(argv):
             dest = "undo_patch_ui",
             default = False,
             help = 'Restore the original Tahoe Web console files.')
+    action_opts.add_option('--make-news',
+            action = 'store',
+            dest = "mknews_md_file",
+            help = 'Compile a grid-updates-compatible NEWS.tgz file from'
+                    ' a Markdown file.')
     parser.add_option_group(action_opts)
     # options
     other_opts = optparse.OptionGroup(
@@ -801,7 +875,8 @@ def parse_opts(argv):
             dest = 'output_dir',
             default = output_dir,
             help = ('Override default output directory (%s) for script '
-                    'update downloads.' % os.getcwd()))
+                    'update downloads and NEWS.tgz generation.'
+                    % os.getcwd()))
     parser.add_option_group(other_opts)
     # remaining
     parser.add_option('-v',
@@ -894,7 +969,8 @@ def main(opts, args):
     and not opts.download_update
     and not opts.comrepair
     and not opts.patch_ui
-    and not opts.undo_patch_ui):
+    and not opts.undo_patch_ui
+    and not opts.mknews_md_file):
         print('ERROR: You need to specify an action. Please see %s --help.' %
                 sys.argv[0], file=sys.stderr)
         sys.exit(1)
@@ -1095,6 +1171,14 @@ def main(opts, args):
                 for uifile in list(webui.filepaths.keys()):
                     webui.restore_file(uifile)
 
+    if opts.mknews_md_file:
+        md_file = opts.mknews_md_file
+        mknews = MakeNews(opts.verbosity)
+        html_file = mknews.compile_md(md_file)
+        atom_file = mknews.compile_atom()
+        include_list = [md_file, html_file, atom_file]
+        mknews.make_tarball(include_list, opts.output_dir)
+        mknews.remove_temporary()
 
 if __name__ == "__main__":
     try:
