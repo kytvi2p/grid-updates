@@ -998,7 +998,8 @@ def main(opts, args):
                     " Continuing...")
         else:
             if opts.verbosity > 0:
-                print('Successfully updated the introducer list.')
+                print('Successfully updated the introducer list.'
+                      ' Changes will take effect upon restart of the node.')
 
     if opts.news:
         try:
