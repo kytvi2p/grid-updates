@@ -109,6 +109,13 @@ def find_tahoe_dir(tahoe_node_url):
     tahoe_dir = os.path.dirname(match.group(1))
     return tahoe_dir
 
+def tahoe_version(tahoe_node_url):
+    """Determine Tahoe-LAFS version number from web console."""
+    webconsole = urlopen(tahoe_node_url)
+    match = re.search(r'allmydata-tahoe:\ (.*),', webconsole.read())
+    version = match.group(1)
+    return version
+
 
 class List:
     def __init__(self, verbosity, nodedir, url):
