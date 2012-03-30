@@ -311,7 +311,7 @@ class News:
                         if self.verbosity > 1:
                             print('INFO: NEWS files seem to be identical.')
                 if self.verbosity > 2:
-                    print('DEBUG: Successfully extracted and'
+                    print('DEBUG: Successfully extracted and '
                             'compared NEWS files.')
             finally:
                 locnews.close()
@@ -331,7 +331,7 @@ class News:
                 copyfile(os.path.join(self.tempdir, newsfile),
                         os.path.join(self.nodedir, self.web_static, newsfile))
         except:
-            print("ERROR: Couldn't copy one or more NEWS files into the"
+            print("ERROR: Couldn't copy one or more NEWS files into the "
                   "node directory.", file=sys.stderr)
             sys.exit(1)
         else:
@@ -881,7 +881,7 @@ def main(opts, args):
 
     # conflicting options
     if opts.merge and opts.sync:
-        print('ERROR: --merge-introducers & --sync-introducers are'
+        print('ERROR: --merge-introducers & --sync-introducers are '
             ' mutually exclusive actions.', file=sys.stderr)
         sys.exit(1)
 
