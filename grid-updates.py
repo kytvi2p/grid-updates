@@ -447,6 +447,8 @@ class PatchWebUI:
             print(self.filepaths)
 
     def find_datadir(self):
+        """Determine datadir (e.g. /usr/share) from the grid-updates
+        executable's location."""
         bindir = os.path.dirname(sys.argv[0])
         if bindir == '/usr/bin' or bindir == '/usr/local/bin':
             datadir = '/usr/share/grid-updates'
@@ -457,6 +459,7 @@ class PatchWebUI:
         return datadir
 
     def add_patch_filepaths(self):
+        """Add locations of patched web UI files to the location dict."""
         for patchfile in list(self.filepaths.keys()):
             filepath = os.path.join(self.datadir, patchfile + '.patched')
             if not os.path.exists(filepath):
@@ -465,6 +468,8 @@ class PatchWebUI:
             self.filepaths[patchfile].append(filepath)
 
     def find_tahoe_dir(self, tahoe_node_url):
+        """Determine the location of the tahoe installation directory and
+        included 'web' directory by parsing the tahoe web console."""
         webconsole = urlopen(tahoe_node_url)
         match = re.search(r'.*\ \'(.*__init__.pyc)', webconsole.read())
         tahoepath = os.path.dirname(match.group(1))
@@ -472,6 +477,7 @@ class PatchWebUI:
         return webdir
 
     def add_target_filepaths(self):
+        """Add locations of original web UI files to the location dict."""
         for targetfile in list(self.filepaths.keys()):
             filepath = (os.path.join(self.webdir, targetfile))
             if not os.path.exists(filepath):
@@ -480,6 +486,7 @@ class PatchWebUI:
             self.filepaths[targetfile].append(filepath)
 
     def read_patch_version(self, uifile):
+        """Get the patches' versions from web UI files."""
         with open(uifile, 'r') as f:
             match = re.search(r'grid-updates\ patch\ VERSION=(.*)\ ',
                     f.readlines()[-1])
@@ -493,6 +500,7 @@ class PatchWebUI:
                 return False
 
     def backup_file(self, uifile):
+        """Make a backup copy of file if it doesn't already exist."""
         # TODO exception
         targetfile = self.filepaths[uifile][1]
         backupfile = targetfile + '.grid-updates.original'
@@ -506,6 +514,7 @@ class PatchWebUI:
 
 
     def restore_file(self, uifile):
+        """Restore a backup copy; undo patching."""
         # TODO exception
         targetfile  = self.filepaths[uifile][1]
         backupfile = targetfile + '.grid-updates.original'
@@ -515,6 +524,7 @@ class PatchWebUI:
 
 
     def install_file(self, uifile):
+        """Copy the patched version of a file into the tahoe directory."""
         # TODO exception
         patchedfile = self.filepaths[uifile][0]
         targetfile  = self.filepaths[uifile][1]
