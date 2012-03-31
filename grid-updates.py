@@ -387,7 +387,8 @@ class News:
             print('DEBUG: Selected action: --download-news')
         self.download_news()
         self.extract_tgz()
-        self.news_differ()
+        if self.news_differ():
+            self.print_news()
         # Copy in any case to make easily make sure that all versions
         # (escpecially the HTML version) are always present:
         self.install_files()
@@ -423,40 +424,32 @@ class News:
             sys.exit(1)
 
     def news_differ(self):
-        """Compare NEWS files and print to stdout if they differ (if allowed
-        by verbosity level)."""
-        # TODO convoluted; can probably be solved with a single try..except
-        if os.access(self.local_news, os.F_OK):
-            try:
-                locnews = open(self.local_news, 'r+')
-            except IOError as exc:
-                print('ERROR: Cannot access NEWS file: %s' % exc,
-                        file=sys.stderr)
-                sys.exit(1)
-            else:
-                with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
-                    if locnews.read() != tempnews.read():
-                        if self.verbosity > 2:
-                            print('DEBUG: NEWS files differ.')
-                        if self.verbosity > 0:
-                            tempnews.seek(0)
-                            for line in tempnews.readlines():
-                                print('  | ' + line, end='')
-                    else:
-                        if self.verbosity > 1:
-                            print('INFO: NEWS files seem to be identical.')
-                if self.verbosity > 2:
-                    print('DEBUG: Successfully extracted and '
-                            'compared NEWS files.')
-            finally:
-                locnews.close()
+        """Compare the local and newly downloaded NEWS files to determine of
+        there are new news. Return True/False."""
+        try:
+            locnews = open(self.local_news, 'r')
+        except:
+            if self.verbosity > 2:
+                print('DEBUG: No NEWS file found in node directory.')
+            return True
         else:
             with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
-                if self.verbosity > 2:
-                    print('DEBUG: No NEWS file found in node directory.')
-                if self.verbosity > 0:
-                    for line in tempnews.readlines():
-                        print('  | ' + line, end='')
+                if locnews.read() != tempnews.read():
+                    if self.verbosity > 2:
+                        print('DEBUG: NEWS files differ.')
+                    return True
+                else:
+                    if self.verbosity > 1:
+                        print('INFO: NEWS files seem to be identical.')
+                    return False
+            locnews.close()
+
+    def print_news(self):
+        """Print the contents of the newly downloaded NEWS file in the
+        temporary directory."""
+        with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
+            for line in tempnews.readlines():
+                print('  | ' + line, end='')
 
     def install_files(self):
         """Copy extracted NEWS files to their intended locations."""
