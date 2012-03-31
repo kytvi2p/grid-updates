@@ -38,6 +38,81 @@ __status__ = "Development"
 
 __patch_version__ = '1.8.3-gu5'
 
+# Actions
+# =======
+def action_repair(verbosity, uri_dict):
+    # Iterate over known tahoe directories and all files within.
+    if verbosity > 0:
+        print("-- Repairing the grid-updates Tahoe shares. --")
+    mode = 'deep-check'
+    unhealthy = 0
+    # shuffle() to even out chances of all shares to get repaired
+    # (Is this useful?)
+    sharelist = list(uri_dict.keys())
+    random.shuffle(sharelist)
+    for sharename in sharelist:
+        repair_uri = uri_dict[sharename][1]
+        results = repair_share(verbosity, sharename,
+                                        repair_uri, mode)
+        if verbosity > 1:
+            print('INFO: Post-repair results for: %s' % sharename)
+        for result in results:
+            status, unhealthy = parse_result(verbosity,
+                    result.decode('utf8'), mode, unhealthy)
+        if verbosity > 0:
+            if unhealthy == 1:
+                sub = 'object'
+            else:
+                sub = 'objects'
+    if verbosity > 0:
+        print("Deep-check of grid-updates shares completed: "
+                            "%d %s unhealthy." % (unhealthy, sub))
+
+def action_comrepair(verbosity, uri_dict):
+    # --community-repair
+    if verbosity > 0:
+        print("-- Repairing Tahoe shares. --")
+    # TODO This action should probably be renamed to something less
+    # specific, because there is a variety of use cases for it that don't
+    # have to be community oriented.
+    unhealthy = 0
+    url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
+    subscriptionfile = tahoe_dl_file(verbosity, url).read()
+    # shuffle() to even out chances of all shares to get repaired
+    sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
+                                            ['community-shares']))
+    random.shuffle(sharelist)
+    for share in sharelist:
+        sharename  = share['name']
+        repair_uri = gen_full_tahoe_uri(share['uri'])
+        mode       = share['mode']
+        if mode == 'deep-check':
+            results = repair_share(verbosity, sharename, repair_uri,
+                                                                    mode)
+            for result in results:
+                status, unhealthy = parse_result(verbosity,
+                        result.decode('utf8'), mode, unhealthy)
+            if verbosity > 1:
+                if unhealthy == 1:
+                    sub = 'object'
+                else:
+                    sub = 'objects'
+                print("  Deep-check completed: %d %s unhealthy."
+                                                % (unhealthy, sub))
+        if mode == 'one-check':
+            result = repair_share(verbosity, sharename,
+                                            repair_uri, mode)
+            status, unhealthy = parse_result(verbosity,
+                        result.decode('utf8'), mode, unhealthy)
+            if verbosity > 1:
+                print("  Status: %s" % status)
+    if verbosity > 0:
+        print('Repairs have completed (unhealthy: %d).' % unhealthy)
+
+def gen_full_tahoe_uri(uri):
+    """Generate a complete, accessible URL from a Tahoe URI."""
+    return opts.tahoe_node_url + '/uri/' + uri
+
 def tahoe_dl_file(verbosity, url):
     """Download a file from the Tahoe grid; returns the raw response."""
     if verbosity > 1:
@@ -145,6 +220,17 @@ class List:
         (self.old_introducers, self.old_list) = self.read_existing_list()
         json_response = tahoe_dl_file(verbosity, self.url)
         self.intro_dict = self.create_intro_dict(json_response)
+
+    def run_action(self, mode):
+        if self.lists_differ():
+            self.backup_original()
+            if mode == 'merge':
+                self.merge_introducers()
+            if mode == 'sync':
+                self.sync_introducers()
+        else:
+            if opts.verbosity > 0:
+                print('Introducer list already up-to-date.')
 
     def create_intro_dict(self, json_response):
         """Compile a dictionary of introducers (uri->name,active) from a JSON
@@ -287,6 +373,16 @@ class News:
         self.tempdir = tempfile.mkdtemp()
         self.local_archive = os.path.join(self.tempdir, 'NEWS.tgz')
 
+    def run_action(self):
+        if self.verbosity > 2:
+            print('DEBUG: Selected action: --download-news')
+        self.download_news()
+        self.extract_tgz()
+        self.news_differ()
+        # Copy in any case to make easily make sure that all versions
+        # (escpecially the HTML version) are always present:
+        self.install_files()
+
     def download_news(self):
         """Download NEWS.tgz file to local temporary file."""
         url = self.url + '/NEWS.tgz'
@@ -379,6 +475,14 @@ class MakeNews:
         # find template locations
         self.datadir = find_datadir()
 
+    def run_action(self, md_file):
+        html_file = self.compile_md(md_file)
+        if html_file:
+            atom_file = self.compile_atom()
+            include_list = [md_file, html_file, atom_file]
+            self.make_tarball(include_list, opts.output_dir)
+            remove_temporary_dir(opts.verbosity, self.tempdir)
+
     def compile_md(self, mdfile):
         """Compile an HTML version of the Markdown source of NEWS; return the
         file path."""
@@ -438,10 +542,16 @@ class Updates:
         if self.verbosity > 0:
             print("-- Looking for script updates --")
         self.dir_url = self.url + '/?t=json'
+
+    def run_action(self, mode):
         if self.new_version_available():
-            self.new_ver_available = True
+            if mode == 'print':
+                self.print_versions()
+            elif mode == 'download':
+                self.download_update()
         else:
-            self.new_ver_available = False
+            if self.verbosity > 0:
+                print('No update available.')
 
     def get_version_number(self):
         """Determine latest available version number by parsing the Tahoe
@@ -495,33 +605,29 @@ class Updates:
 
     def download_update(self):
         """Download script tarball."""
-        if self.new_ver_available:
-            download_url = (
-                    self.url + '/grid-updates-v' + self.latest_version + '.tgz')
-            if self.verbosity > 1:
-                print("INFO: Downloading", download_url)
-            try:
-                remote_file = urlopen(download_url)
-            except HTTPError as exc:
-                print('ERROR: Could not download the tarball:', exc,
-                        file=sys.stderr)
-                sys.exit(1)
-            local_file = os.path.join(self.output_dir, 'grid-updates-v' +
-                                        self.latest_version + '.tgz')
-            try:
-                with open(local_file,'wb') as output:
-                    output.write(remote_file.read())
-            except IOError as exc:
-                print('ERROR: Could not write to local file:', exc,
-                        file=sys.stderr)
-                sys.exit(1)
-            else:
-                if self.verbosity > 0:
-                    print('Success: downloaded an update to %s.' %
-                            os.path.abspath(local_file))
+        download_url = (
+                self.url + '/grid-updates-v' + self.latest_version + '.tgz')
+        if self.verbosity > 1:
+            print("INFO: Downloading", download_url)
+        try:
+            remote_file = urlopen(download_url)
+        except HTTPError as exc:
+            print('ERROR: Could not download the tarball:', exc,
+                    file=sys.stderr)
+            sys.exit(1)
+        local_file = os.path.join(self.output_dir, 'grid-updates-v' +
+                                    self.latest_version + '.tgz')
+        try:
+            with open(local_file,'wb') as output:
+                output.write(remote_file.read())
+        except IOError as exc:
+            print('ERROR: Could not write to local file:', exc,
+                    file=sys.stderr)
+            sys.exit(1)
         else:
             if self.verbosity > 0:
-                print('No update available.')
+                print('Success: downloaded an update to %s.' %
+                        os.path.abspath(local_file))
 
 
 def repair_share(verbosity, sharename, repair_uri, mode):
@@ -579,6 +685,29 @@ class PatchWebUI:
             print('DEBUG: Tahoe web dir is: %s' % self.webdir)
             print('DEBUG: File paths:')
             print(self.filepaths)
+
+    def run_action(self, mode):
+        if self.compatible_version(self.tahoe_node_url):
+            if mode == 'patch':
+                for uifile in list(self.filepaths.keys()):
+                    patch_version = self.read_patch_version(
+                                            self.filepaths [uifile][1])
+                    if patch_version:
+                        # file is patched
+                        if not patch_version == __patch_version__:
+                            if self.verbosity > 1:
+                                print('INFO: A newer patch is available. '
+                                                            'Installing.')
+                            self.install_file(uifile)
+                        else:
+                            if self.verbosity > 2:
+                                print('DEBUG: Patch is up-to-date.')
+                    else:
+                        self.backup_file(uifile)
+                        self.install_file(uifile)
+            if mode == 'undo':
+                for uifile in list(self.filepaths.keys()):
+                    self.restore_file(uifile)
 
     def compatible_version(self, tahoe_node_url):
         """Check Tahoe-LAFS's version to be known. We don't want to replace an
@@ -987,9 +1116,6 @@ def main(opts, args):
         sys.exit(1)
 
     # generate URI dictionary
-    def gen_full_tahoe_uri(uri):
-        """Generate a complete, accessible URL from a Tahoe URI."""
-        return opts.tahoe_node_url + '/uri/' + uri
     uri_dict = {'list': (opts.list_uri, gen_full_tahoe_uri(opts.list_uri)),
                 'news': (opts.news_uri, gen_full_tahoe_uri(opts.news_uri)),
                 'script': (opts.script_uri,
@@ -1010,180 +1136,48 @@ def main(opts, args):
     # Run actions
     # -----------
     if opts.repair:
-        # Iterate over known tahoe directories and all files within.
-        if opts.verbosity > 0:
-            print("-- Repairing the grid-updates Tahoe shares. --")
-        mode = 'deep-check'
-        unhealthy = 0
-        # shuffle() to even out chances of all shares to get repaired
-        # (Is this useful?)
-        sharelist = list(uri_dict.keys())
-        random.shuffle(sharelist)
-        for sharename in sharelist:
-            repair_uri = uri_dict[sharename][1]
-            results = repair_share(opts.verbosity, sharename,
-                                            repair_uri, mode)
-            if opts.verbosity > 1:
-                print('INFO: Post-repair results for: %s' % sharename)
-            for result in results:
-                status, unhealthy = parse_result(opts.verbosity,
-                        result.decode('utf8'), mode, unhealthy)
-            if opts.verbosity > 0:
-                if unhealthy == 1:
-                    sub = 'object'
-                else:
-                    sub = 'objects'
-        if opts.verbosity > 0:
-            print("Deep-check of grid-updates shares completed: "
-                                "%d %s unhealthy." % (unhealthy, sub))
+        action_repair(opts.verbosity, uri_dict)
 
     if opts.comrepair:
-        # --community-repair
-        if opts.verbosity > 0:
-            print("-- Repairing Tahoe shares. --")
-        # TODO This action should probably be renamed to something less
-        # specific, because there is a variety of use cases for it that don't
-        # have to be community oriented.
-        unhealthy = 0
-        url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
-        subscriptionfile = tahoe_dl_file(opts.verbosity, url).read()
-        # shuffle() to even out chances of all shares to get repaired
-        sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
-                                               ['community-shares']))
-        random.shuffle(sharelist)
-        for share in sharelist:
-            sharename  = share['name']
-            repair_uri = gen_full_tahoe_uri(share['uri'])
-            mode       = share['mode']
-            if mode == 'deep-check':
-                results = repair_share(opts.verbosity, sharename, repair_uri,
-                                                                        mode)
-                for result in results:
-                    status, unhealthy = parse_result(opts.verbosity,
-                            result.decode('utf8'), mode, unhealthy)
-                if opts.verbosity > 1:
-                    if unhealthy == 1:
-                        sub = 'object'
-                    else:
-                        sub = 'objects'
-                    print("  Deep-check completed: %d %s unhealthy."
-                                                    % (unhealthy, sub))
-            if mode == 'one-check':
-                result = repair_share(opts.verbosity, sharename,
-                                                repair_uri, mode)
-                status, unhealthy = parse_result(opts.verbosity,
-                          result.decode('utf8'), mode, unhealthy)
-                if opts.verbosity > 1:
-                    print("  Status: %s" % status)
-        if opts.verbosity > 0:
-            print('Repairs have completed (unhealthy: %d).' % unhealthy)
+        action_comrepair(opts.verbosity, uri_dict)
 
     if opts.merge or opts.sync:
-        # Debug info
-        if opts.merge and opts.verbosity > 2:
-            print('DEBUG: Selected action: --merge-introducers')
-        if opts.sync and opts.verbosity > 2:
-            print('DEBUG: Selected action: --sync-introducers')
-        try:
-            intlist = List(opts.verbosity,
-                    opts.tahoe_node_dir, uri_dict['list'][1])
-            if intlist.lists_differ():
-                intlist.backup_original()
-                if opts.merge:
-                    intlist.merge_introducers()
-                elif opts.sync:
-                    intlist.sync_introducers()
-            else:
-                if opts.verbosity > 0:
-                    print('Introducer list already up-to-date.')
-        except:
-            if opts.verbosity > 2:
-                print("DEBUG: Couldn't finish introducer list operation."
-                    " Continuing...")
-        else:
-            if opts.verbosity > 2:
-                print('DEBUG: Successfully ran introducer update operation.')
+        intlist = List(opts.verbosity,
+                        opts.tahoe_node_dir,
+                        uri_dict['list'][1])
+        if opts.sync:
+            intlist.run_action('sync')
+        elif opts.merge:
+            intlist.run_action('merge')
 
     if opts.news:
-        try:
-            if opts.verbosity > 2:
-                print('DEBUG: Selected action: --download-news')
-            news = News(opts.verbosity,
+        news = News(opts.verbosity,
                     opts.tahoe_node_dir,
                     web_static_dir,
                     uri_dict['news'][1])
-            news.download_news()
-            news.extract_tgz()
-            news.news_differ()
-            # Copy in any case to make easily make sure that all versions
-            # (escpecially the HTML version) are always present:
-            news.install_files()
-        except:
-            if opts.verbosity > 2:
-                print("DEBUG: Couldn't finish news update operation."
-                    " Continuing...")
-        else:
-            if opts.verbosity > 0:
-                print('Successfully updated news.')
-        finally:
-            remove_temporary_dir(opts.verbosity, news.tempdir)
+        news.run_action()
+        remove_temporary_dir(opts.verbosity, news.tempdir)
 
     if opts.check_version or opts.download_update:
-        try:
-            # __init__ checks for new version
-            update = Updates(opts.verbosity,
-                    opts.output_dir,
-                    uri_dict['script'][1])
-            if opts.check_version:
-                update.print_versions()
-            if opts.download_update:
-                update.download_update()
-        except:
-            if opts.verbosity > 2:
-                print("DEBUG: Couldn't finish version check operation."
-                    " Continuing...")
-        else:
-            if opts.verbosity > 2:
-                print('DEBUG: Successfully ran script update operation.')
+        update = Updates(opts.verbosity,
+                         opts.output_dir,
+                         uri_dict['script'][1])
+        if opts.check_version:
+            update.run_action('check')
+        elif opts.download_update:
+            update.run_action('download')
 
     if opts.patch_ui or opts.undo_patch_ui:
-        if opts.patch_ui and opts.verbosity > 2:
-            print('DEBUG: Selected action: --patch-tahoe')
-        elif opts.undo_patch_ui and opts.verbosity > 2:
-            print('DEBUG: Selected action: --undo-patch-tahoe')
         webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
-        if webui.compatible_version(opts.tahoe_node_url):
-
-            if opts.patch_ui:
-                for uifile in list(webui.filepaths.keys()):
-                    patch_version = webui.read_patch_version(
-                                            webui.filepaths [uifile][1])
-                    if patch_version:
-                        # file is patched
-                        if not patch_version == __patch_version__:
-                            if opts.verbosity > 1:
-                                print('INFO: A newer patch is available. '
-                                                            'Installing.')
-                            webui.install_file(uifile)
-                        else:
-                            if opts.verbosity > 2:
-                                print('DEBUG: Patch is up-to-date.')
-                    else:
-                        webui.backup_file(uifile)
-                        webui.install_file(uifile)
-            elif opts.undo_patch_ui:
-                for uifile in list(webui.filepaths.keys()):
-                    webui.restore_file(uifile)
+        if opts.patch_ui:
+            webui.run_action('patch')
+        elif opts.undo_patch_ui:
+            webui.run_action('undo')
 
     if opts.mknews_md_file:
-        md_file = opts.mknews_md_file
         mknews = MakeNews(opts.verbosity)
-        html_file = mknews.compile_md(md_file)
-        if html_file:
-            atom_file = mknews.compile_atom()
-            include_list = [md_file, html_file, atom_file]
-            mknews.make_tarball(include_list, opts.output_dir)
-            remove_temporary_dir(opts.verbosity, mknews.tempdir)
+        mknews.run_action(opts.mknews_md_file)
+
 
 if __name__ == "__main__":
     try:
