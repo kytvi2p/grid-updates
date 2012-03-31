@@ -208,6 +208,9 @@ def remove_temporary_dir(verbosity, directory):
 
 
 class List:
+    """This class implements the introducer list related functions of
+    grid-updates."""
+
     def __init__(self, verbosity, nodedir, url):
         self.verbosity = verbosity
         self.nodedir = nodedir
@@ -222,6 +225,8 @@ class List:
         self.intro_dict = self.create_intro_dict(json_response)
 
     def run_action(self, mode):
+        """Call this method to execute the desired action (--merge-introducers
+        or --sync-introducers)."""
         if self.lists_differ():
             self.backup_original()
             if mode == 'merge':
@@ -362,6 +367,8 @@ class List:
 
 
 class News:
+    """This class implements the --download-news function of grid-updates."""
+
     def __init__(self, verbosity, nodedir, web_static_dir, url):
         self.verbosity = verbosity
         self.nodedir = nodedir
@@ -374,6 +381,8 @@ class News:
         self.local_archive = os.path.join(self.tempdir, 'NEWS.tgz')
 
     def run_action(self):
+        """Call this method to execute the desired action (--download-news). It
+        will run the necessary methods."""
         if self.verbosity > 2:
             print('DEBUG: Selected action: --download-news')
         self.download_news()
@@ -466,6 +475,8 @@ class News:
 
 
 class MakeNews:
+    """This class implements the --make-news function of grid-updates."""
+
     def __init__(self, verbosity):
         self.verbosity = verbosity
         self.tempdir = tempfile.mkdtemp()
@@ -476,6 +487,8 @@ class MakeNews:
         self.datadir = find_datadir()
 
     def run_action(self, md_file):
+        """Call this method to execute the desired action (--make-news). It
+        will run the necessary methods."""
         html_file = self.compile_md(md_file)
         if html_file:
             atom_file = self.compile_atom()
@@ -535,6 +548,8 @@ class MakeNews:
             tar.close()
 
 class Updates:
+    """This class implements the update functions of grid-updates."""
+
     def __init__(self, verbosity, output_dir, url):
         self.verbosity = verbosity
         self.output_dir = output_dir
@@ -544,6 +559,8 @@ class Updates:
         self.dir_url = self.url + '/?t=json'
 
     def run_action(self, mode):
+        """Call this method to execute the desired action (--check-version or
+        --download-update). It will run the necessary methods."""
         if self.new_version_available():
             if mode == 'print':
                 self.print_versions()
@@ -673,6 +690,8 @@ def repair_share(verbosity, sharename, repair_uri, mode):
         response.close()
 
 class PatchWebUI:
+    """This class implements the patching functions of grid-updates."""
+
     def __init__(self, verbosity, tahoe_node_url):
         self.verbosity = verbosity
         self.datadir = find_datadir()
