@@ -214,8 +214,8 @@ class List:
                     print('INFO: Skipping inactive introducer: %s' %
                             self.intro_dict[introducer][0])
         if sorted(self.subscription_uris) == sorted(self.old_list):
-            if self.verbosity > 1:
-                print('INFO: Introducer list already up-to-date.')
+            if self.verbosity > 2:
+                print('DEBUG: Introducer lists identical.')
             return False
         # Compile lists of new (to be added and outdated (to be removed) #
         # introducers
@@ -244,6 +244,10 @@ class List:
             print('ERROR: Could not write to introducer file: %s' % exc,
                     file=sys.stderr)
             sys.exit(1)
+        else:
+            if opts.verbosity > 0:
+                print('Successfully updated the introducer list.'
+                      ' Changes will take effect upon restart of the node.')
 
     def sync_introducers(self):
         """Add and remove introducers in the local list to make it identical to
@@ -267,6 +271,8 @@ class List:
                                 self.intro_dict[introducer][0])
                     else:
                         print('Removed unknown introducer: %s' % introducer)
+                print('Successfully updated the introducer list.'
+                      ' Changes will take effect upon restart of the node.')
 
 
 class News:
@@ -1089,14 +1095,16 @@ def main(opts, args):
                     intlist.merge_introducers()
                 elif opts.sync:
                     intlist.sync_introducers()
+            else:
+                if opts.verbosity > 0:
+                    print('Introducer list already up-to-date.')
         except:
             if opts.verbosity > 1:
                 print("DEBUG: Couldn't finish introducer list operation."
                     " Continuing...")
         else:
-            if opts.verbosity > 0:
-                print('Successfully updated the introducer list.'
-                      ' Changes will take effect upon restart of the node.')
+            if opts.verbosity > 1:
+                print('DEBUG: Successfully ran introducer update operation.')
 
     if opts.news:
         try:
