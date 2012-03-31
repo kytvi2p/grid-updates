@@ -109,9 +109,9 @@ def action_comrepair(verbosity, uri_dict):
     if verbosity > 0:
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
-def gen_full_tahoe_uri(uri):
+def gen_full_tahoe_uri(node_url, uri):
     """Generate a complete, accessible URL from a Tahoe URI."""
-    return opts.tahoe_node_url + '/uri/' + uri
+    return node_url + '/uri/' + uri
 
 def tahoe_dl_file(verbosity, url):
     """Download a file from the Tahoe grid; returns the raw response."""
@@ -1135,12 +1135,22 @@ def main(opts, args):
         sys.exit(2)
 
     # generate URI dictionary
-    uri_dict = {'list': (opts.list_uri, gen_full_tahoe_uri(opts.list_uri)),
-                'news': (opts.news_uri, gen_full_tahoe_uri(opts.news_uri)),
+    uri_dict = {'list': (opts.list_uri,
+                                    gen_full_tahoe_uri(
+                                            opts.tahoe_node_url,
+                                            opts.list_uri)),
+                'news': (opts.news_uri,
+                                    gen_full_tahoe_uri(
+                                            opts.tahoe_node_url,
+                                            opts.news_uri)),
                 'script': (opts.script_uri,
-                            gen_full_tahoe_uri(opts.script_uri)),
+                                    gen_full_tahoe_uri(
+                                            opts.tahoe_node_url,
+                                            opts.script_uri)),
                 'comrepair': (opts.comrepair_uri,
-                            gen_full_tahoe_uri(opts.comrepair_uri))
+                                    gen_full_tahoe_uri(
+                                            opts.tahoe_node_url,
+                                            opts.comrepair_uri))
                 }
 
     # Check URI validity
