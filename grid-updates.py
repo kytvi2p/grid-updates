@@ -1135,12 +1135,6 @@ def main(opts, args):
 
     # Run actions
     # -----------
-    if opts.repair:
-        action_repair(opts.verbosity, uri_dict)
-
-    if opts.comrepair:
-        action_comrepair(opts.verbosity, uri_dict)
-
     if opts.merge or opts.sync:
         intlist = List(opts.verbosity,
                         opts.tahoe_node_dir,
@@ -1177,6 +1171,12 @@ def main(opts, args):
     if opts.mknews_md_file:
         mknews = MakeNews(opts.verbosity)
         mknews.run_action(opts.mknews_md_file)
+
+    if opts.repair:
+        action_repair(opts.verbosity, uri_dict)
+
+    if opts.comrepair:
+        action_comrepair(opts.verbosity, uri_dict)
 
 
 if __name__ == "__main__":
