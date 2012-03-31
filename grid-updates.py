@@ -160,7 +160,7 @@ class List:
             uri = introducer['uri']
             if is_valid_introducer(uri):
                 if self.verbosity > 2:
-                    print('DEBUG: Valid intruducer address: %s' % uri)
+                    print('DEBUG: Valid introducer address: %s' % uri)
                 intro_dict[uri] = (introducer['name'], introducer['active'])
             else:
                 if self.verbosity > 0:
@@ -210,8 +210,8 @@ class List:
             if self.intro_dict[introducer][1]:
                 self.subscription_uris.append(introducer)
             else:
-                if self.verbosity > 1:
-                    print('INFO: Skipping inactive introducer: %s' %
+                if self.verbosity > 2:
+                    print('INFO: Skipping disabled introducer: %s' %
                             self.intro_dict[introducer][0])
         if sorted(self.subscription_uris) == sorted(self.old_list):
             if self.verbosity > 2:
@@ -291,6 +291,8 @@ class News:
         """Download NEWS.tgz file to local temporary file."""
         url = self.url + '/NEWS.tgz'
         if self.verbosity > 1:
+            print("INFO: Downloading news from the Tahoe grid.")
+        if self.verbosity > 2:
             print("INFO: Downloading", url)
         try:
             response = urlopen(url).read()
@@ -383,8 +385,6 @@ class MakeNews:
         source = mdfile
         output_html = os.path.join(self.tempdir, 'NEWS.html')
         pandoc_tmplt = os.path.join(self.datadir, 'pandoc-template.html')
-        if self.verbosity > 2:
-            print('DEBUG: HTML file is: %s' % output_html)
         try:
             subprocess.call(["pandoc",
                             "-w", "html",
@@ -544,7 +544,7 @@ def repair_share(verbosity, sharename, repair_uri, mode):
         print("ERROR: 'mode' must either be 'one-check' or 'deep-check'.",
                                                         file=sys.stderr)
         sys.exit(1)
-    if verbosity > 3:
+    if verbosity > 2:
         print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
     try:
         response = urlopen(repair_uri, params)
@@ -767,7 +767,6 @@ def parse_opts(argv):
         output_dir     = config.get('OPTIONS', 'output_dir')
     else:
         # Set standard fallback values if no config files found
-        print('INFO: No configuration files found.')
         tahoe_node_dir = default_tahoe_node_dir
         tahoe_node_url = default_tahoe_node_url
         list_uri       = default_list_uri
@@ -866,7 +865,6 @@ def parse_opts(argv):
             dest = 'script_uri',
             default = script_uri,
             help = 'Override default location of script releases.')
-    # TODO rename
     other_opts.add_option('--comrepair-uri',
             action = 'store',
             dest = 'comrepair_uri',
@@ -1057,7 +1055,6 @@ def main(opts, args):
             sharename  = share['name']
             repair_uri = gen_full_tahoe_uri(share['uri'])
             mode       = share['mode']
-            # TODO: turn repair_share method into a function?
             if mode == 'deep-check':
                 results = repair_share(opts.verbosity, sharename, repair_uri,
                                                                         mode)
@@ -1078,7 +1075,8 @@ def main(opts, args):
                           result.decode('utf8'), mode, unhealthy)
                 if opts.verbosity > 1:
                     print("  Status: %s" % status)
-        print('Repairs have completed (unhealthy: %d).' % unhealthy)
+        if opts.verbosity > 0:
+            print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
     if opts.merge or opts.sync:
         # Debug info
@@ -1099,11 +1097,11 @@ def main(opts, args):
                 if opts.verbosity > 0:
                     print('Introducer list already up-to-date.')
         except:
-            if opts.verbosity > 1:
+            if opts.verbosity > 2:
                 print("DEBUG: Couldn't finish introducer list operation."
                     " Continuing...")
         else:
-            if opts.verbosity > 1:
+            if opts.verbosity > 2:
                 print('DEBUG: Successfully ran introducer update operation.')
 
     if opts.news:
@@ -1145,7 +1143,7 @@ def main(opts, args):
                 print("DEBUG: Couldn't finish version check operation."
                     " Continuing...")
         else:
-            if opts.verbosity > 1:
+            if opts.verbosity > 2:
                 print('DEBUG: Successfully ran script update operation.')
 
     if opts.patch_ui or opts.undo_patch_ui:
