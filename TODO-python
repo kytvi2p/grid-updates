@@ -7,3 +7,5 @@
 	- add option to add new introducers through g-u (and check syntax)?
 * set() for local lists in case of manually added dupicates
 * always make sure there is at least a NEWS.html stub in web.static
+* get web.port from tahoe.cfg
+* split news_differ()
