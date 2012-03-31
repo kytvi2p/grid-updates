@@ -1122,7 +1122,7 @@ def main(opts, args):
     and not opts.mknews_md_file):
         print('ERROR: You need to specify an action. Please see %s --help.' %
                 sys.argv[0], file=sys.stderr)
-        sys.exit(1)
+        sys.exit(2)
 
     if opts.version:
         print('grid-updates version: %s.' % __version__)
@@ -1132,7 +1132,7 @@ def main(opts, args):
     if opts.merge and opts.sync:
         print('ERROR: --merge-introducers & --sync-introducers are '
             ' mutually exclusive actions.', file=sys.stderr)
-        sys.exit(1)
+        sys.exit(2)
 
     # generate URI dictionary
     uri_dict = {'list': (opts.list_uri, gen_full_tahoe_uri(opts.list_uri)),
