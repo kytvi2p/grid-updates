@@ -84,7 +84,7 @@ def action_comrepair(verbosity, uri_dict):
     random.shuffle(sharelist)
     for share in sharelist:
         sharename  = share['name']
-        repair_uri = gen_full_tahoe_uri(share['uri'])
+        repair_uri = gen_full_tahoe_uri(opts.tahoe_node_url, share['uri'])
         mode       = share['mode']
         if mode == 'deep-check':
             results = repair_share(verbosity, sharename, repair_uri,
