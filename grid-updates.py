@@ -1135,48 +1135,71 @@ def main(opts, args):
 
     # Run actions
     # -----------
+    # The try-except constructs are there to make the program continue with the
+    # next action if one fails. It might not be the most elegant way.
     if opts.merge or opts.sync:
-        intlist = List(opts.verbosity,
-                        opts.tahoe_node_dir,
-                        uri_dict['list'][1])
-        if opts.sync:
-            intlist.run_action('sync')
-        elif opts.merge:
-            intlist.run_action('merge')
+        try:
+            intlist = List(opts.verbosity,
+                            opts.tahoe_node_dir,
+                            uri_dict['list'][1])
+            if opts.sync:
+                intlist.run_action('sync')
+            elif opts.merge:
+                intlist.run_action('merge')
+        except:
+            pass
 
     if opts.news:
-        news = News(opts.verbosity,
-                    opts.tahoe_node_dir,
-                    web_static_dir,
-                    uri_dict['news'][1])
-        news.run_action()
-        remove_temporary_dir(opts.verbosity, news.tempdir)
+        try:
+            news = News(opts.verbosity,
+                        opts.tahoe_node_dir,
+                        web_static_dir,
+                        uri_dict['news'][1])
+            news.run_action()
+            remove_temporary_dir(opts.verbosity, news.tempdir)
+        except:
+            pass
 
     if opts.check_version or opts.download_update:
-        update = Updates(opts.verbosity,
-                         opts.output_dir,
-                         uri_dict['script'][1])
-        if opts.check_version:
-            update.run_action('check')
-        elif opts.download_update:
-            update.run_action('download')
+        try:
+            update = Updates(opts.verbosity,
+                            opts.output_dir,
+                            uri_dict['script'][1])
+            if opts.check_version:
+                update.run_action('check')
+            elif opts.download_update:
+                update.run_action('download')
+        except:
+            pass
 
     if opts.patch_ui or opts.undo_patch_ui:
-        webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
-        if opts.patch_ui:
-            webui.run_action('patch')
-        elif opts.undo_patch_ui:
-            webui.run_action('undo')
+        try:
+            webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
+            if opts.patch_ui:
+                webui.run_action('patch')
+            elif opts.undo_patch_ui:
+                webui.run_action('undo')
+        except:
+            pass
 
     if opts.mknews_md_file:
-        mknews = MakeNews(opts.verbosity)
-        mknews.run_action(opts.mknews_md_file)
+        try:
+            mknews = MakeNews(opts.verbosity)
+            mknews.run_action(opts.mknews_md_file)
+        except:
+            pass
 
     if opts.repair:
-        action_repair(opts.verbosity, uri_dict)
+        try:
+            action_repair(opts.verbosity, uri_dict)
+        except:
+            pass
 
     if opts.comrepair:
-        action_comrepair(opts.verbosity, uri_dict)
+        try:
+            action_comrepair(opts.verbosity, uri_dict)
+        except:
+            pass
 
 
 if __name__ == "__main__":
