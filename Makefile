@@ -74,8 +74,8 @@ lint:
 	for f in *.py; \
 		do \
 		echo "$$f" ;\
-		pychecker "$$f" > "$$f".pychecker.log; \
-		pyflakes "$$f" > "$$f".pyflakes.log; \
+		#pychecker "$$f" > "$$f".pychecker.log; \
+		#pyflakes "$$f" > "$$f".pyflakes.log; \
 		pylint "$$f" > "$$f".pylint.log; \
 		done; \
 		exit 0
