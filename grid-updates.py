@@ -613,7 +613,7 @@ class Updates:
         """Print current and available version numbers."""
         # verbosity doesn't matter in this case; it's a user request:
         #if self.verbosity > 0:
-        if self.new_ver_available:
+        if self.new_version_available:
             print('There is a new version available: %s (currently %s).' %
                     (self.latest_version, __version__))
         else:
