@@ -208,6 +208,48 @@ def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
     if verbosity > 0:
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
+def repair_share(sharename, repair_uri, mode, verbosity=0):
+    """Run (deep-)checks including repair and add-lease on a Tahoe share;
+    returns response in JSON format."""
+    if verbosity > 0:
+        print("Repairing '%s' share (%s)." % (sharename, mode))
+    if mode == 'deep-check':
+        params = urlencode({'t': 'stream-deep-check',
+                            'repair': 'true',
+                            'add-lease': 'true'}
+                            ).encode('utf8')
+    elif mode == 'one-check':
+        params = urlencode({'t': 'check',
+                            'repair': 'true',
+                            'add-lease': 'true',
+                            'output': 'json'}
+                            ).encode('utf8')
+    else:
+        print("ERROR: 'mode' must either be 'one-check' or 'deep-check'.",
+                                                        file=sys.stderr)
+        sys.exit(1)
+    if verbosity > 2:
+        print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
+    try:
+        response = urlopen(repair_uri, params)
+    except HTTPError as exc:
+        # TODO Doesn't catch all errors
+        print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
+                                                        file=sys.stderr)
+        sys.exit(1)
+    else:
+        if mode == 'deep-check':
+            # deep-check returns multiple JSON objects, 1 per line
+            result = response.readlines()
+        elif mode == 'one-check':
+            # one-check returns a single JSON object
+            result = response.read()
+        return result
+    finally:
+        # TODO This can cause: UnboundLocalError: local variable 'response'
+        # referenced before assignment
+        response.close()
+
 
 class List(object):
     """This class implements the introducer list related functions of
@@ -573,49 +615,6 @@ class Updates(object):
             if self.verbosity > 0:
                 print('Success: downloaded an update to %s.' %
                         os.path.abspath(local_file))
-
-
-def repair_share(sharename, repair_uri, mode, verbosity=0):
-    """Run (deep-)checks including repair and add-lease on a Tahoe share;
-    returns response in JSON format."""
-    if verbosity > 0:
-        print("Repairing '%s' share (%s)." % (sharename, mode))
-    if mode == 'deep-check':
-        params = urlencode({'t': 'stream-deep-check',
-                            'repair': 'true',
-                            'add-lease': 'true'}
-                            ).encode('utf8')
-    elif mode == 'one-check':
-        params = urlencode({'t': 'check',
-                            'repair': 'true',
-                            'add-lease': 'true',
-                            'output': 'json'}
-                            ).encode('utf8')
-    else:
-        print("ERROR: 'mode' must either be 'one-check' or 'deep-check'.",
-                                                        file=sys.stderr)
-        sys.exit(1)
-    if verbosity > 2:
-        print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
-    try:
-        response = urlopen(repair_uri, params)
-    except HTTPError as exc:
-        # TODO Doesn't catch all errors
-        print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
-                                                        file=sys.stderr)
-        sys.exit(1)
-    else:
-        if mode == 'deep-check':
-            # deep-check returns multiple JSON objects, 1 per line
-            result = response.readlines()
-        elif mode == 'one-check':
-            # one-check returns a single JSON object
-            result = response.read()
-        return result
-    finally:
-        # TODO This can cause: UnboundLocalError: local variable 'response'
-        # referenced before assignment
-        response.close()
 
 
 class PatchWebUI(object):
