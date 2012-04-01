@@ -41,8 +41,8 @@ __patch_version__ = '1.8.3-gu5'
 
 # Actions
 # =======
-def action_repair(verbosity, uri_dict):
-    # Iterate over known tahoe directories and all files within.
+def action_repair(uri_dict, verbosity=0):
+    """Repair all (deep-check) Tahoe shares in a dictionary."""
     if verbosity > 0:
         print("-- Repairing the grid-updates Tahoe shares. --")
     mode = 'deep-check'
@@ -53,8 +53,7 @@ def action_repair(verbosity, uri_dict):
     random.shuffle(sharelist)
     for sharename in sharelist:
         repair_uri = uri_dict[sharename][1]
-        results = repair_share(verbosity, sharename,
-                                        repair_uri, mode)
+        results = repair_share(sharename, repair_uri, mode, verbosity)
         if verbosity > 1:
             print('INFO: Post-repair results for: %s' % sharename)
         for result in results:
@@ -69,8 +68,8 @@ def action_repair(verbosity, uri_dict):
         print("Deep-check of grid-updates shares completed: "
                             "%d %s unhealthy." % (unhealthy, sub))
 
-def action_comrepair(verbosity, tahoe_node_url, uri_dict):
-    # --community-repair
+def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
+    """The --community-repair command. Repair all shares in the uri_dict."""
     if verbosity > 0:
         print("-- Repairing Tahoe shares. --")
     # TODO This action should probably be renamed to something less
@@ -78,7 +77,7 @@ def action_comrepair(verbosity, tahoe_node_url, uri_dict):
     # have to be community oriented.
     unhealthy = 0
     url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
-    subscriptionfile = tahoe_dl_file(verbosity, url).read()
+    subscriptionfile = tahoe_dl_file(url, verbosity).read()
     # shuffle() to even out chances of all shares to get repaired
     sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
                                             ['community-shares']))
@@ -88,8 +87,7 @@ def action_comrepair(verbosity, tahoe_node_url, uri_dict):
         repair_uri = gen_full_tahoe_uri(tahoe_node_url, share['uri'])
         mode       = share['mode']
         if mode == 'deep-check':
-            results = repair_share(verbosity, sharename, repair_uri,
-                                                                    mode)
+            results = repair_share(sharename, repair_uri, mode, verbosity)
             for result in results:
                 status, unhealthy = parse_result(verbosity,
                         result.decode('utf8'), mode, unhealthy)
@@ -101,10 +99,9 @@ def action_comrepair(verbosity, tahoe_node_url, uri_dict):
                 print("  Deep-check completed: %d %s unhealthy."
                                                 % (unhealthy, sub))
         if mode == 'one-check':
-            result = repair_share(verbosity, sharename,
-                                            repair_uri, mode)
-            status, unhealthy = parse_result(verbosity,
-                        result.decode('utf8'), mode, unhealthy)
+            result = repair_share(sharename, repair_uri, mode, verbosity)
+            status, unhealthy = parse_result(result.decode('utf8', verbosity),
+                                             mode, unhealthy)
             if verbosity > 1:
                 print("  Status: %s" % status)
     if verbosity > 0:
@@ -114,7 +111,7 @@ def gen_full_tahoe_uri(node_url, uri):
     """Generate a complete, accessible URL from a Tahoe URI."""
     return node_url + '/uri/' + uri
 
-def tahoe_dl_file(verbosity, url):
+def tahoe_dl_file(url, verbosity=0):
     """Download a file from the Tahoe grid; returns the raw response."""
     if verbosity > 1:
         print('INFO: Downloading subscription from the Tahoe grid.')
@@ -135,7 +132,7 @@ def is_valid_introducer(uri):
     else:
         return False
 
-def parse_result(verbosity, result, mode, unhealthy):
+def parse_result(result, mode, unhealthy, verbosity=0):
     """Parse JSON response from Tahoe deep-check operation.
     Optionally prints status output; returns number of unhealthy shares.
     """
@@ -196,7 +193,7 @@ def get_tahoe_version(tahoe_node_url):
     version = match.group(1)
     return version
 
-def remove_temporary_dir(verbosity, directory):
+def remove_temporary_dir(directory, verbosity=0):
     """Remove a (temprorary) directory."""
     try:
         rmtree(directory)
@@ -212,7 +209,7 @@ class List:
     """This class implements the introducer list related functions of
     grid-updates."""
 
-    def __init__(self, verbosity, nodedir, url):
+    def __init__(self, nodedir, url, verbosity=0):
         self.verbosity = verbosity
         self.nodedir = nodedir
         self.url = url + '/introducers.json.txt'
@@ -222,7 +219,7 @@ class List:
         self.introducers = os.path.join(self.nodedir, 'introducers')
         self.introducers_bak = self.introducers + '.bak'
         (self.old_introducers, self.old_list) = self.read_existing_list()
-        json_response = tahoe_dl_file(verbosity, self.url)
+        json_response = tahoe_dl_file(self.url, verbosity)
         self.intro_dict = self.create_intro_dict(json_response)
 
     def run_action(self, mode):
@@ -370,14 +367,14 @@ class List:
 class News:
     """This class implements the --download-news function of grid-updates."""
 
-    def __init__(self, verbosity, nodedir, web_static_dir, url):
+    def __init__(self, tahoe_node_dir, web_static_dir, url, verbosity=0):
         self.verbosity = verbosity
-        self.nodedir = nodedir
+        self.tahoe_node_dir = tahoe_node_dir
         self.web_static = web_static_dir
         self.url = url
         if self.verbosity > 0:
             print("-- Updating NEWS --")
-        self.local_news = os.path.join(self.nodedir, 'NEWS')
+        self.local_news = os.path.join(self.tahoe_node_dir, 'NEWS')
         self.tempdir = tempfile.mkdtemp()
         self.local_archive = os.path.join(self.tempdir, 'NEWS.tgz')
 
@@ -458,7 +455,9 @@ class News:
             copyfile(os.path.join(self.tempdir, 'NEWS'), self.local_news)
             for newsfile in ['NEWS.html', 'NEWS.atom']:
                 copyfile(os.path.join(self.tempdir, newsfile),
-                        os.path.join(self.nodedir, self.web_static, newsfile))
+                        os.path.join(self.tahoe_node_dir,
+                                        self.web_static,
+                                        newsfile))
         except:
             print("ERROR: Couldn't copy one or more NEWS files into the "
                   "node directory.", file=sys.stderr)
@@ -471,7 +470,7 @@ class News:
 class MakeNews:
     """This class implements the --make-news function of grid-updates."""
 
-    def __init__(self, verbosity):
+    def __init__(self, verbosity=0):
         self.verbosity = verbosity
         self.tempdir = tempfile.mkdtemp()
         if self.verbosity > 2:
@@ -544,7 +543,7 @@ class MakeNews:
 class Updates:
     """This class implements the update functions of grid-updates."""
 
-    def __init__(self, verbosity, output_dir, url):
+    def __init__(self, output_dir, url, verbosity=0):
         self.verbosity = verbosity
         self.output_dir = output_dir
         self.url = url
@@ -641,7 +640,7 @@ class Updates:
                         os.path.abspath(local_file))
 
 
-def repair_share(verbosity, sharename, repair_uri, mode):
+def repair_share(sharename, repair_uri, mode, verbosity=0):
     """Run (deep-)checks including repair and add-lease on a Tahoe share;
     returns response in JSON format."""
     if verbosity > 0:
@@ -686,7 +685,7 @@ def repair_share(verbosity, sharename, repair_uri, mode):
 class PatchWebUI:
     """This class implements the patching functions of grid-updates."""
 
-    def __init__(self, verbosity, tahoe_node_url):
+    def __init__(self, tahoe_node_url, verbosity=0):
         self.verbosity = verbosity
         self.tahoe_node_url = tahoe_node_url
         self.datadir = find_datadir()
@@ -1165,9 +1164,9 @@ def main():
     # next action if one fails. It might not be the most elegant way.
     if opts.merge or opts.sync:
         try:
-            intlist = List(opts.verbosity,
-                            opts.tahoe_node_dir,
-                            uri_dict['list'][1])
+            intlist = List(opts.tahoe_node_dir,
+                            uri_dict['list'][1],
+                            opts.verbosity)
             if opts.sync:
                 intlist.run_action('sync')
             elif opts.merge:
@@ -1177,20 +1176,20 @@ def main():
 
     if opts.news:
         try:
-            news = News(opts.verbosity,
-                        opts.tahoe_node_dir,
+            news = News(opts.tahoe_node_dir,
                         web_static_dir,
-                        uri_dict['news'][1])
+                        uri_dict['news'][1],
+                        opts.verbosity)
             news.run_action()
-            remove_temporary_dir(opts.verbosity, news.tempdir)
+            remove_temporary_dir(news.tempdir, opts.verbosity)
         except:
             pass
 
     if opts.check_version or opts.download_update:
         try:
-            update = Updates(opts.verbosity,
-                            opts.output_dir,
-                            uri_dict['script'][1])
+            update = Updates(opts.output_dir,
+                                uri_dict['script'][1],
+                                opts.verbosity)
             if opts.check_version:
                 update.run_action('check')
             elif opts.download_update:
@@ -1200,7 +1199,7 @@ def main():
 
     if opts.patch_ui or opts.undo_patch_ui:
         try:
-            webui = PatchWebUI(opts.verbosity, opts.tahoe_node_url)
+            webui = PatchWebUI(opts.tahoe_node_url, opts.verbosity)
             if opts.patch_ui:
                 webui.run_action('patch')
             elif opts.undo_patch_ui:
@@ -1217,13 +1216,13 @@ def main():
 
     if opts.repair:
         try:
-            action_repair(opts.verbosity, uri_dict)
+            action_repair(uri_dict, opts.verbosity)
         except:
             pass
 
     if opts.comrepair:
         try:
-            action_comrepair(opts.verbosity, opts.tahoe_node_url, uri_dict)
+            action_comrepair(opts.tahoe_node_url, uri_dict, opts.verbosity)
         except:
             pass
 
