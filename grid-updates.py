@@ -86,9 +86,9 @@ def parse_result(result, mode, unhealthy, verbosity=0):
         # Print
         if verbosity > 1:
             if uritype == 'directory' and not path:
-                print('  <root>: %s' % status)
+                print('   <root>: %s' % status)
             else:
-                print('  %s: %s' % (path[0], status))
+                print('   %s: %s' % (path[0], status))
         # Count unhealthy
         if status.startswith('Unhealthy'):
             unhealthy += 1
@@ -157,13 +157,14 @@ def action_repair(uri_dict, verbosity=0):
         if verbosity > 1:
             print('INFO: Post-repair results for: %s' % sharename)
         for result in results:
-            status, unhealthy = parse_result(verbosity,
-                    result.decode('utf8'), mode, unhealthy)
+            status, unhealthy = parse_result(result.decode('utf8'),
+                                                mode, unhealthy, verbosity)
         if verbosity > 0:
             if unhealthy == 1:
                 sub = 'object'
             else:
                 sub = 'objects'
+            print("  Status: %d %s unhealthy." % (unhealthy, sub))
     if verbosity > 0:
         print("Deep-check of grid-updates shares completed: "
                             "%d %s unhealthy." % (unhealthy, sub))
@@ -189,8 +190,8 @@ def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
         if mode == 'deep-check':
             results = repair_share(sharename, repair_uri, mode, verbosity)
             for result in results:
-                status, unhealthy = parse_result(verbosity,
-                        result.decode('utf8'), mode, unhealthy)
+                status, unhealthy = parse_result(result.decode('utf8'),
+                                                    mode, unhealthy, verbosity)
             if verbosity > 1:
                 if unhealthy == 1:
                     sub = 'object'
@@ -200,8 +201,8 @@ def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
                                                 % (unhealthy, sub))
         if mode == 'one-check':
             result = repair_share(sharename, repair_uri, mode, verbosity)
-            status, unhealthy = parse_result(result.decode('utf8', verbosity),
-                                             mode, unhealthy)
+            status, unhealthy = parse_result(result.decode('utf8'), mode,
+                                                        unhealthy, verbosity)
             if verbosity > 1:
                 print("  Status: %s" % status)
     if verbosity > 0:
