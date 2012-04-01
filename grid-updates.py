@@ -634,7 +634,7 @@ class PatchWebUI(object):
             print('DEBUG: File paths:')
             print(self.filepaths)
 
-    def run_action(self, mode):
+    def run_action(self, mode, web_static_dir):
         if self.compatible_version(self.tahoe_node_url):
             if mode == 'patch':
                 for uifile in list(self.filepaths.keys()):
@@ -653,6 +653,7 @@ class PatchWebUI(object):
                     else:
                         self.backup_file(uifile)
                         self.install_file(uifile)
+                        news_stub(web_static_dir)
             if mode == 'undo':
                 for uifile in list(self.filepaths.keys()):
                     self.restore_file(uifile)
@@ -737,6 +738,12 @@ class PatchWebUI(object):
         if self.verbosity > 2:
             print('DEBUG: Installing patched version of %s' % targetfile)
         copyfile(patchedfile, targetfile)
+
+def news_stub(web_static_dir):
+    targetfile = os.path.join(web_static_dir, 'NEWS.html')
+    if not os.access(targetfile, os.F_OK):
+        news_stub_file = os.path.join(find_datadir(), 'news-stub.html')
+        copyfile(news_stub_file, targetfile)
 
 
 class MakeNews(object):
@@ -1209,9 +1216,9 @@ def main():
         try:
             webui = PatchWebUI(opts.tahoe_node_url, opts.verbosity)
             if opts.patch_ui:
-                webui.run_action('patch')
+                webui.run_action('patch', web_static_dir)
             elif opts.undo_patch_ui:
-                webui.run_action('undo')
+                webui.run_action('undo', web_static_dir)
         except:
             pass
 
