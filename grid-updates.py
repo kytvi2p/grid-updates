@@ -1064,8 +1064,10 @@ def parse_opts(argv):
     return (opts, args)
 
 
-def main(opts, args):
+def main():
     """Main function: run selected actions."""
+    # Parse config files and command line arguments
+    (opts, args) = parse_opts(sys.argv)
     # Parse tahoe options (find web.static for NEWS files)
     tahoe_cfg_path = os.path.join(opts.tahoe_node_dir, 'tahoe.cfg')
     tahoe_config = SafeConfigParser({'web.static': 'public_html'})
@@ -1228,8 +1230,7 @@ def main(opts, args):
 
 if __name__ == "__main__":
     try:
-        (opts, args) = parse_opts(sys.argv)
-        main(opts, args)
+        main()
     except KeyboardInterrupt:
         print("\ngrid-updates interrupted by user.")
         sys.exit(1)
