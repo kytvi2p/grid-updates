@@ -1197,7 +1197,6 @@ def main():
                         uri_dict['news'][1],
                         opts.verbosity)
             news.run_action()
-            remove_temporary_dir(news.tempdir, opts.verbosity)
         except:
             pass
 
