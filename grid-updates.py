@@ -556,7 +556,7 @@ class Updates:
         """Call this method to execute the desired action (--check-version or
         --download-update). It will run the necessary methods."""
         if self.new_version_available():
-            if mode == 'print':
+            if mode == 'check':
                 self.print_versions()
             elif mode == 'download':
                 self.download_update()
