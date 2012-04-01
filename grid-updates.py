@@ -391,6 +391,9 @@ class News(object):
         self.extract_tgz()
         if self.news_differ():
             self.print_news()
+        else:
+            if self.verbosity > 0:
+                print('There are no news.')
         # Copy in any case to make easily make sure that all versions
         # (escpecially the HTML version) are always present:
         self.install_files()
@@ -441,8 +444,8 @@ class News(object):
                         print('DEBUG: NEWS files differ.')
                     return True
                 else:
-                    if self.verbosity > 1:
-                        print('INFO: NEWS files seem to be identical.')
+                    if self.verbosity > 2:
+                        print('DEBUG: NEWS files seem to be identical.')
                     return False
             locnews.close()
 
