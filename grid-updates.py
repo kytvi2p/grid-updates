@@ -39,74 +39,8 @@ __status__ = "Development"
 # TODO illegal var name?
 __patch_version__ = '1.8.3-gu5'
 
-# Actions
-# =======
-def action_repair(uri_dict, verbosity=0):
-    """Repair all (deep-check) Tahoe shares in a dictionary."""
-    if verbosity > 0:
-        print("-- Repairing the grid-updates Tahoe shares. --")
-    mode = 'deep-check'
-    unhealthy = 0
-    # shuffle() to even out chances of all shares to get repaired
-    # (Is this useful?)
-    sharelist = list(uri_dict.keys())
-    random.shuffle(sharelist)
-    for sharename in sharelist:
-        repair_uri = uri_dict[sharename][1]
-        results = repair_share(sharename, repair_uri, mode, verbosity)
-        if verbosity > 1:
-            print('INFO: Post-repair results for: %s' % sharename)
-        for result in results:
-            status, unhealthy = parse_result(verbosity,
-                    result.decode('utf8'), mode, unhealthy)
-        if verbosity > 0:
-            if unhealthy == 1:
-                sub = 'object'
-            else:
-                sub = 'objects'
-    if verbosity > 0:
-        print("Deep-check of grid-updates shares completed: "
-                            "%d %s unhealthy." % (unhealthy, sub))
-
-def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
-    """The --community-repair command. Repair all shares in the uri_dict."""
-    if verbosity > 0:
-        print("-- Repairing Tahoe shares. --")
-    # TODO This action should probably be renamed to something less
-    # specific, because there is a variety of use cases for it that don't
-    # have to be community oriented.
-    unhealthy = 0
-    url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
-    subscriptionfile = tahoe_dl_file(url, verbosity).read()
-    # shuffle() to even out chances of all shares to get repaired
-    sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
-                                            ['community-shares']))
-    random.shuffle(sharelist)
-    for share in sharelist:
-        sharename  = share['name']
-        repair_uri = gen_full_tahoe_uri(tahoe_node_url, share['uri'])
-        mode       = share['mode']
-        if mode == 'deep-check':
-            results = repair_share(sharename, repair_uri, mode, verbosity)
-            for result in results:
-                status, unhealthy = parse_result(verbosity,
-                        result.decode('utf8'), mode, unhealthy)
-            if verbosity > 1:
-                if unhealthy == 1:
-                    sub = 'object'
-                else:
-                    sub = 'objects'
-                print("  Deep-check completed: %d %s unhealthy."
-                                                % (unhealthy, sub))
-        if mode == 'one-check':
-            result = repair_share(sharename, repair_uri, mode, verbosity)
-            status, unhealthy = parse_result(result.decode('utf8', verbosity),
-                                             mode, unhealthy)
-            if verbosity > 1:
-                print("  Status: %s" % status)
-    if verbosity > 0:
-        print('Repairs have completed (unhealthy: %d).' % unhealthy)
-
+# General Functions
+# =================
 def gen_full_tahoe_uri(node_url, uri):
     """Generate a complete, accessible URL from a Tahoe URI."""
     return node_url + '/uri/' + uri
@@ -203,6 +137,75 @@ def remove_temporary_dir(directory, verbosity=0):
     else:
         if verbosity > 2:
             print('DEBUG: Removed temporary dir: %s.' % directory)
+
+
+# Actions
+# =======
+def action_repair(uri_dict, verbosity=0):
+    """Repair all (deep-check) Tahoe shares in a dictionary."""
+    if verbosity > 0:
+        print("-- Repairing the grid-updates Tahoe shares. --")
+    mode = 'deep-check'
+    unhealthy = 0
+    # shuffle() to even out chances of all shares to get repaired
+    # (Is this useful?)
+    sharelist = list(uri_dict.keys())
+    random.shuffle(sharelist)
+    for sharename in sharelist:
+        repair_uri = uri_dict[sharename][1]
+        results = repair_share(sharename, repair_uri, mode, verbosity)
+        if verbosity > 1:
+            print('INFO: Post-repair results for: %s' % sharename)
+        for result in results:
+            status, unhealthy = parse_result(verbosity,
+                    result.decode('utf8'), mode, unhealthy)
+        if verbosity > 0:
+            if unhealthy == 1:
+                sub = 'object'
+            else:
+                sub = 'objects'
+    if verbosity > 0:
+        print("Deep-check of grid-updates shares completed: "
+                            "%d %s unhealthy." % (unhealthy, sub))
+
+def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
+    """The --community-repair command. Repair all shares in the uri_dict."""
+    if verbosity > 0:
+        print("-- Repairing Tahoe shares. --")
+    # TODO This action should probably be renamed to something less
+    # specific, because there is a variety of use cases for it that don't
+    # have to be community oriented.
+    unhealthy = 0
+    url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
+    subscriptionfile = tahoe_dl_file(url, verbosity).read()
+    # shuffle() to even out chances of all shares to get repaired
+    sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
+                                            ['community-shares']))
+    random.shuffle(sharelist)
+    for share in sharelist:
+        sharename  = share['name']
+        repair_uri = gen_full_tahoe_uri(tahoe_node_url, share['uri'])
+        mode       = share['mode']
+        if mode == 'deep-check':
+            results = repair_share(sharename, repair_uri, mode, verbosity)
+            for result in results:
+                status, unhealthy = parse_result(verbosity,
+                        result.decode('utf8'), mode, unhealthy)
+            if verbosity > 1:
+                if unhealthy == 1:
+                    sub = 'object'
+                else:
+                    sub = 'objects'
+                print("  Deep-check completed: %d %s unhealthy."
+                                                % (unhealthy, sub))
+        if mode == 'one-check':
+            result = repair_share(sharename, repair_uri, mode, verbosity)
+            status, unhealthy = parse_result(result.decode('utf8', verbosity),
+                                             mode, unhealthy)
+            if verbosity > 1:
+                print("  Status: %s" % status)
+    if verbosity > 0:
+        print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
 
 class List:
@@ -467,78 +470,6 @@ class News:
                 print('DEBUG: Copied NEWS files into the node directory.')
 
 
-class MakeNews:
-    """This class implements the --make-news function of grid-updates."""
-
-    def __init__(self, verbosity=0):
-        self.verbosity = verbosity
-        self.tempdir = tempfile.mkdtemp()
-        if self.verbosity > 2:
-            print('DEBUG: tempdir is: %s' % self.tempdir)
-        # check for pandoc and markdown
-        # find template locations
-        self.datadir = find_datadir()
-
-    def run_action(self, md_file, output_dir):
-        """Call this method to execute the desired action (--make-news). It
-        will run the necessary methods."""
-        html_file = self.compile_md(md_file)
-        if html_file:
-            atom_file = self.compile_atom()
-            include_list = [md_file, html_file, atom_file]
-            self.make_tarball(include_list, output_dir)
-            remove_temporary_dir(self.verbosity, self.tempdir)
-
-    def compile_md(self, mdfile):
-        """Compile an HTML version of the Markdown source of NEWS; return the
-        file path."""
-        source = mdfile
-        output_html = os.path.join(self.tempdir, 'NEWS.html')
-        pandoc_tmplt = os.path.join(self.datadir, 'pandoc-template.html')
-        try:
-            subprocess.call(["pandoc",
-                            "-w", "html",
-                            "-r", "markdown",
-                            "--email-obfuscation", "none",
-                            "--template", pandoc_tmplt,
-                            "--output", output_html,
-                            source])
-        except OSError as ose:
-            print("ERROR: Couldn't run pandoc subprocess: %s" % ose)
-        else:
-            return output_html
-
-    def compile_atom(self):
-        """Create an Atom news feed file from a template by adding the current
-        date and an UUID (uuid4 is supposed to be generated randomly); returns
-        the file path."""
-        atom_tmplt = os.path.join(self.datadir, 'NEWS.atom.template')
-        output_atom = os.path.join(self.tempdir, 'NEWS.atom')
-        with open(atom_tmplt, 'r') as f:
-            formatted = f.read()
-        # insert date
-        now = datetime.now()
-        formatted = re.sub(r'REPLACEDATE', now.isoformat(), formatted)
-        # insert UUID
-        uuid = str(uuid4())
-        formatted = re.sub(r'REPLACEID', uuid, formatted)
-        with open(output_atom, 'w') as f:
-            f.write(formatted)
-        return output_atom
-
-    def make_tarball(self, include_list, output_dir):
-        """Add files from a list to NEWS.tgz in --output-dir; remove directory
-        structure."""
-        tarball = os.path.join(output_dir, 'NEWS.tgz')
-        tar = tarfile.open(tarball, mode='w:gz')
-        try:
-            for item in include_list:
-                tarinfo = tar.gettarinfo(item, arcname=os.path.basename(item))
-                tarinfo.uid = tarinfo.gid = 0
-                tarinfo.uname = tarinfo.gname = "root"
-                tar.addfile(tarinfo, open(item, 'rb'))
-        finally:
-            tar.close()
 
 class Updates:
     """This class implements the update functions of grid-updates."""
@@ -682,6 +613,7 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
         # referenced before assignment
         response.close()
 
+
 class PatchWebUI:
     """This class implements the patching functions of grid-updates."""
 
@@ -802,6 +734,80 @@ class PatchWebUI:
         if self.verbosity > 2:
             print('DEBUG: Installing patched version of %s' % targetfile)
         copyfile(patchedfile, targetfile)
+
+
+class MakeNews:
+    """This class implements the --make-news function of grid-updates."""
+
+    def __init__(self, verbosity=0):
+        self.verbosity = verbosity
+        self.tempdir = tempfile.mkdtemp()
+        if self.verbosity > 2:
+            print('DEBUG: tempdir is: %s' % self.tempdir)
+        # check for pandoc and markdown
+        # find template locations
+        self.datadir = find_datadir()
+
+    def run_action(self, md_file, output_dir):
+        """Call this method to execute the desired action (--make-news). It
+        will run the necessary methods."""
+        html_file = self.compile_md(md_file)
+        if html_file:
+            atom_file = self.compile_atom()
+            include_list = [md_file, html_file, atom_file]
+            self.make_tarball(include_list, output_dir)
+            remove_temporary_dir(self.verbosity, self.tempdir)
+
+    def compile_md(self, mdfile):
+        """Compile an HTML version of the Markdown source of NEWS; return the
+        file path."""
+        source = mdfile
+        output_html = os.path.join(self.tempdir, 'NEWS.html')
+        pandoc_tmplt = os.path.join(self.datadir, 'pandoc-template.html')
+        try:
+            subprocess.call(["pandoc",
+                            "-w", "html",
+                            "-r", "markdown",
+                            "--email-obfuscation", "none",
+                            "--template", pandoc_tmplt,
+                            "--output", output_html,
+                            source])
+        except OSError as ose:
+            print("ERROR: Couldn't run pandoc subprocess: %s" % ose)
+        else:
+            return output_html
+
+    def compile_atom(self):
+        """Create an Atom news feed file from a template by adding the current
+        date and an UUID (uuid4 is supposed to be generated randomly); returns
+        the file path."""
+        atom_tmplt = os.path.join(self.datadir, 'NEWS.atom.template')
+        output_atom = os.path.join(self.tempdir, 'NEWS.atom')
+        with open(atom_tmplt, 'r') as f:
+            formatted = f.read()
+        # insert date
+        now = datetime.now()
+        formatted = re.sub(r'REPLACEDATE', now.isoformat(), formatted)
+        # insert UUID
+        uuid = str(uuid4())
+        formatted = re.sub(r'REPLACEID', uuid, formatted)
+        with open(output_atom, 'w') as f:
+            f.write(formatted)
+        return output_atom
+
+    def make_tarball(self, include_list, output_dir):
+        """Add files from a list to NEWS.tgz in --output-dir; remove directory
+        structure."""
+        tarball = os.path.join(output_dir, 'NEWS.tgz')
+        tar = tarfile.open(tarball, mode='w:gz')
+        try:
+            for item in include_list:
+                tarinfo = tar.gettarinfo(item, arcname=os.path.basename(item))
+                tarinfo.uid = tarinfo.gid = 0
+                tarinfo.uname = tarinfo.gname = "root"
+                tar.addfile(tarinfo, open(item, 'rb'))
+        finally:
+            tar.close()
 
 
 def parse_opts(argv):
@@ -1061,7 +1067,6 @@ def parse_opts(argv):
             print('  %s' % opt)
 
     return (opts, args)
-
 
 def main():
     """Main function: run selected actions."""
