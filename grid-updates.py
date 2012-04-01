@@ -209,7 +209,7 @@ def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
 
-class List:
+class List(object):
     """This class implements the introducer list related functions of
     grid-updates."""
 
@@ -368,7 +368,7 @@ class List:
                       ' Changes will take effect upon restart of the node.')
 
 
-class News:
+class News(object):
     """This class implements the --download-news function of grid-updates."""
 
     def __init__(self, tahoe_node_dir, web_static_dir, url, verbosity=0):
@@ -472,7 +472,7 @@ class News:
 
 
 
-class Updates:
+class Updates(object):
     """This class implements the update functions of grid-updates."""
 
     def __init__(self, output_dir, url, verbosity=0):
@@ -615,7 +615,7 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
         response.close()
 
 
-class PatchWebUI:
+class PatchWebUI(object):
     """This class implements the patching functions of grid-updates."""
 
     def __init__(self, tahoe_node_url, verbosity=0):
@@ -737,7 +737,7 @@ class PatchWebUI:
         copyfile(patchedfile, targetfile)
 
 
-class MakeNews:
+class MakeNews(object):
     """This class implements the --make-news function of grid-updates."""
 
     def __init__(self, verbosity=0):
