@@ -36,6 +36,7 @@ __maintainer__ = ['darrob', 'KillYourTV']
 __email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"
 
+# TODO illegal var name?
 __patch_version__ = '1.8.3-gu5'
 
 # Actions
