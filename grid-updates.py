@@ -138,6 +138,13 @@ def remove_temporary_dir(directory, verbosity=0):
         if verbosity > 2:
             print('DEBUG: Removed temporary dir: %s.' % directory)
 
+def install_news_stub(web_static_dir):
+    targetfile = os.path.join(web_static_dir, 'NEWS.html')
+    if not os.access(targetfile, os.F_OK):
+        news_stub_file = os.path.join(find_datadir(), 'news-stub.html')
+        copyfile(news_stub_file, targetfile)
+
+
 
 # Actions
 # =======
@@ -653,7 +660,7 @@ class PatchWebUI(object):
                     else:
                         self.backup_file(uifile)
                         self.install_file(uifile)
-                        news_stub(web_static_dir)
+                        install_news_stub(web_static_dir)
             if mode == 'undo':
                 for uifile in list(self.filepaths.keys()):
                     self.restore_file(uifile)
@@ -738,12 +745,6 @@ class PatchWebUI(object):
         if self.verbosity > 2:
             print('DEBUG: Installing patched version of %s' % targetfile)
         copyfile(patchedfile, targetfile)
-
-def news_stub(web_static_dir):
-    targetfile = os.path.join(web_static_dir, 'NEWS.html')
-    if not os.access(targetfile, os.F_OK):
-        news_stub_file = os.path.join(find_datadir(), 'news-stub.html')
-        copyfile(news_stub_file, targetfile)
 
 
 class MakeNews(object):
