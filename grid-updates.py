@@ -69,7 +69,7 @@ def action_repair(verbosity, uri_dict):
         print("Deep-check of grid-updates shares completed: "
                             "%d %s unhealthy." % (unhealthy, sub))
 
-def action_comrepair(verbosity, uri_dict):
+def action_comrepair(verbosity, tahoe_node_url, uri_dict):
     # --community-repair
     if verbosity > 0:
         print("-- Repairing Tahoe shares. --")
@@ -85,7 +85,7 @@ def action_comrepair(verbosity, uri_dict):
     random.shuffle(sharelist)
     for share in sharelist:
         sharename  = share['name']
-        repair_uri = gen_full_tahoe_uri(opts.tahoe_node_url, share['uri'])
+        repair_uri = gen_full_tahoe_uri(tahoe_node_url, share['uri'])
         mode       = share['mode']
         if mode == 'deep-check':
             results = repair_share(verbosity, sharename, repair_uri,
@@ -235,7 +235,7 @@ class List:
             if mode == 'sync':
                 self.sync_introducers()
         else:
-            if opts.verbosity > 0:
+            if self.verbosity > 0:
                 print('Introducer list already up-to-date.')
 
     def create_intro_dict(self, json_response):
@@ -337,7 +337,7 @@ class List:
                     file=sys.stderr)
             sys.exit(1)
         else:
-            if opts.verbosity > 0:
+            if self.verbosity > 0:
                 print('Successfully updated the introducer list.'
                       ' Changes will take effect upon restart of the node.')
 
@@ -480,15 +480,15 @@ class MakeNews:
         # find template locations
         self.datadir = find_datadir()
 
-    def run_action(self, md_file):
+    def run_action(self, md_file, output_dir):
         """Call this method to execute the desired action (--make-news). It
         will run the necessary methods."""
         html_file = self.compile_md(md_file)
         if html_file:
             atom_file = self.compile_atom()
             include_list = [md_file, html_file, atom_file]
-            self.make_tarball(include_list, opts.output_dir)
-            remove_temporary_dir(opts.verbosity, self.tempdir)
+            self.make_tarball(include_list, output_dir)
+            remove_temporary_dir(self.verbosity, self.tempdir)
 
     def compile_md(self, mdfile):
         """Compile an HTML version of the Markdown source of NEWS; return the
@@ -1211,7 +1211,7 @@ def main():
     if opts.mknews_md_file:
         try:
             mknews = MakeNews(opts.verbosity)
-            mknews.run_action(opts.mknews_md_file)
+            mknews.run_action(opts.mknews_md_file, opts.output_dir)
         except:
             pass
 
@@ -1223,7 +1223,7 @@ def main():
 
     if opts.comrepair:
         try:
-            action_comrepair(opts.verbosity, uri_dict)
+            action_comrepair(opts.verbosity, opts.tahoe_node_url, uri_dict)
         except:
             pass
 
