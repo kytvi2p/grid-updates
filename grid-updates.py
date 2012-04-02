@@ -487,18 +487,19 @@ class News(object):
         except:
             if self.verbosity > 2:
                 print('DEBUG: No NEWS file found in node directory.')
-            return True
+            differ = True
         else:
             with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
                 if locnews.read() != tempnews.read():
                     if self.verbosity > 2:
                         print('DEBUG: NEWS files differ.')
-                    return True
+                    differ = True
                 else:
                     if self.verbosity > 2:
                         print('DEBUG: NEWS files seem to be identical.')
-                    return False
-            locnews.close()
+                    differ = False
+                locnews.close()
+        return differ
 
     def print_news(self):
         """Print the contents of the newly downloaded NEWS file in the
