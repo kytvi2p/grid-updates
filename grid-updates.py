@@ -174,10 +174,6 @@ def action_repair(uri_dict, verbosity=0):
             sub = 'objects'
         if verbosity > 1:
             print("  Status: %d %s unhealthy." % (unhealthy, sub))
-        if unhealthy == 1:
-            sub = 'object'
-        else:
-            sub = 'objects'
     if verbosity > 0:
         print("Deep-check of grid-updates shares completed: "
                             "%d %s unhealthy." % (unhealthy, sub))
