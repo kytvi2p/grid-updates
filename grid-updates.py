@@ -652,6 +652,7 @@ class PatchWebUI(object):
         --undo-patch-tahoe). It will run the necessary methods."""
         if self.compatible_version(self.tahoe_node_url):
             if mode == 'patch':
+                install_news_stub(web_static_dir)
                 for uifile in list(self.filepaths.keys()):
                     patch_version = self.read_patch_version(
                                             self.filepaths [uifile][1])
@@ -668,7 +669,6 @@ class PatchWebUI(object):
                     else:
                         self.backup_file(uifile)
                         self.install_file(uifile)
-                        install_news_stub(web_static_dir)
             if mode == 'undo':
                 for uifile in list(self.filepaths.keys()):
                     self.restore_file(uifile)
