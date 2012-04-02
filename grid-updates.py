@@ -139,6 +139,8 @@ def remove_temporary_dir(directory, verbosity=0):
             print('DEBUG: Removed temporary dir: %s.' % directory)
 
 def install_news_stub(web_static_dir):
+    """Copy a placeholder NEWS.html file to Tahoe's web.static directory to
+    avoid 404 Errors (e.g. in the Iframe)."""
     targetfile = os.path.join(web_static_dir, 'NEWS.html')
     if not os.access(targetfile, os.F_OK):
         news_stub_file = os.path.join(find_datadir(), 'news-stub.html')
@@ -646,6 +648,8 @@ class PatchWebUI(object):
             print(self.filepaths)
 
     def run_action(self, mode, web_static_dir):
+        """Call this method to execute the desired action (--patch-tahoe or
+        --undo-patch-tahoe). It will run the necessary methods."""
         if self.compatible_version(self.tahoe_node_url):
             if mode == 'patch':
                 for uifile in list(self.filepaths.keys()):
