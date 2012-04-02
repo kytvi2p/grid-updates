@@ -19,7 +19,7 @@ if sys.version_info[0] == 2:
     from urllib2 import HTTPError
     from urllib2 import urlopen
 else:
-    from configparser import SafeConfigParser
+    from configparser import ConfigParser as SafeConfigParser
     from urllib.request import urlopen
     from urllib.parse import urlencode
     from urllib.error import HTTPError
