@@ -27,7 +27,8 @@ uninstall:
 	@echo "$(APP) successfully uninstalled."
 
 clean:
-	@rm -f README.html INSTALL.html MAN.html *.log *.pyc
+	@rm -f README.html INSTALL.html MAN.html *.log *.pyc MANIFEST
+	@rm -rf dist
 
 man:
 	pandoc -s -w man man/grid-updates.1.md -o $(MAN)
@@ -80,4 +81,7 @@ lint:
 		done; \
 		exit 0
 
-.PHONY: man viewman clean install help html tahoehtml default installpatch lint
+dist:
+	python setup.py sdist --owner root --group root
+
+.PHONY: man viewman clean install help html tahoehtml default installpatch lint dist

@@ -1,0 +1,5 @@
+recursive-include etc *
+include gridupdates.py
+include setup.py
+include README.md
+include scripts/grid-updates
