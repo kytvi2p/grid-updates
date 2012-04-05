@@ -27,8 +27,28 @@ setup(name = 'grid-updates',
         version = '1.0.0a',
         py_modules = ['gridupdates'],
         description = 'Tahoe-LAFS helper script',
-        author = 'darrob',
-        author_email = 'darrob@mail.i2p',
+        long_description = """\
+`grid-updates` is a shell script intended to help keep
+Tahoe-LAFS nodes' configurations up-to-date.  It can
+retrieve lists of introducers as well as news feeds
+from the Tahoe grid.  This is useful for any public
+grid that relies solely on volunteers.
+
+On some public grids (especially the one on I2P) all
+nodes, even introducers, are run by volunteers and may
+disappear at any given time.  Maintaining a list
+of all known introducers and distributing it to all
+participants of the grid will ensure the best possible
+connectivity for everyone.
+
+Furthermore, there is no reliable way to contact node
+operators.  This is why we want to encourage users to
+subscribe to a news feed relevant to their Tahoe grid.
+We hope it's going to be a way to inform unknown node
+operators about their wrongly configured nodes, necessary
+updates, recommended configuration changes and such.""",
+        author = 'darrob, KillYourTV',
+        author_email = 'darrob@mail.i2p, killyourtv@mail.i2p',
         url = 'http://darrob.i2p/grid-updates',
         license = 'Public Domain',
         data_files = [('share/grid-updates', ['share/NEWS.atom.template',
