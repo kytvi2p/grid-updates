@@ -12,16 +12,20 @@ if sys.hexversion < int(0x020600f0):
 from distutils.core import setup
 import platform
 import shutil
+extra_args = {}
+SCRIPTS = []
 
 if platform.system() == 'Windows':
     shutil.copy('scripts/grid-updates', 'scripts/grid-updates.py')
     script_name = 'scripts/grid-updates.py'
     try:
         import py2exe
+        extra_args['console'] = ['scripts/grid-updates.py']
     except ImportError:
         pass
 else:
     script_name = 'scripts/grid-updates'
+SCRIPTS.append(script_name)
 
 setup(name = 'grid-updates',
         version = '1.0.0a',
@@ -55,8 +59,7 @@ updates, recommended configuration changes and such.""",
             'share/news-stub.html', 'share/pandoc-template.html',
             'share/tahoe.css.patched', 'share/welcome.xhtml.patched']),
             ('share/man/man1', ['man/grid-updates.1'])],
-        scripts = [script_name],
-        console = [script_name],
+        scripts = SCRIPTS,
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Environment :: Console',
@@ -110,6 +113,7 @@ updates, recommended configuration changes and such.""",
                          'Unix',
                          'Windows'],
             provides = ['gridupdates'],
+            **extra_args
         )
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
