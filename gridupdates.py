@@ -104,10 +104,13 @@ def find_datadir():
     """Determine datadir (e.g. /usr/share) from the grid-updates executable's
     location."""
     bindir = os.path.dirname(sys.argv[0])
-    if os.path.exists(os.path.join(bindir, 'share')):
+    # When processed with py2exe:
+    if os.path.exists(os.path.join(bindir, 'share', 'grid-updates')):
         datadir = os.path.join(bindir, 'share', 'grid-updates')
-    elif os.path.exists(os.path.join(bindir, 'share')):
+    # If run from the source directory without being installed:
+    elif os.path.exists(os.path.join(bindir, 'share', 'tahoe.css.patched')):
         datadir = os.path.join(bindir, 'share')
+    # When installed the normal way:
     else:
         datadir = os.path.join(bindir, '..', 'share', 'grid-updates')
     if not os.path.exists(datadir):
