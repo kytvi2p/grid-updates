@@ -1,51 +1,18 @@
 #!/usr/bin/make -f
 
-package = grid-updates
-docdir = debian/tmp/usr/share/doc/$(package)
-mandir = debian/tmp/usr/share/man/man1
-datadir = debian/tmp/usr/share/$(package)
+%:
+	dh $@
 
-INSTALL= install
-INSTALL_DATA= install -m 644
+override_dh_auto_build:
+	dh_testdir
+	python setup.py build
 
-build:
-	# There's only a manpage to compile.
-	# (This is unnesscary as long as we include a compiled version.)
-	#make man
+override_dh_auto_install:
+	python setup.py install \
+		--root debian/grid-updates \
+		--no-compile \
+		--install-layout=deb
 
-clean:
-	rm -rf *~ debian/tmp debian/*~ debian/files* debian/substvars
-
-binary-indep: build
-	rm -rf debian/tmp
-	$(INSTALL) -d debian/tmp/DEBIAN
-	$(INSTALL) -d debian/tmp/usr/bin
-	$(INSTALL) -d debian/tmp/usr/share/lintian/overrides
-	$(INSTALL) -d $(docdir)
-	$(INSTALL) -d $(mandir)
-	$(INSTALL) grid-updates debian/tmp/usr/bin
-	$(INSTALL_DATA) debian/lintian-overrides debian/tmp/usr/share/lintian/overrides/$(package)
-	$(INSTALL_DATA) *.md $(docdir)
-	$(INSTALL_DATA) debian/copyright $(docdir)
-	$(INSTALL_DATA) man/*.1 $(mandir)
-	$(INSTALL_DATA) debian/changelog $(docdir)/changelog.Debian
-	$(INSTALL_DATA) CHANGES $(docdir)/changelog
-	cd $(docdir) && gzip -9 changelog changelog.Debian
-	gzip -r9 debian/tmp/usr/share/man
-	$(INSTALL) -d $(datadir)
-	$(INSTALL_DATA) etc/tahoe.css.patch etc/welcome.xhtml.patch etc/NEWS.atom.template etc/pandoc-template.html $(datadir)
-	dpkg-gencontrol
-	chown -R 0:0 debian/tmp
-	chmod -R u+w,go=rX debian/tmp
-	dpkg --build debian/tmp ..
-
-binary-arch: build
-# There are no architecture-dependent files.
-
-binary: binary-indep binary-arch
-
-build-arch: build
-
-build-indep: build
-
-.PHONY: binary binary-arch binary-indep build-arch build-indep clean
+override_dh_auto_clean:
+	python setup.py clean -a
+	find . -name '*\.py[co]' -exec rm -f {} \;
