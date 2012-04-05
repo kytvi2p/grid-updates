@@ -14,13 +14,12 @@ import platform
 import shutil
 
 if platform.system() == 'Windows':
+    shutil.copy('scripts/grid-updates', 'scripts/grid-updates.py')
+    script_name = 'scripts/grid-updates.py'
     try:
         import py2exe
     except ImportError:
         pass
-
-    shutil.copy('scripts/grid-updates', 'scripts/grid-updates.py')
-    script_name = 'scripts/grid-updates.py'
 else:
     script_name = 'scripts/grid-updates'
 
