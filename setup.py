@@ -14,7 +14,8 @@ setup(name='grid-updates',
         license='Public Domain',
         data_files=[('share/grid-updates', ['etc/NEWS.atom.template',  'etc/news-stub.html',
             'etc/pandoc-template.html',  'etc/tahoe.css.original',  'etc/tahoe.css.patched',
-            'etc/welcome.xhtml.original', 'etc/welcome.xhtml.patched'])],
+            'etc/welcome.xhtml.original', 'etc/welcome.xhtml.patched']),
+            ('share/man/man1', ['man/grid-updates.1'])],
         scripts=['scripts/grid-updates'],
         )
 
