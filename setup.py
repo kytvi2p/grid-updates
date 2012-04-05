@@ -28,7 +28,8 @@ else:
 SCRIPTS.append(script_name)
 
 setup(name = 'grid-updates',
-        version = '1.0.0a',
+        # Get the version number dynamically after importing g-u
+        version = __import__('gridupdates').__version__,
         py_modules = ['gridupdates'],
         description = 'Tahoe-LAFS helper script',
         long_description = """\
