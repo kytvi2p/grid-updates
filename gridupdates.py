@@ -104,7 +104,9 @@ def find_datadir():
     """Determine datadir (e.g. /usr/share) from the grid-updates executable's
     location."""
     bindir = os.path.dirname(sys.argv[0])
-    if os.path.exists(os.path.join(bindir, 'etc')):
+    if os.path.exists(os.path.join(bindir, 'share')):
+        datadir = os.path.join(bindir, 'share/grid-updates')
+    elif os.path.exists(os.path.join(bindir, 'etc')):
         datadir = os.path.join(bindir, 'etc')
     else:
         datadir = os.path.abspath(bindir) + '/../share/grid-updates'
