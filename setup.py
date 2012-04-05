@@ -6,7 +6,7 @@ distutils-based setup for grid-updates
 
 import sys
 if sys.hexversion < int(0x020600f0):
-    print 'ERROR: %s requires Python 2.6 or newer.' % sys.argv[0]
+    sys.stderr.write('ERROR: grid-updates requires Python 2.6 or newer.\n')
     sys.exit(1)
 
 from distutils.core import setup
