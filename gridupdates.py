@@ -106,8 +106,8 @@ def find_datadir():
     bindir = os.path.dirname(sys.argv[0])
     if os.path.exists(os.path.join(bindir, 'share')):
         datadir = os.path.join(bindir, 'share', 'grid-updates')
-    elif os.path.exists(os.path.join(bindir, 'etc')):
-        datadir = os.path.join(bindir, 'etc')
+    elif os.path.exists(os.path.join(bindir, 'share')):
+        datadir = os.path.join(bindir, 'share')
     else:
         datadir = os.path.join(bindir, '..', 'share', 'grid-updates')
     if not os.path.exists(datadir):
