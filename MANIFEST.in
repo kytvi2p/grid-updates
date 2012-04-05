@@ -1,8 +1,5 @@
-recursive-include etc *
-include gridupdates.py
-include setup.py
-include README.md
-include INSTALL.md
+graft etc
+include *.py *.md CHANGES TODO
 include CHANGES
-recursive-include man grid-updates.1
-include scripts/grid-updates
+include TODO
+graft man
