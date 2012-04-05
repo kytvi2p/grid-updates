@@ -105,13 +105,14 @@ def find_datadir():
     location."""
     bindir = os.path.dirname(sys.argv[0])
     if os.path.exists(os.path.join(bindir, 'share')):
-        datadir = os.path.join(bindir, 'share/grid-updates')
+        datadir = os.path.join(bindir, 'share', 'grid-updates')
     elif os.path.exists(os.path.join(bindir, 'etc')):
         datadir = os.path.join(bindir, 'etc')
     else:
-        datadir = os.path.abspath(bindir) + '/../share/grid-updates'
+        datadir = os.path.join(bindir, '..', 'share', 'grid-updates')
     if not os.path.exists(datadir):
         print('ERROR: Does not exist: %s.' % datadir, file=sys.stderr)
+    datadir = os.path.abspath(datadir)
     return datadir
 
 def find_tahoe_dir(tahoe_node_url):
@@ -1083,6 +1084,7 @@ def parse_opts(argv):
                 opts.comrepair_uri,
                 opts.output_dir]:
             print('  %s' % opt)
+        print("DEBUG: Patch directory is", find_datadir())
 
     return (opts, args)
 
