@@ -1,0 +1,7 @@
+*.pyc
+dist
+MANIFEST
+build
+# This will be created by setup.py if run in Windows
+# (Windows needs file extensions)
+scripts/grid-updates.py
