@@ -1088,6 +1088,36 @@ def main():
     """Main function: run selected actions."""
     # Parse config files and command line arguments
     (opts, args) = parse_opts(sys.argv)
+
+    # ACTION PARSING AND EXECUTION
+    # ============================
+
+    # Check for at least 1 mandatory option
+    if (not opts.version
+    and not opts.merge
+    and not opts.sync
+    and not opts.news
+    and not opts.repair
+    and not opts.check_version
+    and not opts.download_update
+    and not opts.comrepair
+    and not opts.patch_ui
+    and not opts.undo_patch_ui
+    and not opts.mknews_md_file):
+        print('ERROR: You need to specify an action. Please see %s --help.' %
+                sys.argv[0], file=sys.stderr)
+        sys.exit(2)
+
+    if opts.version:
+        print('grid-updates version: %s.' % __version__)
+        sys.exit(0)
+
+    # conflicting options
+    if opts.merge and opts.sync:
+        print('ERROR: --merge-introducers & --sync-introducers are '
+            ' mutually exclusive actions.', file=sys.stderr)
+        sys.exit(2)
+
     # Parse tahoe options (find web.static for NEWS files)
     tahoe_cfg_path = os.path.join(opts.tahoe_node_dir, 'tahoe.cfg')
     tahoe_config = SafeConfigParser({'web.static': 'public_html'})
@@ -1121,35 +1151,6 @@ def main():
         print("ERROR: Need write access to", opts.tahoe_node_dir,
                 file=sys.stderr)
         sys.exit(1)
-
-    # ACTION PARSING AND EXECUTION
-    # ============================
-
-    # Check for at least 1 mandatory option
-    if (not opts.version
-    and not opts.merge
-    and not opts.sync
-    and not opts.news
-    and not opts.repair
-    and not opts.check_version
-    and not opts.download_update
-    and not opts.comrepair
-    and not opts.patch_ui
-    and not opts.undo_patch_ui
-    and not opts.mknews_md_file):
-        print('ERROR: You need to specify an action. Please see %s --help.' %
-                sys.argv[0], file=sys.stderr)
-        sys.exit(2)
-
-    if opts.version:
-        print('grid-updates version: %s.' % __version__)
-        sys.exit(0)
-
-    # conflicting options
-    if opts.merge and opts.sync:
-        print('ERROR: --merge-introducers & --sync-introducers are '
-            ' mutually exclusive actions.', file=sys.stderr)
-        sys.exit(2)
 
     # generate URI dictionary
     uri_dict = {'list': (opts.list_uri,
