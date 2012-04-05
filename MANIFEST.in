@@ -1,5 +1,3 @@
 graft etc
 include *.py *.md CHANGES TODO
-include CHANGES
-include TODO
 graft man
