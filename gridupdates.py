@@ -580,6 +580,10 @@ class Updates(object):
                     version = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1',
                                                                filename))
                     version_numbers.append(version)
+                elif re.match("^grid-updates-.*\.tar\.gz$", filename):
+                    version = (re.sub(r'^grid-updates-(.*)\.tar\.gz', r'\1',
+                                                               filename))
+                    version_numbers.append(version)
             latest_version = sorted(version_numbers)[-1]
             if self.verbosity > 1:
                 print('INFO: Current version: %s; newest available: %s.' %
