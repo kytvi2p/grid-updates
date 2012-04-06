@@ -1,12 +1,12 @@
 Introduction to grid-updates
 ============================
 
-``grid-updates`` is a Python script intended to help keep `Tahoe-LAFS`_ nodes'
+``grid-updates`` is a Python script intended to help keep `Tahoe\-LAFS`_ nodes'
 configurations up-to-date. It can retrieve lists of introducers [1]_ as well as
 news feeds from the Tahoe grid. This is useful for any public grid that relies
 solely on volunteers.
 
-.. _Tahoe-LAFS:  http://www.tahoe-lafs.org
+.. _Tahoe\-LAFS:  http://www.tahoe-lafs.org
 
 On some public grids (especially the one on I2P) all nodes, even
 introducers, are run by volunteers and may disappear at any given time.
@@ -28,7 +28,6 @@ Download
 -  `Project Eepsite`_
 -  `Tahoe grid`_  [2]_
 -  Git
-
    -  `Git repository`_ (`Gitweb`_)
    -  `Git mirror 1 <http://darrob.i2p/grid-updates/grid-updates.git>`_
    -  `Git mirror 2 <http://killyourtv.i2p/git/grid-updates.git>`_ (`Gitweb 2`_ )
@@ -76,16 +75,16 @@ Please refer to the `man page`_  for detailed usage information.
 Example cron job setup
 ----------------------
 
-::
+ ::
 
-     0 0 *   * * grid-updates --sync-introducers --download-news --check-version
-    30 0 */2 * * grid-updates --repair-subscriptions
+  0 0 *   * * grid-updates --sync-introducers --download-news --check-version
+  30 0 */2 * * grid-updates --repair-subscriptions
 
 Authors
 =======
 
--  darrob <`darrob@mail.i2p <mailto:darrob@mail.i2p>`_>
--  KillYourTV <`killyourtv@mail.i2p <mailto:killyourtv@mail.i2p>`_>
+-  darrob <darrob@mail.i2p>
+-  KillYourTV <killyourtv@mail.i2p>
 
 License
 =======
@@ -111,6 +110,6 @@ email.
 
 .. [3]
    See also the tahoe-repair-all.sh script at
-   `killyourtv.i2p <http://killyourtv.i2p/tahoe-lafs/scripts/>`_
+   <http://killyourtv.i2p/tahoe-lafs/scripts/>
 
 .. _man page: man/grid-updates.1.md
