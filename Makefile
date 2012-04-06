@@ -77,7 +77,7 @@ lint:
 		done; \
 		exit 0
 
-dist:
+dist: html
 	python setup.py sdist --owner root --group root --formats gztar,zip
 
 .PHONY: man viewman clean install help html tahoehtml default installpatch lint dist
