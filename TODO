@@ -1,12 +1,12 @@
-These are suggestions:
-
-TODO
-	* Include HTML docs in $(htmldir)?
-	* Neatly list all dependencies?
-	* BSD compatibility
-
-UNDECIDED
-	* Support web UI patches for multiple versions of Tahoe?
-	* Test on Windows?
-	* Download script updates from HTTP URIs?
-	* Don't hardcode links to http://127.0.0.1:3456/static/NEWS.html; parse tahoe.cfg?
+* pid/lock file? (at least the shell version prevented multiple instances)
+* don't require multiple keyboard interrupts (need better exceptions?)
+* root
+	- might be required for patching
+	- skip tahoe node checks in this case
+* new introducer list file format: JSON
+	- add option to add new introducers through g-u (and check syntax)?
+* set() for local lists in case of manually added dupicates?
+* always make sure there is at least a NEWS.html stub in web.static
+* is __patch_version__ a valid variable name?
+* Support web UI patches for multiple versions of Tahoe?
+* Include HTML docs in $(htmldir)?
