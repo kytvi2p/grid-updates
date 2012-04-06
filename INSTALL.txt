@@ -1,0 +1,54 @@
+============================
+Setup notes for grid-updates
+============================
+
+See `README.txt <README.txt>`_  and the `man page`_
+for more information about grid-updates.
+
+Requirements
+------------
+
+Python version 2.6 and later. Python is not a requirement for Windows users.
+
+Installation
+------------
+
+Users with an available Python installation can install grid-updates
+with the command ``python setup.py install`` from within the source
+archive.
+
+Debian users can build packages with the command
+``fakeroot debian/rules binary``. This will build a package that can be
+installed using ``dpkg``. This package will include the script and its
+documentation.
+
+Windows users have the following available options:
+
+-  Binary installer for use on systems without Python
+-  Installer for systems with Python
+-  Installation from the source archive (``python setup.py install`` as
+   above)
+
+Consider running ``grid-updates --patch-tahoe`` after installation.  This will
+apply a small patch to Tahoe-LAFS's web console to allow displaying news from
+grid-update's in an Iframe. The web console can be restored to its original
+state with ``grid-updates --undo-tahoe-patch``.
+
+Permissions
+-----------
+
+In order for this script to work, it needs to have read and write permission
+for the Tahoe-LAFS node's directory. This directory is typically located at
+``%appdata%\.tahoe`` for Windows users and ``~/.tahoe`` for other systems.
+
+If asked to, ``grid-updates``` will update your introducers file and make a
+backup of it. When fetching NEWS, the script will write a plain text version to
+``~/.tahoe/NEWS``.  Additionally, an HTML version and an Atom news feed will be
+saved to your Tahoe node's ``web.static`` directory (typically
+``~/.tahoe/public_html``). NEWS.html and NEWS.atom can be viewed in the node's
+`/static`_ directory, or (having patched Tahoe's Web UI) right on your node's
+`front page`_
+
+.. _man page: grid-updates.html
+.. _/static: http://127.0.0.1:3456/static/
+.. _front page: http://127.0.0.1:3456/
