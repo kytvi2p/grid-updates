@@ -9,7 +9,7 @@ APP= grid-updates
 INSTALL= install
 INSTALL_DATA= $(INSTALL) -m 644
 MAN= man/grid-updates.1
-PANDOC= pandoc -s -r markdown -w html --email-obfuscation=none
+PANDOC= pandoc -s -r rst -w html --email-obfuscation=none
 TAHOE_DIR= http://127.0.0.1:3456/uri/URI%3ADIR2%3Anocmjemmatpn5yr4cfthvdvlxi%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a
 VERSION= $$(git tag | tail -n 1 | sed s/v//)
 RELEASE_BASENAME= grid-updates-$(VERSION)
@@ -38,23 +38,23 @@ viewman: man
 	@man ./$(MAN)
 
 html:
-	@sed -e 's;\(INSTALL\)\.md;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' README.md \
+	@sed -e 's;\(INSTALL\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' README.txt\
 		| $(PANDOC) -o README.html
-	@sed -e 's;\(README\)\.md;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' INSTALL.md \
+	@sed -e 's;\(README\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' INSTALL.txt\
 		| $(PANDOC) -o INSTALL.html
-	@$(PANDOC) man/grid-updates.1.md -o MAN.html
+	@pandoc -s -r markdown -t html man/grid-updates.1.md -o MAN.html
 	@echo "Generated HTML documentation from Markdown sources."
 
 tahoehtml:
-	@sed -e 's;\(INSTALL\)\.md;\1.html;g' \
+	@sed -e 's;\(INSTALL\)\.txt;\1.html;g' \
 		-e "s;^\(\[INSTALL\.html\]:\ \)\(INSTALL\.html\);\1$(TAHOE_DIR)/\2;" \
-		-e "s;^\(\[man\ page\]:\ \)man.grid-updates\.1\.md;\1$(TAHOE_DIR)/MAN.html;" README.md \
+		-e "s;^\(\[man\ page\]:\ \)man.grid-updates\.1\.md;\1$(TAHOE_DIR)/MAN.html;" README.txt\
 		| $(PANDOC) -o README.html
-	@sed -e 's;\(README\)\.md;\1.html;g' \
+	@sed -e 's;\(README\)\.txt;\1.html;g' \
 		-e "s;^\(\[README\.html\]:\ \)\(README\.html\);\1$(TAHOE_DIR)/\2;" \
-		-e "s;^\(\[man\ page\]:\ \)man.grid-updates\.1\.md;\1$(TAHOE_DIR)/MAN.html;" INSTALL.md \
+		-e "s;^\(\[man\ page\]:\ \)man.grid-updates\.1\.md;\1$(TAHOE_DIR)/MAN.html;" INSTALL.txt\
 		| $(PANDOC) -o INSTALL.html
-	@$(PANDOC) man/grid-updates.1.md -o MAN.html
+	@pandoc -s -r markdown -t html man/grid-updates.1.md -o MAN.html
 	@echo "Generated HTML documentation (with links to Tahoe locations) from Markdown sources."
 
 release: html
