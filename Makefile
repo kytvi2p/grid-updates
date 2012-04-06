@@ -15,15 +15,11 @@ VERSION= $$(git tag | tail -n 1 | sed s/v//)
 RELEASE_BASENAME= grid-updates-$(VERSION)
 
 install:
-	$(INSTALL) -d $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)
-	$(INSTALL) $(APP) $(DESTDIR)$(BINDIR)
-	$(INSTALL_DATA) $(MAN) $(DESTDIR)$(MANDIR)
-	$(INSTALL) -d $(DATADIR)
-	$(INSTALL_DATA) etc/tahoe.css.patch etc/welcome.xhtml.patch etc/NEWS.atom.template etc/pandoc-template.html $(DATADIR)
+	@python setup.py install --prefix $(PREFIX)
 	@echo "$(APP) successfully installed to $(DESTDIR)$(PREFIX)."
 
 uninstall:
-	@rm -vr $(BINDIR)/$(APP) $(MANDIR)/$(APP).1 $(DATADIR)
+	@rm -vr $(BINDIR)/$(APP) $(MANDIR)/$(APP).1 $(DATADIR) $(DATADIR)/doc/$(APP)
 	@echo "$(APP) successfully uninstalled."
 
 clean:
