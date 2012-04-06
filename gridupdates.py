@@ -580,11 +580,17 @@ class Updates(object):
                     version = (re.sub(r'^grid-updates-(.*)\.tar\.gz', r'\1',
                                                                filename))
                     version_numbers.append(version)
-            latest_version = sorted(version_numbers)[-1]
-            if self.verbosity > 1:
-                print('INFO: Current version: %s; newest available: %s.' %
-                        (__version__, latest_version))
-            return latest_version
+            try:
+                latest_version = sorted(version_numbers)[-1]
+            except IndexError:
+                print('ERROR: No versions of grid-updates available in this'
+                                        ' Tahoe directory.', file=sys.stderr)
+                return
+            else:
+                if self.verbosity > 1:
+                    print('INFO: Current version: %s; newest available: %s.' %
+                            (__version__, latest_version))
+                return latest_version
 
     def new_version_available(self):
         """Determine if the local version is smaller than the available
