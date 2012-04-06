@@ -11,7 +11,7 @@ INSTALL_DATA= $(INSTALL) -m 644
 MAN= man/grid-updates.1
 PANDOC= pandoc -s -r markdown -w html --email-obfuscation=none
 TAHOE_DIR= http://127.0.0.1:3456/uri/URI%3ADIR2%3Anocmjemmatpn5yr4cfthvdvlxi%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a
-VERSION= $$(git tag | tail -n 1)
+VERSION= $$(git tag | tail -n 1 | sed s/v//)
 RELEASE_BASENAME= grid-updates-$(VERSION)
 
 install:
@@ -58,12 +58,12 @@ tahoehtml:
 	@echo "Generated HTML documentation (with links to Tahoe locations) from Markdown sources."
 
 release: html
-	@git archive --format=tar --prefix=$(RELEASE_BASENAME)/ --output $(RELEASE_BASENAME).tar $(VERSION)
+	@git archive --format=tar --prefix=$(RELEASE_BASENAME)/ --output $(RELEASE_BASENAME).tar v$(VERSION)
 	@mkdir $(RELEASE_BASENAME)
 	@mv INSTALL.html README.html MAN.html $(RELEASE_BASENAME)/
 	@tar rf $(RELEASE_BASENAME).tar $(RELEASE_BASENAME)
-	@gzip -c -9 $(RELEASE_BASENAME).tar > ../$(RELEASE_BASENAME).tgz
-	@rm -r $(RELEASE_BASENAME) $(RELEASE_BASENAME).tar
+	@gzip -9 $(RELEASE_BASENAME).tar
+	@rm -r $(RELEASE_BASENAME)
 
 help:
 	@echo "Type 'make install' to install grid-updates on your system."

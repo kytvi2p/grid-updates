@@ -576,11 +576,7 @@ class Updates(object):
             # parse version numbers
             version_numbers = []
             for filename in file_list:
-                if re.match("^grid-updates-v.*\.tgz$", filename):
-                    version = (re.sub(r'^grid-updates-v(.*)\.tgz', r'\1',
-                                                               filename))
-                    version_numbers.append(version)
-                elif re.match("^grid-updates-.*\.tar\.gz$", filename):
+                if re.match("^grid-updates-.*\.tar\.gz$", filename):
                     version = (re.sub(r'^grid-updates-(.*)\.tar\.gz', r'\1',
                                                                filename))
                     version_numbers.append(version)
