@@ -18,11 +18,14 @@ if sys.version_info[0] == 2:
     from urllib import urlencode
     from urllib2 import HTTPError
     from urllib2 import urlopen
+    from urllib2 import URLError
 else:
     from configparser import ConfigParser as SafeConfigParser
     from urllib.request import urlopen
     from urllib.parse import urlencode
     from urllib.error import HTTPError
+    from urllib.error import URLError
+
 import random
 from distutils.version import LooseVersion
 import subprocess
@@ -56,6 +59,10 @@ def tahoe_dl_file(url, verbosity=0):
         response = urlopen(url)
     except HTTPError as exc:
         print('ERROR: Could not download the file:', exc, file=sys.stderr)
+        sys.exit(1)
+    except URLError as urlexc:
+        print("ERROR: %s while downloading %s." % (urlexc, url),
+                                               file= sys.stderr)
         sys.exit(1)
     else:
         return response
@@ -276,6 +283,10 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
         print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
                                                         file=sys.stderr)
         sys.exit(1)
+    except URLError as urlexc:
+        print("ERROR: %s while running %s for %s." % (urlexc, mode, sharename),
+                                                               file=sys.stderr)
+        sys.exit(1)
     else:
         if mode == 'deep-check':
             # deep-check returns multiple JSON objects, 1 per line
@@ -491,6 +502,10 @@ class News(object):
         except HTTPError:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
             sys.exit(1)
+        except URLError as urlexc:
+            print("ERROR: %s while looking for %s." % (urlexc, url),
+                                                    file=sys.stderr)
+            sys.exit(1)
         else:
             with open(self.local_archive,'wb') as output:
                 output.write(response)
@@ -594,6 +609,10 @@ class Updates(object):
             print('ERROR: Could not access the Tahoe directory:', exc,
                     file=sys.stderr)
             sys.exit(1)
+        except URLError as urlexc:
+            print("ERROR: %s trying to access Tahoe directory: %s." %
+                                (urlexc, self.dir_url), file=sys.stderr)
+            sys.exit(1)
         else:
             # parse json index of dir
             file_list = list(json.loads(json_dir)[1]['children'].keys())
@@ -645,6 +664,10 @@ class Updates(object):
         except HTTPError as exc:
             print('ERROR: Could not download the tarball:', exc,
                     file=sys.stderr)
+            sys.exit(1)
+        except URLError as urlexc:
+            print("ERROR: %s trying to download tarball from  %s." %
+                            (urlexc, download_url), file=sys.stderr)
             sys.exit(1)
         local_file = os.path.join(self.output_dir, 'grid-updates-v' +
                                     self.latest_version + '.tgz')
