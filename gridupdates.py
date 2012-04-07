@@ -667,6 +667,8 @@ class PatchWebUI(object):
     def __init__(self, tahoe_node_url, verbosity=0):
         self.verbosity = verbosity
         self.tahoe_node_url = tahoe_node_url
+        if self.verbosity > 0:
+            print("-- Patching Tahoe web console --")
         self.datadir = find_datadir()
         self.webdir = os.path.join(find_tahoe_dir(tahoe_node_url), 'web')
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
