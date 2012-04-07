@@ -101,8 +101,7 @@ email.
 
 .. [1]
    You need at least Tahoe version 1.8.3 patched for multiple introducer
-   support. See
-   `killyourtv.i2p <http://killyourtv.i2p/tag/multiple_introducer/>`_.
+   support. See <http://killyourtv.i2p/tag/multiple_introducer/>
 
 .. [2]
    The Tahoe URI of the script is
