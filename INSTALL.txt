@@ -49,6 +49,6 @@ saved to your Tahoe node's ``web.static`` directory (typically
 `/static`_ directory, or (having patched Tahoe's Web UI) right on your node's
 `front page`_
 
-.. _man page: grid-updates.html
+.. _man page: man/grid-updates.1.md
 .. _/static: http://127.0.0.1:3456/static/
 .. _front page: http://127.0.0.1:3456/
