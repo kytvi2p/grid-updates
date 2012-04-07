@@ -74,6 +74,13 @@ def is_valid_introducer(uri):
     else:
         return False
 
+def proxy_configured():
+    try:
+        if os.environ["http_proxy"]:
+            return True
+    except KeyError:
+        return False
+
 def parse_result(result, mode, unhealthy, verbosity=0):
     """Parse JSON response from Tahoe deep-check operation.
     Optionally prints status output; returns number of unhealthy shares.
@@ -1193,6 +1200,10 @@ def main():
     #            os.path.join(
     #                    tahoe_node_dir,
     #                    tahoe_config.get('node', 'web.static')))
+    if proxy_configured():
+        print("WARNING: The 'http_proxy' variable is set. If the next step "
+                                       "fails, check your proxy settings.")
+
     if os.access(tahoe_cfg_path, os.R_OK):
         # Also use existence of tahoe.cfg as an indicator of a Tahoe node
         # directory
