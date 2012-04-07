@@ -10,7 +10,7 @@ grid-updates - Helper Script for Tahoe-LAFS Nodes
 SYNOPSIS
 ========
 
-**grid-updates** [*OPTIONS*] *ACTION*
+**grid-updates** [*OPTIONS*] *ACTIONS*
 
 DESCRIPTION
 ===========
@@ -117,9 +117,26 @@ comrepair_uri = *URI*
 NOTES
 =====
 
-*URIs*, in this context, can be either Tahoe-LAFS directories like  
-`URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq`  
-or regular FQDNs like `http://example.i2p/` or `http://www.example.com/`.
+*URIs*, in this context, are Tahoe-LAFS directories like, for example
+`URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq`.
+
+NEWS
+====
+
+If you choose to download the news feed, *grid-updates* will place a plain text
+version of it in your node's directory and print it to stdout. This is intended
+to be sent by cron mail.
+
+There is also an HTML version of the news feed that you can view in a web
+browser. You can access it either directly
+(http://127.0.0.1:3456/static/NEWS.html) or have it be displayed on your Tahoe
+node's web console. You can prepare the console by running `grid-updates
+--patch-tahoe` once.
+
+The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used by
+regular feed readers to check for *grid-updates* news.  (Please note, however,
+that you cannot "refresh" the feed with regular news readers.  These files have
+to always be fetched by *grid-updates* first.)
 
 SHARE HEALTH
 ============
@@ -133,22 +150,6 @@ be damaged and you will have to find a new set of URIs to subscribe to.  One
 way to possibly get them is to run `--check-version` to see if there is a new
 version of *grid-updates* available.  Newer versions might already include new
 default URIs.
-
-NEWS
-====
-
-If you choose to download the news feed, *grid-updates* will place a plain text
-version of it in your node's directory and print it to stdout. This is intended
-to be sent by cron mail.
-
-There is also an HTML version of the news feed that you can view in a web
-browser. This is intended to be displayed on your Tahoe node's web console. You
-can prepare the console by running `grid-updates --patch-tahoe` once.
-
-The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used by
-regular feed readers to check for *grid-updates* news.  (Please note, however,
-that you cannot "refresh" the feed with regular news readers.  These files have
-to always be fetched by *grid-updates* first.)
 
 INFORMATION FOR SUBSCRIPTION MAINTAINERS
 ========================================
