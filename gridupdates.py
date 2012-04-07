@@ -109,8 +109,8 @@ def is_frozen():
     path returned will be '.'.
 
     If a py2exe'd grid-updates is added to the system path in Windows
-    (recommended), we cannot ASSume that the pwd is '.' -- most of the time it
-    won't be.
+    (recommended), we cannot assume that the grid-updates directory is '.' --
+    most of the time it won't be.
 
     This function will figure out whether grid-updates is running as a frozen
     application or not.  Currently we only 'freeze' with py2exe but here we'll
