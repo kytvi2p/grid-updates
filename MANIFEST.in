@@ -1,3 +1,3 @@
 recursive-include share *.template  *.html  *.patched
 include *.py *.txt CHANGES TODO *.html
-include man/*.1
+graft man
