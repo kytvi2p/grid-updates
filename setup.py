@@ -33,11 +33,11 @@ setup(name = 'grid-updates',
         py_modules = ['gridupdates'],
         description = 'Tahoe-LAFS helper script',
         long_description = """\
-`grid-updates` is a shell script intended to help keep
-Tahoe-LAFS nodes' configurations up-to-date.  It can
-retrieve lists of introducers as well as news feeds
-from the Tahoe grid.  This is useful for any public
-grid that relies solely on volunteers.
+`grid-updates` is intended to help keep Tahoe-LAFS
+nodes' configurations up-to-date.  It can retrieve
+lists of introducers as well as news feeds from the
+Tahoe grid.  This is useful for any public grid that
+relies solely on volunteers.
 
 On some public grids (especially the one on I2P) all
 nodes, even introducers, are run by volunteers and may
