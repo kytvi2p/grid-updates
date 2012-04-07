@@ -667,6 +667,8 @@ class PatchWebUI(object):
     def __init__(self, tahoe_node_url, verbosity=0):
         self.verbosity = verbosity
         self.tahoe_node_url = tahoe_node_url
+        if self.verbosity > 0:
+            print("-- Patching Tahoe web console --")
         self.datadir = find_datadir()
         self.webdir = os.path.join(find_tahoe_dir(tahoe_node_url), 'web')
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
@@ -771,8 +773,8 @@ class PatchWebUI(object):
         # TODO exception
         targetfile  = self.filepaths[uifile][1]
         backupfile = targetfile + '.grid-updates.original'
-        if self.verbosity > 2:
-            print('DEBUG: Restoring %s' % backupfile)
+        if self.verbosity > 1:
+            print('INFO: Restoring %s' % backupfile)
         copyfile(backupfile, targetfile)
 
 
@@ -781,8 +783,8 @@ class PatchWebUI(object):
         # TODO exception
         patchedfile = self.filepaths[uifile][0]
         targetfile  = self.filepaths[uifile][1]
-        if self.verbosity > 2:
-            print('DEBUG: Installing patched version of %s' % targetfile)
+        if self.verbosity > 1:
+            print('INFO: Installing patched version of %s' % targetfile)
         copyfile(patchedfile, targetfile)
 
 
