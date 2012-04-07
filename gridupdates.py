@@ -891,31 +891,59 @@ class MakeNews(object):
         finally:
             tar.close()
 
+# Config parsing
+# ==============
+# 1. set hard-coded defaults (get_default_config())
+# 2. find and read config files (parse_config_files())
+# 3. parse command line arguments (parse_args())
 
-def parse_opts(argv):
-    """Parse options given in config files or the command line."""
-    # CONFIGURATION PARSING
-    # =====================
-
-    # Parse settings:
-    #   1. Set default fall-backs.
-    #   2. Parse configuration files.
-    #       (Apply defaults if necessary.)
-    #   3. Parse command line options.
-    #       (Use values from 2. as defaults.)
-
+def get_default_config():
+    """Set default configuration values."""
     # OS-dependent settings
     #for k in os.environ: print "%s: %s" %(k, os.environ[k])
     operating_system = platform.system()
     if operating_system == 'Windows':
         default_tahoe_node_dir = os.path.join(os.environ['USERPROFILE'],
                                                         ".tahoe")
+    else:
+        default_tahoe_node_dir = os.path.join(os.environ['HOME'], ".tahoe")
+    # 1. Default settings
+    #tahoe_node_dir = os.path.abspath('testdir')
+    default_tahoe_node_url = 'http://127.0.0.1:3456'
+    default_list_uri = ('URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:'
+            'gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua')
+    default_news_uri = ('URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:'
+            'hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q')
+    default_script_uri = ('URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'
+            'eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a')
+    default_comrepair_uri = ('URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:'
+            'nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a')
+    default_output_dir = os.path.abspath(os.getcwd())
+
+    # TODO set values directly in dict
+    default_config = {
+            'tahoe_node_dir' : default_tahoe_node_dir,
+            'tahoe_node_url' : default_tahoe_node_url,
+            'list_uri'       : default_list_uri,
+            'news_uri'       : default_news_uri,
+            'script_uri'     : default_script_uri,
+            'comrepair_uri'  : default_comrepair_uri,
+            'output_dir'     : default_output_dir
+            }
+    return default_config
+
+
+def parse_config_files(argv):
+    """Parse options given in config files."""
+    default_config = get_default_config()
+
+    operating_system = platform.system()
+    if operating_system == 'Windows':
         config_locations = [
                 os.path.join(os.environ['APPDATA'],
                                         'grid-updates',
                                         'config.ini')]
     else:
-        default_tahoe_node_dir = os.path.join(os.environ['HOME'], ".tahoe")
         # Config file list
         # Check for XDG environment variables; use defaults if not set
         # The order of config files matters to ConfigParser
@@ -946,30 +974,17 @@ def parse_opts(argv):
             config_locations.append(os.path.join(xdg_config_home,
                                                 'grid-updates',
                                                 'config.ini'))
-
-    # 1. Default settings
-    #tahoe_node_dir = os.path.abspath('testdir')
-    default_tahoe_node_url = 'http://127.0.0.1:3456'
-    default_list_uri = ('URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:'
-            'gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua')
-    default_news_uri = ('URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:'
-            'hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q')
-    default_script_uri = ('URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'
-            'eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a')
-    default_comrepair_uri = ('URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:'
-            'nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a')
-    default_output_dir = os.path.abspath(os.getcwd())
-
     # 2. Configparser
     # uses defaults (above) if not found in config file
     config = SafeConfigParser({
-        'tahoe_node_dir': default_tahoe_node_dir,
-        'tahoe_node_url': default_tahoe_node_url,
-        'list_uri': default_list_uri,
-        'news_uri': default_news_uri,
-        'script_uri': default_script_uri,
-        'comrepair_uri': default_comrepair_uri,
-        'output_dir': default_output_dir,
+        'tahoe_node_dir' : default_config['tahoe_node_dir'],
+        'tahoe_node_url' : default_config['tahoe_node_url'],
+        'list_uri'       : default_config['list_uri'],
+        'list_uri'       : default_config['list_uri'],
+        'news_uri'       : default_config['news_uri'],
+        'script_uri'     : default_config['script_uri'],
+        'comrepair_uri'  : default_config['comrepair_uri'],
+        'output_dir'     : default_config['output_dir']
         })
 
     # Check if any configuration files are available; get their settings if
@@ -987,23 +1002,21 @@ def parse_opts(argv):
 
     if available_cfg_files:
         # Parse config files in standard locations if available
-        config.read(available_cfg_files)
-        tahoe_node_dir = config.get('OPTIONS', 'tahoe_node_dir')
-        tahoe_node_url = config.get('OPTIONS', 'tahoe_node_url')
-        list_uri       = config.get('OPTIONS', 'list_uri')
-        news_uri       = config.get('OPTIONS', 'news_uri')
-        script_uri     = config.get('OPTIONS', 'script_uri')
-        comrepair_uri  = config.get('OPTIONS', 'comrepair_uri')
-        output_dir     = config.get('OPTIONS', 'output_dir')
-    else:
         # Set standard fallback values if no config files found
-        tahoe_node_dir = default_tahoe_node_dir
-        tahoe_node_url = default_tahoe_node_url
-        list_uri       = default_list_uri
-        news_uri       = default_news_uri
-        script_uri     = default_script_uri
-        comrepair_uri  = default_comrepair_uri
-        output_dir     = default_output_dir
+        config.read(available_cfg_files)
+        default_config['tahoe_node_dir'] = config.get('OPTIONS', 'tahoe_node_dir')
+        default_config['tahoe_node_url'] = config.get('OPTIONS', 'tahoe_node_url')
+        default_config['list_uri']       = config.get('OPTIONS', 'list_uri')
+        default_config['news_uri']       = config.get('OPTIONS', 'news_uri')
+        default_config['script_uri']     = config.get('OPTIONS', 'script_uri')
+        default_config['comrepair_uri']  = config.get('OPTIONS', 'comrepair_uri')
+        default_config['output_dir']     = config.get('OPTIONS', 'output_dir')
+    return default_config
+
+def parse_args(argv):
+    """Parse options given on the command line."""
+
+    default_config = parse_config_files(argv)
 
     # 3. Optparse
     # defaults to values from Configparser
@@ -1073,38 +1086,38 @@ def parse_opts(argv):
     other_opts.add_option('-d', '--node-directory',
             action = 'store',
             dest = "tahoe_node_dir",
-            default = tahoe_node_dir,
+            default = default_config['tahoe_node_dir'],
             help = 'Specify the Tahoe node directory.')
     other_opts.add_option('-u', '--node-url',
             action = 'store',
             dest = 'tahoe_node_url',
-            default = tahoe_node_url,
+            default = default_config['tahoe_node_url'],
             help = "Specify the Tahoe gateway node's URL.")
     other_opts.add_option('--list-uri',
             action = 'store',
             dest = 'list_uri',
-            default = list_uri,
+            default = default_config['list_uri'],
             help = 'Override default location of introducers list.')
     other_opts.add_option('--news-uri',
             action = 'store',
             dest = 'news_uri',
-            default = news_uri,
+            default = default_config['news_uri'],
             help = 'Override default location of news list.')
     other_opts.add_option('--script-uri',
             action = 'store',
             dest = 'script_uri',
-            default = script_uri,
+            default = default_config['script_uri'],
             help = 'Override default location of script releases.')
     other_opts.add_option('--comrepair-uri',
             action = 'store',
             dest = 'comrepair_uri',
-            default = comrepair_uri,
+            default = default_config['comrepair_uri'],
             help = ('Override default location of additional repair '
                     'subscription.'))
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
             dest = 'output_dir',
-            default = output_dir,
+            default = default_config['output_dir'],
             help = ('Override default output directory (%s) for script '
                     'update downloads and NEWS.tgz generation.'
                     % os.getcwd()))
@@ -1154,7 +1167,7 @@ def parse_opts(argv):
 def main():
     """Main function: run selected actions."""
     # Parse config files and command line arguments
-    (opts, args) = parse_opts(sys.argv)
+    (opts, args) = parse_args(sys.argv)
 
     # ACTION PARSING AND EXECUTION
     # ============================
