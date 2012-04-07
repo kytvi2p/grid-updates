@@ -28,6 +28,7 @@ from distutils.version import LooseVersion
 import subprocess
 from datetime import datetime
 from uuid import uuid4
+import imp
 
 __author__ = ['darrob', 'KillYourTV']
 __license__ = "Public Domain"
@@ -100,15 +101,38 @@ def parse_result(result, mode, unhealthy, verbosity=0):
             unhealthy += 1
         return status, unhealthy
 
+def is_frozen():
+    """
+    If grid-updates has been 'frozen' with py2exe, bb-freeze, freeze or the
+    like, the path returned by sys.argv[0] will NOT be the path of the
+    executable. __file__ is not in the py2exe executable either.  Instead the
+    path returned will be '.'.
+
+    If a py2exe'd grid-updates is added to the system path in Windows
+    (recommended), we cannot ASSume that the pwd is '.' -- most of the time it
+    won't be.
+
+    This function will figure out whether grid-updates is running as a frozen
+    application or not.  Currently we only 'freeze' with py2exe but here we'll
+    check for multiple methods of freezing.
+    """
+    return (hasattr(sys, "frozen") or # new py2exe
+           hasattr(sys, "importers") # old py2exe
+           or imp.is_frozen("__main__")) # tools/freeze
+
+def get_installed_dir():
+    """ Determine true path of grid-updates."""
+    if is_frozen():
+        return os.path.dirname(sys.executable)
+    else:
+        return os.path.dirname(sys.argv[0])
+
 def find_datadir():
-    """Determine datadir (e.g. /usr/share) from the grid-updates executable's
-    location."""
-    bindir = os.path.dirname(sys.argv[0])
+    """Determine datadir (e.g. /usr/share) from the location of grid-updates."""
+    bindir = get_installed_dir()
     # When processed with py2exe:
-    if os.path.exists(os.path.join(bindir, 'share', 'grid-updates')):
-        datadir = os.path.join(bindir, 'share', 'grid-updates')
-    # If run from the source directory without being installed:
-    elif os.path.exists(os.path.join(bindir, 'share', 'tahoe.css.patched')):
+    if (is_frozen() or os.path.exists( os.path.join(bindir, 'share',
+                                                  'tahoe.css.patched'))):
         datadir = os.path.join(bindir, 'share')
     # When installed the normal way:
     else:
