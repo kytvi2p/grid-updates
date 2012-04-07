@@ -808,7 +808,7 @@ class MakeNews(object):
             atom_file = self.compile_atom()
             include_list = [md_file, html_file, atom_file]
             self.make_tarball(include_list, output_dir)
-            remove_temporary_dir(self.verbosity, self.tempdir)
+            remove_temporary_dir(self.tempdir, self.verbosity)
 
     def compile_md(self, mdfile):
         """Compile an HTML version of the Markdown source of NEWS; return the
