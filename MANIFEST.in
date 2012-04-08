@@ -1,3 +1,4 @@
 recursive-include share *.template  *.html  *.patched
 include *.py *.txt CHANGES TODO *.html
 graft man
+graft debian
