@@ -1018,7 +1018,7 @@ def parse_opts(argv):
             action = 'store_true',
             dest = "comrepair",
             default = False,
-            help = 'TODO')
+            help = 'Retrieve a list of shares and maintain/repair them.')
     action_opts.add_option('--patch-tahoe',
             action = 'store_true',
             dest = "patch_ui",
