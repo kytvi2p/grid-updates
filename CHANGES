@@ -1,3 +1,24 @@
+2012-04-XX (version 1.0.0)
+	* This is a complete Python rewrite, which extends compatibility to BSD and
+	  Windows.
+	* changed some actions:
+		- --replace-introducers/-r has been replaced by a better
+		  --sync-introducers/-s action
+		- '-r' is now --repair-shares
+		- '-R' is now --community-repairs (see below)
+	* new --community-repair action: this is an additional subscription that
+	  lets you participate in the maintenance of the included shares.
+	* new '-q' (quiet) option (the program is a little more verbose now; for
+	  cron jobs you may want to use -q.)
+	* new config file format (INI); see man page
+	* introducer subscription list is now in JSON format, which breaks
+	  compatibility with older versions
+	* removed ability to download from other URIs than Tahoe's
+		- removed --no-proxy option
+		- removed --download-tool option
+	* Minor: removed use of `markdown` again
+	* Minor: removed --create-config action
+
 2012-02-28 (version 0.7.3)
 
 	* Use `markdown` if `pandoc` isn't available
