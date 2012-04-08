@@ -1070,7 +1070,7 @@ def parse_opts(argv):
     other_opts = optparse.OptionGroup(
         parser, 'Options',
         'These arguments can override various settings.')
-    other_opts.add_option('-d', '--node-dir',
+    other_opts.add_option('-d', '--node-directory',
             action = 'store',
             dest = "tahoe_node_dir",
             default = tahoe_node_dir,
