@@ -3,10 +3,14 @@
 * root
 	- might be required for patching
 	- skip tahoe node checks in this case
-* new introducer list file format: JSON
-	- add option to add new introducers through g-u (and check syntax)?
-* set() for local lists in case of manually added dupicates?
-* always make sure there is at least a NEWS.html stub in web.static
+* set() for local lists in case of manually added duplicates?
+* always make sure there is at least a NEWS.html stub in web.static?
 * is __patch_version__ a valid variable name?
 * Support web UI patches for multiple versions of Tahoe?
 * Include HTML docs in $(htmldir)?
+
+* create grid-admin script
+	- make patch actions part of this
+	- make --make-news action part of this
+	- add option to add new introducers through g-u (and check syntax)?
+	- add statistical action (observe storage node and introducer uptimes)
