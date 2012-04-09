@@ -907,28 +907,16 @@ def get_default_config():
                                                         ".tahoe")
     else:
         default_tahoe_node_dir = os.path.join(os.environ['HOME'], ".tahoe")
-    # 1. Default settings
-    #tahoe_node_dir = os.path.abspath('testdir')
-    default_tahoe_node_url = 'http://127.0.0.1:3456'
-    default_list_uri = ('URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:'
-            'gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua')
-    default_news_uri = ('URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:'
-            'hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q')
-    default_script_uri = ('URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:'
-            'eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a')
-    default_comrepair_uri = ('URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:'
-            'nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a')
-    default_output_dir = os.path.abspath(os.getcwd())
 
-    # TODO set values directly in dict
+    # 1. Default settings
     default_config = {
             'tahoe_node_dir' : default_tahoe_node_dir,
-            'tahoe_node_url' : default_tahoe_node_url,
-            'list_uri'       : default_list_uri,
-            'news_uri'       : default_news_uri,
-            'script_uri'     : default_script_uri,
-            'comrepair_uri'  : default_comrepair_uri,
-            'output_dir'     : default_output_dir
+            'tahoe_node_url' : 'http://127.0.0.1:3456',
+            'list_uri'       : 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua',
+            'news_uri'       : 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q',
+            'script_uri'     : 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a',
+            'comrepair_uri'  : 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a',
+            'output_dir'     : os.path.abspath(os.getcwd())
             }
     return default_config
 
