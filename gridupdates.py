@@ -48,10 +48,21 @@ __patch_version__ = '1.8.3-gu5'
 # =================
 
 def is_root():
+    """
+    Check if grid-updates is running with root permissions.
+
+    Exception for XP systems: this function will always return False.
+    """
     try:
         is_admin = os.getuid() == 0
     except AttributeError:
-        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+        # It is notoriously difficult to run many applications under restricted
+        # accounts on Windows XP.  Therefore, we do not check if user is an
+        # admin on XP; most users on XP _are_ going to be admins.
+        if not 'XP' in platform.win32_ver():
+            is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+        else:
+            is_admin = False
     return is_admin
 
 def gen_full_tahoe_uri(node_url, uri):
