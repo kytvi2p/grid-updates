@@ -32,6 +32,7 @@ import subprocess
 from datetime import datetime
 from uuid import uuid4
 import imp
+import ctypes # TODO import only needed function?
 
 __author__ = ['darrob', 'KillYourTV']
 __license__ = "Public Domain"
@@ -45,6 +46,14 @@ __patch_version__ = '1.8.3-gu5'
 
 # General Functions
 # =================
+
+def is_root():
+    try:
+        is_admin = os.getuid() == 0
+    except AttributeError:
+        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+    return is_admin
+
 def gen_full_tahoe_uri(node_url, uri):
     """Generate a complete, accessible URL from a Tahoe URI."""
     return node_url + '/uri/' + uri
@@ -1165,6 +1174,7 @@ def parse_args(argv):
 
 def main():
     """Main function: run selected actions."""
+
     # Parse config files and command line arguments
     (opts, args) = parse_args(sys.argv)
 
