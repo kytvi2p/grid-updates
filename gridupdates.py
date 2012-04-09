@@ -164,6 +164,17 @@ def find_tahoe_dir(tahoe_node_url):
     tahoe_dir = os.path.dirname(match.group(1))
     return tahoe_dir
 
+def find_webstatic_dir(tahoe_node_dir):
+    """Get web.static directory from tahoe.cfg."""
+    tahoe_cfg_path = os.path.join(tahoe_node_dir, 'tahoe.cfg')
+    tahoe_config = SafeConfigParser({'web.static': 'public_html'})
+    tahoe_config.read(tahoe_cfg_path)
+    web_static_dir = os.path.abspath(
+            os.path.join(
+                    tahoe_node_dir,
+                    tahoe_config.get('node', 'web.static')))
+    return web_static_dir
+
 def get_tahoe_version(tahoe_node_url):
     """Determine Tahoe-LAFS version number from web console."""
     webconsole = urlopen(tahoe_node_url)
@@ -1187,33 +1198,10 @@ def main():
         sys.exit(2)
 
     # Parse tahoe options (find web.static for NEWS files)
-    tahoe_cfg_path = os.path.join(opts.tahoe_node_dir, 'tahoe.cfg')
-    tahoe_config = SafeConfigParser({'web.static': 'public_html'})
-    # TODO figure out why try..except doesn't work
-    #try:
-    #    tahoe_config.read(tahoe_cfg_path)
-    #except ConfigParser.NoSectionError:
-    #    print('ERROR: Could not parse tahoe.cfg.', file=sys.stderr)
-    #    sys.exit(1)
-    #else:
-    #    print(tahoe_config.get('node', 'web.static'))
-    #    web_static_dir = os.path.abspath(
-    #            os.path.join(
-    #                    tahoe_node_dir,
-    #                    tahoe_config.get('node', 'web.static')))
-    if proxy_configured():
-        print("WARNING: The 'http_proxy' variable is set. If the next step "
-                                       "fails, check your proxy settings.")
-
-    if os.access(tahoe_cfg_path, os.R_OK):
-        # Also use existence of tahoe.cfg as an indicator of a Tahoe node
-        # directory
-        tahoe_config.read(tahoe_cfg_path)
-        web_static_dir = os.path.abspath(
-                os.path.join(
-                        opts.tahoe_node_dir,
-                        tahoe_config.get('node', 'web.static')))
-    else:
+    try:
+        web_static_dir = find_webstatic_dir(opts.tahoe_node_dir)
+    # TODO except ConfigParser.NoSectionError: doesn't work
+    except:
         print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
                 file=sys.stderr)
         sys.exit(1)
