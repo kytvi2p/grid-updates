@@ -177,12 +177,19 @@ def find_webstatic_dir(tahoe_node_dir):
     """Get web.static directory from tahoe.cfg."""
     tahoe_cfg_path = os.path.join(tahoe_node_dir, 'tahoe.cfg')
     tahoe_config = SafeConfigParser({'web.static': 'public_html'})
-    tahoe_config.read(tahoe_cfg_path)
-    web_static_dir = os.path.abspath(
-            os.path.join(
-                    tahoe_node_dir,
-                    tahoe_config.get('node', 'web.static')))
-    return web_static_dir
+    try:
+        tahoe_config.read(tahoe_cfg_path)
+        web_static_dir = os.path.abspath(
+                os.path.join(
+                        tahoe_node_dir,
+                        tahoe_config.get('node', 'web.static')))
+    # TODO except ConfigParser.NoSectionError: doesn't work
+    except:
+        print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
+                file=sys.stderr)
+        return False
+    else:
+        return web_static_dir
 
 def get_tahoe_version(tahoe_node_url):
     """Determine Tahoe-LAFS version number from web console."""
@@ -735,7 +742,11 @@ class PatchWebUI(object):
         --undo-patch-tahoe). It will run the necessary methods."""
         if self.compatible_version(self.tahoe_node_url):
             if mode == 'patch':
-                install_news_stub(web_static_dir)
+                if is_root():
+                    print('WARN: Not installing NEWS.html placeholder (running'
+                        ' as root.')
+                else:
+                    install_news_stub(web_static_dir)
                 for uifile in list(self.filepaths.keys()):
                     patch_version = self.read_patch_version(
                                             self.filepaths [uifile][1])
@@ -1181,9 +1192,27 @@ def main():
     # ACTION PARSING AND EXECUTION
     # ============================
 
+    if opts.version:
+        print('grid-updates version: %s.' % __version__)
+        sys.exit(0)
+
+    # Run actions allowed to root, then exit
+    if is_root():
+        print("WARN: You're running grid-updates as root. Only certain actions"
+                " will be available.")
+        if opts.patch_ui or opts.undo_patch_ui:
+            webui = PatchWebUI(opts.tahoe_node_url, opts.verbosity)
+            if opts.patch_ui:
+                webui.run_action('patch', 'None')
+            elif opts.undo_patch_ui:
+                webui.run_action('undo', 'None')
+        else:
+            print("ERROR: Illegal action for root account.", file=sys.stderr)
+            sys.exit(1)
+        sys.exit(0)
+
     # Check for at least 1 mandatory option
-    if (not opts.version
-    and not opts.merge
+    if (not opts.merge
     and not opts.sync
     and not opts.news
     and not opts.repair
@@ -1197,27 +1226,18 @@ def main():
                 sys.argv[0], file=sys.stderr)
         sys.exit(2)
 
-    if opts.version:
-        print('grid-updates version: %s.' % __version__)
-        sys.exit(0)
-
     # conflicting options
     if opts.merge and opts.sync:
         print('ERROR: --merge-introducers & --sync-introducers are '
             ' mutually exclusive actions.', file=sys.stderr)
         sys.exit(2)
 
-    # Parse tahoe options (find web.static for NEWS files)
-    try:
+    # Check Tahoe node dir validity
+    if os.access(opts.tahoe_node_dir, os.W_OK):
         web_static_dir = find_webstatic_dir(opts.tahoe_node_dir)
-    # TODO except ConfigParser.NoSectionError: doesn't work
-    except:
-        print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
-                file=sys.stderr)
-        sys.exit(1)
-
-    # Tahoe node dir validity check (in addition to the above tahoe.cfg check)
-    if not os.access(opts.tahoe_node_dir, os.W_OK):
+        if not web_static_dir:
+            sys.exit(1)
+    else:
         print("ERROR: Need write access to", opts.tahoe_node_dir,
                 file=sys.stderr)
         sys.exit(1)
@@ -1240,7 +1260,6 @@ def main():
                                             opts.tahoe_node_url,
                                             opts.comrepair_uri))
                 }
-
     # Check URI validity
     for uri in list(uri_dict.values()):
         if not re.match('^URI:', uri[0]):
@@ -1252,8 +1271,6 @@ def main():
 
     # Run actions
     # -----------
-    # The try-except constructs are there to make the program continue with the
-    # next action if one fails. It might not be the most elegant way.
     if opts.merge or opts.sync:
         intlist = List(opts.tahoe_node_dir,
                         uri_dict['list'][1],
