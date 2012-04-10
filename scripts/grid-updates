@@ -6,7 +6,10 @@ if sys.hexversion < int(0x020600f0):
     sys.exit(1)
 
 import gridupdates
-gridupdates.main()
-
+try:
+    gridupdates.main()
+except KeyboardInterrupt:
+    print("\ngrid-updates interrupted by user.")
+    sys.exit(1)
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
