@@ -1253,6 +1253,10 @@ def main():
                 file=sys.stderr)
         sys.exit(1)
 
+    if proxy_configured():
+        print("WARNING: The 'http_proxy' variable is set. If the next step "
+                                        "fails, check your proxy settings.")
+
     # generate URI dictionary
     uri_dict = {'list': (opts.list_uri,
                                     gen_full_tahoe_uri(
