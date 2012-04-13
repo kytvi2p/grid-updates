@@ -509,11 +509,13 @@ class News(object):
 
     def __init__(self, tahoe_node_dir, web_static_dir, url, verbosity=0):
         self.verbosity = verbosity
-        self.tahoe_node_dir = tahoe_node_dir
-        self.web_static = web_static_dir
-        self.url = url
         if self.verbosity > 0:
             print("-- Updating NEWS --")
+        self.tahoe_node_dir = tahoe_node_dir
+        self.web_static = web_static_dir
+        if not os.path.exists(web_static_dir):
+            os.mkdir(web_static_dir)
+        self.url = url
         self.local_news = os.path.join(self.tahoe_node_dir, 'NEWS')
         self.tempdir = tempfile.mkdtemp()
         self.local_archive = os.path.join(self.tempdir, 'NEWS.tgz')
