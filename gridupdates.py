@@ -282,13 +282,6 @@ def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
             for result in results:
                 status, unhealthy = parse_result(result.decode('utf8'),
                                                     mode, unhealthy, verbosity)
-            if verbosity > 1:
-                if unhealthy == 1:
-                    sub = 'object'
-                else:
-                    sub = 'objects'
-                print("  Deep-check completed: %d %s unhealthy."
-                                                % (unhealthy, sub))
         if mode == 'one-check':
             result = repair_share(sharename, repair_uri, mode, verbosity)
             status, unhealthy = parse_result(result.decode('utf8'), mode,
