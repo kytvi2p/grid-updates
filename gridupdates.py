@@ -591,6 +591,8 @@ class News(object):
         with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
             for line in tempnews.readlines():
                 print('  | ' + line, end='')
+            print("The NEWS file (printed above) is located here: %s." %
+                    os.path.join(self.tahoe_node_dir, 'NEWS'))
 
     def install_files(self):
         """Copy extracted NEWS files to their intended locations."""
