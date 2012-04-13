@@ -121,9 +121,9 @@ def parse_result(result, mode, unhealthy, verbosity=0):
         # Print
         if verbosity > 1:
             if uritype == 'directory' and not path:
-                print('   <root>: %s' % status)
+                print('  <root>: %s' % status)
             else:
-                print('   %s: %s' % (path[0], status))
+                print('  %s: %s' % (path[0], status))
         # Count unhealthy
         if status.startswith('Unhealthy'):
             unhealthy += 1
