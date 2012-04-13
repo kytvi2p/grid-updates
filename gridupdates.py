@@ -250,6 +250,11 @@ def action_repair(uri_dict, verbosity=0):
         for result in results:
             status, unhealthy = parse_result(result.decode('utf8'),
                                                 mode, unhealthy, verbosity)
+    # Print summary
+    if unhealthy == 1:
+        sub = 'object'
+    else:
+        sub = 'objects'
     if verbosity > 0:
         print("Deep-check of grid-updates shares completed: "
                             "%d %s unhealthy." % (unhealthy, sub))
