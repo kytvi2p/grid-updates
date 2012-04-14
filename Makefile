@@ -34,9 +34,9 @@ viewman: man
 	@man ./$(MAN)
 
 html:
-	@sed -e 's;\(INSTALL\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' README.txt\
+	@sed -e 's;\(INSTALL\\\?\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' README.txt\
 		| $(PANDOC) -o README.html
-	@sed -e 's;\(README\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' INSTALL.txt\
+	@sed -e 's;\(README\\\?\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' INSTALL.txt\
 		| $(PANDOC) -o INSTALL.html
 	@pandoc -s -r markdown -t html man/grid-updates.1.md -o MAN.html
 	@echo "Generated HTML documentation from Markdown sources."
