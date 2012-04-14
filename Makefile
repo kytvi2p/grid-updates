@@ -41,17 +41,14 @@ html:
 	@pandoc -s -r markdown -t html man/grid-updates.1.md -o MAN.html
 	@echo "Generated HTML documentation from Markdown sources."
 
-tahoehtml:
-	@sed -e 's;\(INSTALL\)\.txt;\1.html;g' \
-		-e "s;^\(\[INSTALL\.html\]:\ \)\(INSTALL\.html\);\1$(TAHOE_DIR)/\2;" \
-		-e "s;^\(\[man\ page\]:\ \)man.grid-updates\.1\.md;\1$(TAHOE_DIR)/MAN.html;" README.txt\
-		| $(PANDOC) -o README.html
-	@sed -e 's;\(README\)\.txt;\1.html;g' \
-		-e "s;^\(\[README\.html\]:\ \)\(README\.html\);\1$(TAHOE_DIR)/\2;" \
-		-e "s;^\(\[man\ page\]:\ \)man.grid-updates\.1\.md;\1$(TAHOE_DIR)/MAN.html;" INSTALL.txt\
-		| $(PANDOC) -o INSTALL.html
-	@pandoc -s -r markdown -t html man/grid-updates.1.md -o MAN.html
-	@echo "Generated HTML documentation (with links to Tahoe locations) from Markdown sources."
+tahoehtml: html
+	@mkdir -p tahoe-html
+	@for file in README.html INSTALL.html MAN.html; \
+		do \
+		sed -e "s|\"\([INSTALL|README|MAN]\)|\"$(TAHOE_DIR)/\1|g" < $$file >  $$file.tmp ;\
+		mv $$file.tmp tahoe-html/`basename $$file.tmp .tmp` ;\
+		done
+	@echo "Added links to Tahoe locations."
 
 release: html
 	@git archive --format=tar --prefix=$(RELEASE_BASENAME)/ --output $(RELEASE_BASENAME).tar v$(VERSION)
