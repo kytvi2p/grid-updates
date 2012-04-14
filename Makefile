@@ -45,7 +45,7 @@ tahoehtml: html
 	@mkdir -p tahoe-html
 	@for file in README.html INSTALL.html MAN.html; \
 		do \
-		sed -e "s|\"\([INSTALL|README|MAN]\)|\"$(TAHOE_DIR)/\1|g" < $$file >  $$file.tmp ;\
+		sed -e "s|\(href=\"\)\([INSTALL|README|MAN]\)|\1$(TAHOE_DIR)/\2|g" < $$file >  $$file.tmp ;\
 		mv $$file.tmp tahoe-html/`basename $$file.tmp .tmp` ;\
 		done
 	@echo "Added links to Tahoe locations."
