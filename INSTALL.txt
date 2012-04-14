@@ -2,7 +2,7 @@
 Setup notes for grid-updates
 ============================
 
-See `README.txt <README.txt>`_  and the `man page`_
+See `README\.txt`_  and the `man page`_
 for more information about grid-updates.
 
 Requirements
@@ -49,6 +49,7 @@ saved to your Tahoe node's ``web.static`` directory (typically
 `/static`_ directory, or (having patched Tahoe's Web UI) right on your node's
 `front page`_
 
+.. _README\.txt: README.txt
 .. _man page: man/grid-updates.1.md
 .. _/static: http://127.0.0.1:3456/static/
 .. _front page: http://127.0.0.1:3456/

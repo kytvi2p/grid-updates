@@ -41,7 +41,7 @@ Download
 Installation
 ============
 
-See `INSTALL.txt <INSTALL.txt>`_ for information on how to install
+See `INSTALL\.txt`_ for information on how to install
 grid-updates.
 
 Usage
@@ -112,3 +112,4 @@ email.
    <http://killyourtv.i2p/tahoe-lafs/scripts/>
 
 .. _man page: man/grid-updates.1.md
+.. _INSTALL\.txt: INSTALL.txt
