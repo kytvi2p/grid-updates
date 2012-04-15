@@ -41,7 +41,6 @@ __maintainer__ = ['darrob', 'KillYourTV']
 __email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"
 
-# TODO illegal var name?
 __patch_version__ = '1.8.3-gu5'
 
 # General Functions
@@ -277,9 +276,6 @@ def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
     """The --community-repair command. Repair all shares in the uri_dict."""
     if verbosity > 0:
         print("-- Repairing Tahoe shares. --")
-    # TODO This action should probably be renamed to something less
-    # specific, because there is a variety of use cases for it that don't
-    # have to be community oriented.
     unhealthy = 0
     url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
     subscriptionfile = tahoe_dl_file(url, verbosity).read()
@@ -330,7 +326,6 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
     try:
         response = urlopen(repair_uri, params)
     except HTTPError as exc:
-        # TODO Doesn't catch all errors
         print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
                                                         file=sys.stderr)
         sys.exit(1)

@@ -6,6 +6,7 @@
 * Support web UI patches for multiple versions of Tahoe?
 * Include HTML docs in $(htmldir)?
 * make --download-update download either tgz/deb/exe? (auto-detect? config option?)
+* don't hardcode default URIs; use a default config file instead
 
 * create grid-admin script
 	- make patch actions part of this
