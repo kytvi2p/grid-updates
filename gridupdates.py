@@ -101,6 +101,13 @@ def proxy_configured():
     except KeyError:
         return False
 
+def is_literal_file(result):
+    """Check for LIT files, which cannot be checked."""
+    if not json.loads(result)['storage-index']:
+        return True
+    else:
+        return False
+
 def parse_result(result, mode, unhealthy, verbosity=0):
     """Parse JSON response from Tahoe deep-check operation.
     Optionally prints status output; returns number of unhealthy shares.
@@ -108,13 +115,18 @@ def parse_result(result, mode, unhealthy, verbosity=0):
     #   [u'check-and-repair-results', u'cap', u'repaircap',
     #   u'verifycap', u'path', u'type', u'storage-index']
     if mode == 'deep-check':
+        # Check for expected result line
         if not ('check-and-repair-results' in
                 list(json.loads(result).keys())):
             # This would be the final 'stats' line.
             return 'unchecked', unhealthy
-        uritype   = json.loads(result)['type']
-        path   = json.loads(result)['path']
-        status = (json.loads(result)
+        if is_literal_file(result):
+            print('  %s: (literal file)' %
+                    ('/'.join(json.loads(result)['path'])))
+            return 'unchecked', unhealthy
+        path    = json.loads(result)['path']
+        uritype = json.loads(result)['type']
+        status  = (json.loads(result)
                     ['check-and-repair-results']
                     ['post-repair-results']
                     ['summary'])
@@ -129,6 +141,8 @@ def parse_result(result, mode, unhealthy, verbosity=0):
             unhealthy += 1
         return status, unhealthy
     elif mode == 'one-check':
+        if is_literal_file(result):
+            return 'unchecked (literal file)', unhealthy
         status = json.loads(result)['post-repair-results']['summary']
         # Count unhealthy
         if status.startswith('Unhealthy'):
