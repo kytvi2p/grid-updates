@@ -24,7 +24,7 @@ uninstall:
 
 clean:
 	@rm -f README.html INSTALL.html MAN.html *.log *.pyc MANIFEST
-	@rm -rf dist
+	@rm -rf dist tahoe-html
 
 man:
 	pandoc -s -w man man/grid-updates.1.md -o $(MAN)
