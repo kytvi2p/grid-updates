@@ -158,9 +158,13 @@ If you want to offer a *grid-updates* subscription service, you will have to
 provide users with URIs to directories that contain the subscription files. The
 available subscription types are the news feed (called **NEWS.tgz**), the
 introducer list (called **introducers.json.txt**) and the community repair list
-of shares (called **community-repair.json.txt**). Please note that
-*grid-updates* expects the URIs of directories, not of the files themselves. It
-will append the filenames itself.
+of shares (called **community-repair.json.txt**).
+
+For the specific requirements of the JSON lists, please see the included
+example files in the share directory.
+
+Please note that *grid-updates* expects the URIs of directories, not of the
+files themselves. It will append the filenames itself.
 
 FILES
 =====
