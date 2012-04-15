@@ -64,11 +64,17 @@ feed from the grid. It will also allow you to view the news your browser
 of news by a regular news reader using an Atom news feed. Following the
 grid-updates news is recommended.
 
-The list, news and script installation files are stored on the grid
-itself and -- like all other shares -- need maintenance and
-repairs [3]_. If you can, please also add the ``--repair-subscriptions``
-action to your cron job, or run it separately every once in a while.
-This is necessary to keep the service available.
+The subscriptions and script installation files are stored on the grid itself
+and -- like all other shares -- need maintenance and repairs [3]_. If you can,
+please also add the ``--repair-subscriptions`` action to your cron job, or run
+it separately every once in a while. This is necessary to keep the service
+available.
+
+``--community-repair`` is another subscription-based service. It will download
+download a list of shares and check/repair them. This is supposed to make it
+easier for a community or group of people to support each others Tahoe shares.
+(The default subscription includes shares such as the DeepWiki on the I2P
+grid.)
 
 Please refer to the `man page`_  for detailed usage information.
 
@@ -77,7 +83,7 @@ Example cron job setup
 
  ::
 
-  0 0 *   * * grid-updates --sync-introducers --download-news --check-version
+  0  0 *   * * grid-updates --sync-introducers --download-news --check-version
   30 0 */2 * * grid-updates --repair-subscriptions
 
 Authors
