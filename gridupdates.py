@@ -36,7 +36,7 @@ import ctypes # TODO import only needed function?
 
 __author__ = ['darrob', 'KillYourTV']
 __license__ = "Public Domain"
-__version__ = "1.0.0a"
+__version__ = "1.0.0"
 __maintainer__ = ['darrob', 'KillYourTV']
 __email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"

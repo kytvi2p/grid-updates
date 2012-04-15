@@ -1,6 +1,6 @@
-grid-updates (0.9.9~1.0.0-1) unstable; urgency=low
+grid-updates (1.0.0-1) stable; urgency=low
 
-  * New upstream pre-release
+  * New upstream release
 
  -- KillYourTV <killyourtv@i2pmail.org>  Thu, 05 Apr 2012 21:02:28 +0000
 
