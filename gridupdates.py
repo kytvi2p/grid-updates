@@ -3,15 +3,13 @@
 """grid-updates is a helper script for Tahoe-LAFS nodes."""
 
 from __future__ import print_function
-from shutil import copyfile, rmtree
 import json
 import optparse
 import os
 import platform
+import random
 import re
 import sys
-import tarfile
-import tempfile # use os.tmpfile()?
 # Maybe this is better than try -> except?
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser
@@ -26,225 +24,33 @@ else:
     from urllib.error import HTTPError
     from urllib.error import URLError
 
-import random
-from distutils.version import LooseVersion
-import subprocess
-from datetime import datetime
-from uuid import uuid4
-import imp
-import ctypes # TODO import only needed function?
+from Modules import Introducers
+from Modules import MakeNews
+from Modules import News
+from Modules import PatchWebUI
+from Modules import Update
+from Modules.Functions import find_datadir
+from Modules.Functions import find_webstatic_dir
+from Modules.Functions import gen_full_tahoe_uri
+from Modules.Functions import is_root
+from Modules.Functions import parse_result
+from Modules.Functions import proxy_configured
+from Modules.Functions import repair_share
+from Modules.Functions import tahoe_dl_file
+
 
 __author__ = ['darrob', 'KillYourTV']
 __license__ = "Public Domain"
-__version__ = "1.0.0"
+__version__ = "1.0.0git"
 __maintainer__ = ['darrob', 'KillYourTV']
 __email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"
 
 __patch_version__ = '1.8.3-gu5'
 
-# General Functions
-# =================
-
-def is_root():
-    """
-    Check if grid-updates is running with root permissions.
-
-    Exception for XP systems: this function will always return False.
-    """
-    try:
-        is_admin = os.getuid() == 0
-    except AttributeError:
-        # It is notoriously difficult to run many applications under restricted
-        # accounts on Windows XP.  Therefore, we do not check if user is an
-        # admin on XP; most users on XP _are_ going to be admins.
-        if not 'XP' in platform.win32_ver():
-            is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
-        else:
-            is_admin = False
-    return is_admin
-
-def gen_full_tahoe_uri(node_url, uri):
-    """Generate a complete, accessible URL from a Tahoe URI."""
-    return node_url + '/uri/' + uri
-
-def tahoe_dl_file(url, verbosity=0):
-    """Download a file from the Tahoe grid; returns the raw response."""
-    if verbosity > 1:
-        print('INFO: Downloading subscription from the Tahoe grid.')
-    if verbosity > 2:
-        print("DEBUG: Downloading from: %s" % url)
-    try:
-        response = urlopen(url)
-    except HTTPError as exc:
-        print('ERROR: Could not download the file:', exc, file=sys.stderr)
-        sys.exit(1)
-    except URLError as urlexc:
-        print("ERROR: %s while downloading %s." % (urlexc, url),
-                                               file= sys.stderr)
-        sys.exit(1)
-    else:
-        return response
-
-def is_valid_introducer(uri):
-    """Check if the introducer address has the correct format."""
-    if re.match(r'^pb:\/\/.*@', uri):
-        return True
-    else:
-        return False
-
-def proxy_configured():
-    try:
-        if os.environ["http_proxy"]:
-            return True
-    except KeyError:
-        return False
-
-def is_literal_file(result):
-    """Check for LIT files, which cannot be checked."""
-    if not json.loads(result)['storage-index']:
-        return True
-    else:
-        return False
-
-def parse_result(result, mode, unhealthy, verbosity=0):
-    """Parse JSON response from Tahoe deep-check operation.
-    Optionally prints status output; returns number of unhealthy shares.
-    """
-    #   [u'check-and-repair-results', u'cap', u'repaircap',
-    #   u'verifycap', u'path', u'type', u'storage-index']
-    if mode == 'deep-check':
-        # Check for expected result line
-        if not ('check-and-repair-results' in
-                list(json.loads(result).keys())):
-            # This would be the final 'stats' line.
-            return 'unchecked', unhealthy
-        if is_literal_file(result):
-            print('  %s: (literal file)' %
-                    ('/'.join(json.loads(result)['path'])))
-            return 'unchecked', unhealthy
-        path    = json.loads(result)['path']
-        uritype = json.loads(result)['type']
-        status  = (json.loads(result)
-                    ['check-and-repair-results']
-                    ['post-repair-results']
-                    ['summary'])
-        # Print
-        if verbosity > 1:
-            if uritype == 'directory' and not path:
-                print('  <root>: %s' % status)
-            else:
-                print('  %s: %s' % ('/'.join(path), status))
-        # Count unhealthy
-        if status.startswith('Unhealthy'):
-            unhealthy += 1
-        return status, unhealthy
-    elif mode == 'one-check':
-        if is_literal_file(result):
-            return 'unchecked (literal file)', unhealthy
-        status = json.loads(result)['post-repair-results']['summary']
-        # Count unhealthy
-        if status.startswith('Unhealthy'):
-            unhealthy += 1
-        return status, unhealthy
-
-def is_frozen():
-    """
-    If grid-updates has been 'frozen' with py2exe, bb-freeze, freeze or the
-    like, the path returned by sys.argv[0] will NOT be the path of the
-    executable. __file__ is not in the py2exe executable either.  Instead the
-    path returned will be '.'.
-
-    If a py2exe'd grid-updates is added to the system path in Windows
-    (recommended), we cannot assume that the grid-updates directory is '.' --
-    most of the time it won't be.
-
-    This function will figure out whether grid-updates is running as a frozen
-    application or not.  Currently we only 'freeze' with py2exe but here we'll
-    check for multiple methods of freezing.
-    """
-    return (hasattr(sys, "frozen") or # new py2exe
-           hasattr(sys, "importers") # old py2exe
-           or imp.is_frozen("__main__")) # tools/freeze
-
-def get_installed_dir():
-    """ Determine true path of grid-updates."""
-    if is_frozen():
-        return os.path.dirname(sys.executable)
-    else:
-        return os.path.dirname(sys.argv[0])
-
-def find_datadir():
-    """Determine datadir (e.g. /usr/share) from the location of grid-updates."""
-    bindir = get_installed_dir()
-    # When processed with py2exe:
-    if (is_frozen() or os.path.exists( os.path.join(bindir, 'share',
-                                                  'tahoe.css.patched'))):
-        datadir = os.path.join(bindir, 'share')
-    # When installed the normal way:
-    else:
-        datadir = os.path.join(bindir, '..', 'share', 'grid-updates')
-    if not os.path.exists(datadir):
-        print('ERROR: Does not exist: %s.' % datadir, file=sys.stderr)
-    datadir = os.path.abspath(datadir)
-    return datadir
-
-def find_tahoe_dir(tahoe_node_url):
-    """Determine the location of the tahoe installation directory and included
-    'web' directory by parsing the tahoe web console."""
-    webconsole = urlopen(tahoe_node_url)
-    match = re.search(r'.*\ \'(.*__init__.pyc)', webconsole.read())
-    tahoe_dir = os.path.dirname(match.group(1))
-    return tahoe_dir
-
-def find_webstatic_dir(tahoe_node_dir):
-    """Get web.static directory from tahoe.cfg."""
-    tahoe_cfg_path = os.path.join(tahoe_node_dir, 'tahoe.cfg')
-    tahoe_config = SafeConfigParser({'web.static': 'public_html'})
-    try:
-        tahoe_config.read(tahoe_cfg_path)
-        web_static_dir = os.path.abspath(
-                os.path.join(
-                        tahoe_node_dir,
-                        tahoe_config.get('node', 'web.static')))
-    # TODO except ConfigParser.NoSectionError: doesn't work
-    except:
-        print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
-                file=sys.stderr)
-        return False
-    else:
-        return web_static_dir
-
-def get_tahoe_version(tahoe_node_url):
-    """Determine Tahoe-LAFS version number from web console."""
-    webconsole = urlopen(tahoe_node_url)
-    match = re.search(r'allmydata-tahoe:\ (.*),', webconsole.read())
-    version = match.group(1)
-    return version
-
-def remove_temporary_dir(directory, verbosity=0):
-    """Remove a (temprorary) directory."""
-    try:
-        rmtree(directory)
-    except:
-        print("ERROR: Couldn't remove temporary dir: %s." % directory,
-                file=sys.stderr)
-    else:
-        if verbosity > 2:
-            print('DEBUG: Removed temporary dir: %s.' % directory)
-
-def install_news_stub(web_static_dir):
-    """Copy a placeholder NEWS.html file to Tahoe's web.static directory to
-    avoid 404 Errors (e.g. in the Iframe)."""
-    targetfile = os.path.join(web_static_dir, 'NEWS.html')
-    if not os.access(targetfile, os.F_OK):
-        news_stub_file = os.path.join(find_datadir(), 'news-stub.html')
-        copyfile(news_stub_file, targetfile)
-
-
-
 # Actions
 # =======
+
 def action_repair(uri_dict, verbosity=0):
     """Repair all (deep-check) Tahoe shares in a dictionary."""
     if verbosity > 0:
@@ -301,642 +107,6 @@ def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
     if verbosity > 0:
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
-def repair_share(sharename, repair_uri, mode, verbosity=0):
-    """Run (deep-)checks including repair and add-lease on a Tahoe share;
-    returns response in JSON format."""
-    if verbosity > 0:
-        print("Repairing '%s' share (%s)." % (sharename, mode))
-    if mode == 'deep-check':
-        params = urlencode({'t': 'stream-deep-check',
-                            'repair': 'true',
-                            'add-lease': 'true'}
-                            ).encode('utf8')
-    elif mode == 'one-check':
-        params = urlencode({'t': 'check',
-                            'repair': 'true',
-                            'add-lease': 'true',
-                            'output': 'json'}
-                            ).encode('utf8')
-    else:
-        print("ERROR: 'mode' must either be 'one-check' or 'deep-check'.",
-                                                        file=sys.stderr)
-        sys.exit(1)
-    if verbosity > 2:
-        print('DEBUG: Running urlopen(%s, %s).' % (repair_uri, params))
-    try:
-        response = urlopen(repair_uri, params)
-    except HTTPError as exc:
-        print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
-                                                        file=sys.stderr)
-        sys.exit(1)
-    except URLError as urlexc:
-        print("ERROR: %s while running %s for %s." % (urlexc, mode, sharename),
-                                                               file=sys.stderr)
-        sys.exit(1)
-    else:
-        if mode == 'deep-check':
-            # deep-check returns multiple JSON objects, 1 per line
-            result = response.readlines()
-        elif mode == 'one-check':
-            # one-check returns a single JSON object
-            result = response.read()
-        return result
-    finally:
-        # TODO This can cause: UnboundLocalError: local variable 'response'
-        # referenced before assignment
-        response.close()
-
-
-class List(object):
-    """This class implements the introducer list related functions of
-    grid-updates."""
-
-    def __init__(self, nodedir, url, verbosity=0):
-        self.verbosity = verbosity
-        self.nodedir = nodedir
-        self.url = url + '/introducers.json.txt'
-        if self.verbosity > 0:
-            print("-- Updating introducers --")
-        self.old_list = []
-        self.introducers = os.path.join(self.nodedir, 'introducers')
-        self.introducers_bak = self.introducers + '.bak'
-        (self.old_introducers, self.old_list) = self.read_existing_list()
-        json_response = tahoe_dl_file(self.url, verbosity)
-        self.intro_dict = self.create_intro_dict(json_response)
-
-    def run_action(self, mode):
-        """Call this method to execute the desired action (--merge-introducers
-        or --sync-introducers)."""
-        if self.lists_differ():
-            self.backup_original()
-            if mode == 'merge':
-                self.merge_introducers()
-            if mode == 'sync':
-                self.sync_introducers()
-        else:
-            if self.verbosity > 0:
-                print('Introducer list already up-to-date.')
-
-    def create_intro_dict(self, json_response):
-        """Compile a dictionary of introducers (uri->name,active) from a JSON
-        object."""
-        try:
-            new_list = json.loads(json_response.read().decode('utf8'))
-        except:
-            # TODO specific exception
-            print("ERROR: Couldn't parse new JSON introducer list.",
-                                                        file=sys.stderr)
-        intro_dict = {}
-        for introducer in new_list['introducers']:
-            uri = introducer['uri']
-            if is_valid_introducer(uri):
-                if self.verbosity > 2:
-                    print('DEBUG: Valid introducer address: %s' % uri)
-                intro_dict[uri] = (introducer['name'], introducer['active'])
-            else:
-                if self.verbosity > 0:
-                    print("WARN: '%s' is not a valid Tahoe-LAFS introducer "
-                            "address. Skipping.")
-        return intro_dict
-
-    def read_existing_list(self):
-        """Read the local introducers file as a single string (to be written
-        again) and as individual lines. """
-        if self.verbosity > 2:
-            print('DEBUG: Reading the local introducers file.')
-        try:
-            with open(self.introducers, 'r') as intlist:
-                old_introducers = intlist.read()
-                old_list = old_introducers.splitlines()
-        except IOError as exc:
-            print('WARN: Cannot read local introducers files:', exc,
-                    file=sys.stderr)
-            print('WARN: Are you sure you have a compatible version of '
-                    'Tahoe-LAFS?', file=sys.stderr)
-            print('WARN: Pretending to have read an empty introducers list.',
-                    file=sys.stderr)
-            old_introducers = ''
-            old_list = []
-        return (old_introducers, old_list)
-
-    def backup_original(self):
-        """Copy the old introducers file to introducers.bak."""
-        try:
-            with open(self.introducers_bak, 'w') as intbak:
-                intbak.write(self.old_introducers)
-        except IOError:
-            print('ERROR: Cannot create backup file introducers.bak',
-                    file=sys.stderr)
-            sys.exit(1)
-        else:
-            if self.verbosity > 2:
-                print('DEBUG: Created backup of local introducers.')
-
-    def lists_differ(self):
-        """Compile lists of introducers: all active, locally missing and
-        expired."""
-        self.subscription_uris = []
-        for introducer in list(self.intro_dict.keys()):
-            # only include active introducers
-            if self.intro_dict[introducer][1]:
-                self.subscription_uris.append(introducer)
-            else:
-                if self.verbosity > 2:
-                    print('INFO: Skipping disabled introducer: %s' %
-                            self.intro_dict[introducer][0])
-        if sorted(self.subscription_uris) == sorted(self.old_list):
-            if self.verbosity > 2:
-                print('DEBUG: Introducer lists identical.')
-            return False
-        # Compile lists of new (to be added and outdated (to be removed) #
-        # introducers
-        self.new_intros = list(set(self.subscription_uris) - set(self.old_list))
-        self.expired_intros = list(set(self.old_list) -
-                set(self.subscription_uris))
-        return True
-
-    def merge_introducers(self):
-        """Add newly discovered introducers to the local introducers file;
-        remove nothing."""
-        if self.verbosity > 1:
-            expired_intros = list(set(self.old_list) -
-                    set(self.subscription_uris))
-            for intro in expired_intros:
-                print("INFO: Introducer not in subscription list: %s" % intro)
-        try:
-            with open(self.introducers, 'a') as intlist:
-                for new_intro in self.new_intros:
-                    if self.intro_dict[new_intro][1]:
-                        if self.verbosity > 0:
-                            print('New introducer: %s.' %
-                                    self.intro_dict[new_intro][0])
-                        intlist.write(new_intro + '\n')
-        except IOError as exc:
-            print('ERROR: Could not write to introducer file: %s' % exc,
-                    file=sys.stderr)
-            sys.exit(1)
-        else:
-            if self.verbosity > 0:
-                print('Successfully updated the introducer list.'
-                      ' Changes will take effect upon restart of the node.')
-
-    def sync_introducers(self):
-        """Add and remove introducers in the local list to make it identical to
-        the subscription's."""
-        try:
-            with open(self.introducers, 'w') as intlist:
-                for introducer in self.subscription_uris:
-                    intlist.write(introducer + '\n')
-        except IOError as exc:
-            print('ERROR: Could not write to introducer file: %s' %
-                    exc, file=sys.stderr)
-            sys.exit(1)
-        else:
-            if self.verbosity > 0:
-                for introducer in self.new_intros:
-                    print('Added introducer: %s' %
-                            self.intro_dict[introducer][0])
-                for introducer in self.expired_intros:
-                    if introducer in self.intro_dict:
-                        print('Removed introducer: %s' %
-                                self.intro_dict[introducer][0])
-                    else:
-                        print('Removed unknown introducer: %s' % introducer)
-                print('Successfully updated the introducer list.'
-                      ' Changes will take effect upon restart of the node.')
-
-
-class News(object):
-    """This class implements the --download-news function of grid-updates."""
-
-    def __init__(self, tahoe_node_dir, web_static_dir, url, verbosity=0):
-        self.verbosity = verbosity
-        if self.verbosity > 0:
-            print("-- Updating NEWS --")
-        self.tahoe_node_dir = tahoe_node_dir
-        self.web_static = web_static_dir
-        if not os.path.exists(web_static_dir):
-            os.mkdir(web_static_dir)
-        self.url = url
-        self.local_news = os.path.join(self.tahoe_node_dir, 'NEWS')
-        self.tempdir = tempfile.mkdtemp()
-        self.local_archive = os.path.join(self.tempdir, 'NEWS.tgz')
-
-    def run_action(self):
-        """Call this method to execute the desired action (--download-news). It
-        will run the necessary methods."""
-        if self.verbosity > 2:
-            print('DEBUG: Selected action: --download-news')
-        self.download_news()
-        self.extract_tgz()
-        if self.news_differ():
-            self.print_news()
-        else:
-            if self.verbosity > 0:
-                print('There are no news.')
-        # Copy in any case to make easily make sure that all versions
-        # (escpecially the HTML version) are always present:
-        self.install_files()
-
-    def download_news(self):
-        """Download NEWS.tgz file to local temporary file."""
-        url = self.url + '/NEWS.tgz'
-        if self.verbosity > 1:
-            print("INFO: Downloading news from the Tahoe grid.")
-        if self.verbosity > 2:
-            print("INFO: Downloading", url)
-        try:
-            response = urlopen(url).read()
-        except HTTPError:
-            print("ERROR: Couldn't find %s." % url, file=sys.stderr)
-            sys.exit(1)
-        except URLError as urlexc:
-            print("ERROR: %s while looking for %s." % (urlexc, url),
-                                                    file=sys.stderr)
-            sys.exit(1)
-        else:
-            with open(self.local_archive,'wb') as output:
-                output.write(response)
-
-    def extract_tgz(self):
-        """Extract NEWS.tgz archive into temporary directory."""
-        if self.verbosity > 2:
-            print('DEBUG: Extracting %s to %s.' %
-                    (self.local_archive, self.tempdir))
-        try:
-            tar = tarfile.open(self.local_archive, 'r:gz')
-            for newsfile in ['NEWS', 'NEWS.html', 'NEWS.atom']:
-                tar.extract(newsfile, self.tempdir)
-            tar.close()
-        except tarfile.TarError:
-            print('ERROR: Could not extract NEWS.tgz archive.', file=sys.stderr)
-            sys.exit(1)
-
-    def news_differ(self):
-        """Compare the local and newly downloaded NEWS files to determine of
-        there are new news. Return True/False."""
-        try:
-            locnews = open(self.local_news, 'r')
-        except:
-            if self.verbosity > 2:
-                print('DEBUG: No NEWS file found in node directory.')
-            differ = True
-        else:
-            with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
-                if locnews.read() != tempnews.read():
-                    if self.verbosity > 2:
-                        print('DEBUG: NEWS files differ.')
-                    differ = True
-                else:
-                    if self.verbosity > 2:
-                        print('DEBUG: NEWS files seem to be identical.')
-                    differ = False
-                locnews.close()
-        return differ
-
-    def print_news(self):
-        """Print the contents of the newly downloaded NEWS file in the
-        temporary directory."""
-        with open(os.path.join(self.tempdir, 'NEWS'), 'r') as tempnews:
-            for line in tempnews.readlines():
-                print('  | ' + line, end='')
-            print("The NEWS file (printed above) is located here: %s." %
-                    os.path.join(self.tahoe_node_dir, 'NEWS'))
-
-    def install_files(self):
-        """Copy extracted NEWS files to their intended locations."""
-        try:
-            copyfile(os.path.join(self.tempdir, 'NEWS'), self.local_news)
-            for newsfile in ['NEWS.html', 'NEWS.atom']:
-                copyfile(os.path.join(self.tempdir, newsfile),
-                        os.path.join(self.tahoe_node_dir,
-                                        self.web_static,
-                                        newsfile))
-        except:
-            print("ERROR: Couldn't copy one or more NEWS files into the "
-                  "node directory.", file=sys.stderr)
-            sys.exit(1)
-        else:
-            if self.verbosity > 2:
-                print('DEBUG: Copied NEWS files into the node directory.')
-
-
-
-class Updates(object):
-    """This class implements the update functions of grid-updates."""
-
-    def __init__(self, output_dir, url, verbosity=0):
-        self.verbosity = verbosity
-        self.output_dir = output_dir
-        self.url = url
-        if self.verbosity > 0:
-            print("-- Looking for script updates --")
-        self.dir_url = self.url + '/?t=json'
-
-    def run_action(self, mode):
-        """Call this method to execute the desired action (--check-version or
-        --download-update). It will run the necessary methods."""
-        if self.new_version_available():
-            if mode == 'check':
-                self.print_versions()
-            elif mode == 'download':
-                self.download_update()
-        else:
-            if self.verbosity > 0:
-                print('No update available.')
-
-    def get_version_number(self):
-        """Determine latest available version number by parsing the Tahoe
-        directory."""
-        if self.verbosity > 1:
-            print("INFO: Checking for new version.")
-        if self.verbosity > 2:
-            print('DEBUG: Parsing Tahoe dir: %s.' % self.dir_url)
-        # list Tahoe dir
-        try:
-            json_dir = urlopen(self.dir_url).read().decode('utf8')
-        except HTTPError as exc:
-            print('ERROR: Could not access the Tahoe directory:', exc,
-                    file=sys.stderr)
-            sys.exit(1)
-        except URLError as urlexc:
-            print("ERROR: %s trying to access Tahoe directory: %s." %
-                                (urlexc, self.dir_url), file=sys.stderr)
-            sys.exit(1)
-        else:
-            # parse json index of dir
-            file_list = list(json.loads(json_dir)[1]['children'].keys())
-            # parse version numbers
-            version_numbers = []
-            for filename in file_list:
-                if re.match("^grid-updates-.*\.tar\.gz$", filename):
-                    version = (re.sub(r'^grid-updates-(.*)\.tar\.gz', r'\1',
-                                                               filename))
-                    version_numbers.append(version)
-            if not version_numbers:
-                print('ERROR: No versions of grid-updates available in this'
-                                        ' Tahoe directory.', file=sys.stderr)
-                return
-            latest_version = sorted(version_numbers)[-1]
-            if self.verbosity > 1:
-                print('INFO: Current version: %s; newest available: %s.' %
-                        (__version__, latest_version))
-            return latest_version
-
-    def new_version_available(self):
-        """Determine if the local version is smaller than the available
-        version."""
-        self.latest_version = self.get_version_number()
-        if __version__ < self.latest_version:
-            return True
-        else:
-            return False
-
-    def print_versions(self):
-        """Print current and available version numbers."""
-        # verbosity doesn't matter in this case; it's a user request:
-        #if self.verbosity > 0:
-        if self.new_version_available:
-            print('There is a new version available: %s (currently %s).' %
-                    (self.latest_version, __version__))
-        else:
-            print('This version of grid-updates (%s) is up-to-date.' %
-                                                             __version__)
-
-    def download_update(self):
-        """Download script tarball."""
-        download_url = (
-                self.url + '/grid-updates-v' + self.latest_version + '.tgz')
-        if self.verbosity > 1:
-            print("INFO: Downloading", download_url)
-        try:
-            remote_file = urlopen(download_url)
-        except HTTPError as exc:
-            print('ERROR: Could not download the tarball:', exc,
-                    file=sys.stderr)
-            sys.exit(1)
-        except URLError as urlexc:
-            print("ERROR: %s trying to download tarball from  %s." %
-                            (urlexc, download_url), file=sys.stderr)
-            sys.exit(1)
-        local_file = os.path.join(self.output_dir, 'grid-updates-v' +
-                                    self.latest_version + '.tgz')
-        try:
-            with open(local_file,'wb') as output:
-                output.write(remote_file.read())
-        except IOError as exc:
-            print('ERROR: Could not write to local file:', exc,
-                    file=sys.stderr)
-            sys.exit(1)
-        else:
-            if self.verbosity > 0:
-                print('Success: downloaded an update to %s.' %
-                        os.path.abspath(local_file))
-
-
-class PatchWebUI(object):
-    """This class implements the patching functions of grid-updates."""
-
-    def __init__(self, tahoe_node_url, verbosity=0):
-        self.verbosity = verbosity
-        self.tahoe_node_url = tahoe_node_url
-        if self.verbosity > 0:
-            print("-- Patching Tahoe web console --")
-        self.datadir = find_datadir()
-        self.webdir = os.path.join(find_tahoe_dir(tahoe_node_url), 'web')
-        self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
-        self.add_patch_filepaths()
-        self.add_target_filepaths()
-        if self.verbosity > 3:
-            print('DEBUG: Data dir is: %s' % self.datadir)
-            print('DEBUG: Tahoe web dir is: %s' % self.webdir)
-            print('DEBUG: File paths:')
-            print(self.filepaths)
-
-    def run_action(self, mode, web_static_dir):
-        """Call this method to execute the desired action (--patch-tahoe or
-        --undo-patch-tahoe). It will run the necessary methods."""
-        if self.compatible_version(self.tahoe_node_url):
-            if mode == 'patch':
-                if is_root():
-                    print('WARN: Not installing NEWS.html placeholder (running'
-                        ' as root.')
-                else:
-                    install_news_stub(web_static_dir)
-                for uifile in list(self.filepaths.keys()):
-                    patch_version = self.read_patch_version(
-                                            self.filepaths [uifile][1])
-                    if patch_version:
-                        # file is patched
-                        if not patch_version == __patch_version__:
-                            if self.verbosity > 1:
-                                print('INFO: A newer patch is available. '
-                                                            'Installing.')
-                            self.install_file(uifile)
-                        else:
-                            if self.verbosity > 2:
-                                print('DEBUG: Patch is up-to-date.')
-                    else:
-                        self.backup_file(uifile)
-                        self.install_file(uifile)
-            if mode == 'undo':
-                for uifile in list(self.filepaths.keys()):
-                    self.restore_file(uifile)
-
-    def compatible_version(self, tahoe_node_url):
-        """Check Tahoe-LAFS's version to be known. We don't want to replace an
-        unexpected and possibly redesigned web UI."""
-        tahoe_version = LooseVersion(get_tahoe_version(tahoe_node_url))
-        if tahoe_version >= LooseVersion('1.8.3') and \
-                tahoe_version < LooseVersion('1.9'):
-            if self.verbosity > 2:
-                print('DEBUG: Found compatible version of Tahoe-LAFS (%s)'
-                        % tahoe_version)
-            return True
-        else:
-            if self.verbosity > 2:
-                print('DEBUG: Incompatible version of Tahoe-LAFS (%s).'
-                      ' Cannot patch web UI.' % tahoe_version)
-            return False
-
-    def add_patch_filepaths(self):
-        """Add locations of patched web UI files to the location dict."""
-        for patchfile in list(self.filepaths.keys()):
-            filepath = os.path.join(self.datadir, patchfile + '.patched')
-            if not os.path.exists(filepath):
-                print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
-                sys.exit(1)
-            self.filepaths[patchfile].append(filepath)
-
-    def add_target_filepaths(self):
-        """Add locations of original web UI files to the location dict."""
-        for targetfile in list(self.filepaths.keys()):
-            filepath = (os.path.join(self.webdir, targetfile))
-            if not os.path.exists(filepath):
-                print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
-                sys.exit(1)
-            self.filepaths[targetfile].append(filepath)
-
-    def read_patch_version(self, uifile):
-        """Get the patches' versions from web UI files."""
-        with open(uifile, 'r') as f:
-            match = re.search(r'grid-updates\ patch\ VERSION=(.*)\ ',
-                    f.readlines()[-1])
-            if match:
-                patch_version = match.group(1)
-                if self.verbosity > 2:
-                    print('DEBUG: Patch version of %s is: %s' %
-                                            (uifile, patch_version))
-                return patch_version
-            else:
-                return False
-
-    def backup_file(self, uifile):
-        """Make a backup copy of file if it doesn't already exist."""
-        # TODO exception
-        targetfile = self.filepaths[uifile][1]
-        backupfile = targetfile + '.grid-updates.original'
-        if not os.path.exists(backupfile):
-            if self.verbosity > 2:
-                print('DEBUG: Backing up %s' % targetfile)
-            copyfile(targetfile, backupfile)
-        else:
-            if self.verbosity > 2:
-                print('DEBUG: Backup of %s already exists.' % targetfile)
-
-
-    def restore_file(self, uifile):
-        """Restore a backup copy; undo patching."""
-        # TODO exception
-        targetfile  = self.filepaths[uifile][1]
-        backupfile = targetfile + '.grid-updates.original'
-        if self.verbosity > 1:
-            print('INFO: Restoring %s' % backupfile)
-        copyfile(backupfile, targetfile)
-
-
-    def install_file(self, uifile):
-        """Copy the patched version of a file into the tahoe directory."""
-        # TODO exception
-        patchedfile = self.filepaths[uifile][0]
-        targetfile  = self.filepaths[uifile][1]
-        if self.verbosity > 1:
-            print('INFO: Installing patched version of %s' % targetfile)
-        copyfile(patchedfile, targetfile)
-
-
-class MakeNews(object):
-    """This class implements the --make-news function of grid-updates."""
-
-    def __init__(self, verbosity=0):
-        self.verbosity = verbosity
-        self.tempdir = tempfile.mkdtemp()
-        if self.verbosity > 2:
-            print('DEBUG: tempdir is: %s' % self.tempdir)
-        # check for pandoc and markdown
-        # find template locations
-        self.datadir = find_datadir()
-
-    def run_action(self, md_file, output_dir):
-        """Call this method to execute the desired action (--make-news). It
-        will run the necessary methods."""
-        html_file = self.compile_md(md_file)
-        if html_file:
-            atom_file = self.compile_atom()
-            include_list = [md_file, html_file, atom_file]
-            self.make_tarball(include_list, output_dir)
-            remove_temporary_dir(self.tempdir, self.verbosity)
-
-    def compile_md(self, mdfile):
-        """Compile an HTML version of the Markdown source of NEWS; return the
-        file path."""
-        source = mdfile
-        output_html = os.path.join(self.tempdir, 'NEWS.html')
-        pandoc_tmplt = os.path.join(self.datadir, 'pandoc-template.html')
-        try:
-            subprocess.call(["pandoc",
-                            "-w", "html",
-                            "-r", "markdown",
-                            "--email-obfuscation", "none",
-                            "--template", pandoc_tmplt,
-                            "--output", output_html,
-                            source])
-        except OSError as ose:
-            print("ERROR: Couldn't run pandoc subprocess: %s" % ose)
-        else:
-            return output_html
-
-    def compile_atom(self):
-        """Create an Atom news feed file from a template by adding the current
-        date and an UUID (uuid4 is supposed to be generated randomly); returns
-        the file path."""
-        atom_tmplt = os.path.join(self.datadir, 'NEWS.atom.template')
-        output_atom = os.path.join(self.tempdir, 'NEWS.atom')
-        with open(atom_tmplt, 'r') as f:
-            formatted = f.read()
-        # insert date
-        now = datetime.now()
-        formatted = re.sub(r'REPLACEDATE', now.isoformat(), formatted)
-        # insert UUID
-        uuid = str(uuid4())
-        formatted = re.sub(r'REPLACEID', uuid, formatted)
-        with open(output_atom, 'w') as f:
-            f.write(formatted)
-        return output_atom
-
-    def make_tarball(self, include_list, output_dir):
-        """Add files from a list to NEWS.tgz in --output-dir; remove directory
-        structure."""
-        tarball = os.path.join(output_dir, 'NEWS.tgz')
-        tar = tarfile.open(tarball, mode='w:gz')
-        try:
-            for item in include_list:
-                tarinfo = tar.gettarinfo(item, arcname=os.path.basename(item))
-                tarinfo.uid = tarinfo.gid = 0
-                tarinfo.uname = tarinfo.gname = "root"
-                tar.addfile(tarinfo, open(item, 'rb'))
-        finally:
-            tar.close()
 
 # Config parsing
 # ==============
@@ -966,7 +136,6 @@ def get_default_config():
             'output_dir'     : os.path.abspath(os.getcwd())
             }
     return default_config
-
 
 def parse_config_files(argv):
     """Parse options given in config files."""
@@ -1292,7 +461,7 @@ def main():
     # Run actions
     # -----------
     if opts.merge or opts.sync:
-        intlist = List(opts.tahoe_node_dir,
+        intlist = Introducers.List(opts.tahoe_node_dir,
                         uri_dict['list'][1],
                         opts.verbosity)
         if opts.sync:
@@ -1300,13 +469,13 @@ def main():
         elif opts.merge:
             intlist.run_action('merge')
     if opts.news:
-        news = News(opts.tahoe_node_dir,
+        news = News.News(opts.tahoe_node_dir,
                     web_static_dir,
                     uri_dict['news'][1],
                     opts.verbosity)
         news.run_action()
     if opts.check_version or opts.download_update:
-        update = Updates(opts.output_dir,
+        update = Update.Update(opts.output_dir,
                             uri_dict['script'][1],
                             opts.verbosity)
         if opts.check_version:
@@ -1314,13 +483,13 @@ def main():
         elif opts.download_update:
             update.run_action('download')
     if opts.patch_ui or opts.undo_patch_ui:
-        webui = PatchWebUI(opts.tahoe_node_url, opts.verbosity)
+        webui = PatchWebUI.PatchWebUI(opts.tahoe_node_url, opts.verbosity)
         if opts.patch_ui:
             webui.run_action('patch', web_static_dir)
         elif opts.undo_patch_ui:
             webui.run_action('undo', web_static_dir)
     if opts.mknews_md_file:
-        mknews = MakeNews(opts.verbosity)
+        mknews = MakeNews.MakeNews(opts.verbosity)
         mknews.run_action(opts.mknews_md_file, opts.output_dir)
     if opts.repair:
         action_repair(uri_dict, opts.verbosity)
