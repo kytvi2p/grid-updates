@@ -66,7 +66,7 @@ grid-updates news is recommended.
 
 The subscriptions and script installation files are stored on the grid itself
 and -- like all other shares -- need maintenance and repairs [3]_. If you can,
-please also add the ``--repair-subscriptions`` action to your cron job, or run
+please also add the ``--repair`` action to your cron job, or run
 it separately every once in a while. This is necessary to keep the service
 available.
 

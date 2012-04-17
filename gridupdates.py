@@ -16,15 +16,13 @@ import tempfile # use os.tmpfile()?
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser
     from urllib import urlencode
-    from urllib2 import HTTPError
-    from urllib2 import urlopen
-    from urllib2 import URLError
+    from urllib2 import HTTPError, urlopen, URLError, ProxyHandler, install_opener, build_opener
 else:
     from configparser import ConfigParser as SafeConfigParser
-    from urllib.request import urlopen
     from urllib.parse import urlencode
-    from urllib.error import HTTPError
-    from urllib.error import URLError
+    from urllib.error import HTTPError, URLError
+    from urllib.request import urlopen, ProxyHandler, install_opener, build_opener
+
 
 import random
 from distutils.version import LooseVersion
@@ -881,6 +879,8 @@ class MakeNews(object):
         """Call this method to execute the desired action (--make-news). It
         will run the necessary methods."""
         html_file = self.compile_md(md_file)
+        copyfile(md_file, os.path.join(self.tempdir, 'NEWS'))
+        md_file = os.path.join(self.tempdir, 'NEWS')
         if html_file:
             atom_file = self.compile_atom()
             include_list = [md_file, html_file, atom_file]
@@ -1202,6 +1202,10 @@ def parse_args(argv):
 def main():
     """Main function: run selected actions."""
 
+    proxy_support = ProxyHandler({})
+    opener = build_opener(proxy_support)
+    install_opener(opener)
+
     # Parse config files and command line arguments
     (opts, args) = parse_args(sys.argv)
 
@@ -1259,8 +1263,7 @@ def main():
         sys.exit(1)
 
     if proxy_configured():
-        print("WARNING: The 'http_proxy' variable is set. If the next step "
-                                        "fails, check your proxy settings.")
+        print("WARNING: Found (and unset) the 'http_proxy' variable.")
 
     # generate URI dictionary
     uri_dict = {'list': (opts.list_uri,
