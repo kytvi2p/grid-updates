@@ -249,6 +249,11 @@ def parse_args(argv):
             dest = "repair",
             default = False,
             help = 'Run a deep-check and repair on all grid-updates shares.')
+    action_opts.add_option('-R', '--community-repair',
+            action = 'store_true',
+            dest = "comrepair",
+            default = False,
+            help = 'Retrieve a list of shares and maintain/repair them.')
     action_opts.add_option('--check-version',
             action = 'store_true',
             dest = "check_version",
@@ -259,11 +264,6 @@ def parse_args(argv):
             dest = "download_update",
             default = False,
             help = 'Download a new version of grid-updates.')
-    action_opts.add_option('-R', '--community-repair',
-            action = 'store_true',
-            dest = "comrepair",
-            default = False,
-            help = 'Retrieve a list of shares and maintain/repair them.')
     action_opts.add_option('--patch-tahoe',
             action = 'store_true',
             dest = "patch_ui",
