@@ -881,6 +881,8 @@ class MakeNews(object):
         """Call this method to execute the desired action (--make-news). It
         will run the necessary methods."""
         html_file = self.compile_md(md_file)
+        copyfile(md_file, os.path.join(self.tempdir, 'NEWS'))
+        md_file = os.path.join(self.tempdir, 'NEWS')
         if html_file:
             atom_file = self.compile_atom()
             include_list = [md_file, html_file, atom_file]
