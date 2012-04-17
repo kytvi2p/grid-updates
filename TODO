@@ -1,6 +1,5 @@
 * catch broken JSON list exceptions
-* --make-news: strip *.md/*.txt file extensions from NEWS file in tgz
-  (fail more gracefully if NEWS not found in archive)
+--download-news: fail more gracefully if NEWS not found in archive
 * make --download-update download either tgz/deb/exe? (auto-detect? config option?)
 
 * pid/lock file for potentially long repair operations
