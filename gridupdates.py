@@ -3,38 +3,30 @@
 """grid-updates is a helper script for Tahoe-LAFS nodes."""
 
 from __future__ import print_function
-import json
 import optparse
 import os
 import platform
-import random
 import re
 import sys
 # Maybe this is better than try -> except?
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser
-    from urllib import urlencode
-    from urllib2 import HTTPError, urlopen, URLError, ProxyHandler, install_opener, build_opener
+    from urllib2 import ProxyHandler, install_opener, build_opener
 else:
     from configparser import ConfigParser as SafeConfigParser
-    from urllib.parse import urlencode
-    from urllib.error import HTTPError, URLError
-    from urllib.request import urlopen, ProxyHandler, install_opener, build_opener
-
+    from urllib.request import ProxyHandler, install_opener, build_opener
 
 from Modules import Introducers
 from Modules import MakeNews
 from Modules import News
 from Modules import PatchWebUI
 from Modules import Update
+from Modules import Repairs
 from Modules.Functions import find_datadir
 from Modules.Functions import find_webstatic_dir
 from Modules.Functions import gen_full_tahoe_uri
 from Modules.Functions import is_root
-from Modules.Functions import parse_result
 from Modules.Functions import proxy_configured
-from Modules.Functions import repair_share
-from Modules.Functions import tahoe_dl_file
 
 
 __author__ = ['darrob', 'KillYourTV']
@@ -48,63 +40,6 @@ __patch_version__ = '1.8.3-gu5'
 
 # Actions
 # =======
-
-def action_repair(uri_dict, verbosity=0):
-    """Repair all (deep-check) Tahoe shares in a dictionary."""
-    if verbosity > 0:
-        print("-- Repairing the grid-updates Tahoe shares. --")
-    mode = 'deep-check'
-    unhealthy = 0
-    # shuffle() to even out chances of all shares to get repaired
-    # (Is this useful?)
-    sharelist = list(uri_dict.keys())
-    random.shuffle(sharelist)
-    for sharename in sharelist:
-        repair_uri = uri_dict[sharename][1]
-        results = repair_share(sharename, repair_uri, mode, verbosity)
-        if verbosity > 1:
-            print('INFO: Post-repair results for: %s' % sharename)
-        for result in results:
-            status, unhealthy = parse_result(result.decode('utf8'),
-                                                mode, unhealthy, verbosity)
-    # Print summary
-    if unhealthy == 1:
-        sub = 'object'
-    else:
-        sub = 'objects'
-    if verbosity > 0:
-        print("Deep-check of grid-updates shares completed: "
-                            "%d %s unhealthy." % (unhealthy, sub))
-
-def action_comrepair(tahoe_node_url, uri_dict, verbosity=0):
-    """The --community-repair command. Repair all shares in the uri_dict."""
-    if verbosity > 0:
-        print("-- Repairing Tahoe shares. --")
-    unhealthy = 0
-    url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
-    subscriptionfile = tahoe_dl_file(url, verbosity).read()
-    # shuffle() to even out chances of all shares to get repaired
-    sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
-                                            ['community-shares']))
-    random.shuffle(sharelist)
-    for share in sharelist:
-        sharename  = share['name']
-        repair_uri = gen_full_tahoe_uri(tahoe_node_url, share['uri'])
-        mode       = share['mode']
-        if mode == 'deep-check':
-            results = repair_share(sharename, repair_uri, mode, verbosity)
-            for result in results:
-                status, unhealthy = parse_result(result.decode('utf8'),
-                                                    mode, unhealthy, verbosity)
-        if mode == 'one-check':
-            result = repair_share(sharename, repair_uri, mode, verbosity)
-            status, unhealthy = parse_result(result.decode('utf8'), mode,
-                                                        unhealthy, verbosity)
-            if verbosity > 1:
-                print("  Status: %s" % status)
-    if verbosity > 0:
-        print('Repairs have completed (unhealthy: %d).' % unhealthy)
-
 
 # Config parsing
 # ==============
@@ -493,9 +428,10 @@ def main():
         mknews = MakeNews.MakeNews(opts.verbosity)
         mknews.run_action(opts.mknews_md_file, opts.output_dir)
     if opts.repair:
-        action_repair(uri_dict, opts.verbosity)
+        Repairs.repair_action(uri_dict, opts.verbosity)
     if opts.comrepair:
-        action_comrepair(opts.tahoe_node_url, uri_dict, opts.verbosity)
+        Repairs.comrepair_actionair(opts.tahoe_node_url,
+                uri_dict, opts.verbosity)
 
 
 if __name__ == "__main__":
