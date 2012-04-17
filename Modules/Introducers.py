@@ -4,19 +4,6 @@ from __future__ import print_function
 import json
 import os
 import sys
-# Maybe this is better than try -> except?
-if sys.version_info[0] == 2:
-    from ConfigParser import SafeConfigParser
-    from urllib import urlencode
-    from urllib2 import HTTPError
-    from urllib2 import urlopen
-    from urllib2 import URLError
-else:
-    from configparser import ConfigParser as SafeConfigParser
-    from urllib.request import urlopen
-    from urllib.parse import urlencode
-    from urllib.error import HTTPError
-    from urllib.error import URLError
 
 from Modules.Functions import tahoe_dl_file
 from Modules.Functions import is_valid_introducer

@@ -9,6 +9,7 @@
 * is __patch_version__ a valid variable name?
 * Support web UI patches for multiple versions of Tahoe?
 * don't hardcode default URIs; use a default config file instead?
+* how to get, for example, __version__ inside a module?
 
 * create grid-admin script
 	- make patch actions part of this

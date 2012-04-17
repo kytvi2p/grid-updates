@@ -7,19 +7,13 @@ import re
 import sys
 # Maybe this is better than try -> except?
 if sys.version_info[0] == 2:
-    from ConfigParser import SafeConfigParser
-    from urllib import urlencode
     from urllib2 import HTTPError
     from urllib2 import urlopen
     from urllib2 import URLError
 else:
-    from configparser import ConfigParser as SafeConfigParser
     from urllib.request import urlopen
-    from urllib.parse import urlencode
     from urllib.error import HTTPError
     from urllib.error import URLError
-
-#from gridupdates import __version__
 
 class Updates(object):
     """This class implements the update functions of grid-updates."""
