@@ -102,5 +102,7 @@ class MakeNews(object):
                 tarinfo.uid = tarinfo.gid = 0
                 tarinfo.uname = tarinfo.gname = "root"
                 tar.addfile(tarinfo, open(item, 'rb'))
+            if self.verbosity > 0:
+                print('Successfully created %s' % tarball)
         finally:
             tar.close()
