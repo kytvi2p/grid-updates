@@ -28,15 +28,22 @@ class List(object):
     def run_action(self, mode):
         """Call this method to execute the desired action (--merge-introducers
         or --sync-introducers)."""
-        if self.lists_differ():
-            self.backup_original()
-            if mode == 'merge':
-                self.merge_introducers()
-            if mode == 'sync':
+        if mode == 'merge':
+            if self.lists_differ():
+                if self.expired_intros and self.verbosity > 1:
+                    for intro in self.expired_intros:
+                        print("INFO: Introducer not in subscription list: %s"
+                                                                        % intro)
+                if self.new_intros:
+                    self.backup_original()
+                    self.merge_introducers()
+                else:
+                    if self.verbosity > 0:
+                        print('Introducer list already up-to-date.')
+        if mode == 'sync':
+            if self.lists_differ():
+                self.backup_original()
                 self.sync_introducers()
-        else:
-            if self.verbosity > 0:
-                print('Introducer list already up-to-date.')
 
     def create_intro_dict(self, json_response):
         """Compile a dictionary of introducers (uri->name,active) from a JSON
@@ -106,8 +113,8 @@ class List(object):
                     print('INFO: Skipping disabled introducer: %s' %
                             self.intro_dict[introducer][0])
         if sorted(self.subscription_uris) == sorted(self.old_list):
-            if self.verbosity > 2:
-                print('DEBUG: Introducer lists identical.')
+            if self.verbosity > 0:
+                print('Introducer list already up-to-date.')
             return False
         # Compile lists of new (to be added and outdated (to be removed) #
         # introducers
@@ -119,11 +126,6 @@ class List(object):
     def merge_introducers(self):
         """Add newly discovered introducers to the local introducers file;
         remove nothing."""
-        if self.verbosity > 1:
-            expired_intros = list(set(self.old_list) -
-                    set(self.subscription_uris))
-            for intro in expired_intros:
-                print("INFO: Introducer not in subscription list: %s" % intro)
         try:
             with open(self.introducers, 'a') as intlist:
                 for new_intro in self.new_intros:
