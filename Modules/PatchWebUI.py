@@ -24,9 +24,10 @@ def install_news_stub(web_static_dir):
 class PatchWebUI(object):
     """This class implements the patching functions of grid-updates."""
 
-    def __init__(self, tahoe_node_url, verbosity=0):
+    def __init__(self, tahoe_node_url, latest_patch_version, verbosity=0):
         self.verbosity = verbosity
         self.tahoe_node_url = tahoe_node_url
+        self.latest_patch_version = latest_patch_version
         if self.verbosity > 0:
             print("-- Patching Tahoe web console --")
         self.datadir = find_datadir()
@@ -55,7 +56,7 @@ class PatchWebUI(object):
                                             self.filepaths [uifile][1])
                     if patch_version:
                         # file is patched
-                        if not patch_version == __patch_version__:
+                        if not patch_version == self.latest_patch_version:
                             if self.verbosity > 1:
                                 print('INFO: A newer patch is available. '
                                                             'Installing.')

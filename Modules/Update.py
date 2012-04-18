@@ -15,11 +15,12 @@ else:
     from urllib.error import HTTPError
     from urllib.error import URLError
 
-class Updates(object):
+class Update(object):
     """This class implements the update functions of grid-updates."""
 
-    def __init__(self, output_dir, url, verbosity=0):
+    def __init__(self, current_version, output_dir, url, verbosity=0):
         self.verbosity = verbosity
+        self.version = current_version
         self.output_dir = output_dir
         self.url = url
         if self.verbosity > 0:
@@ -73,14 +74,14 @@ class Updates(object):
             latest_version = sorted(version_numbers)[-1]
             if self.verbosity > 1:
                 print('INFO: Current version: %s; newest available: %s.' %
-                        (__version__, latest_version))
+                        (self.version, latest_version))
             return latest_version
 
     def new_version_available(self):
         """Determine if the local version is smaller than the available
         version."""
         self.latest_version = self.get_version_number()
-        if __version__ < self.latest_version:
+        if self.version < self.latest_version:
             return True
         else:
             return False
@@ -91,10 +92,10 @@ class Updates(object):
         #if self.verbosity > 0:
         if self.new_version_available:
             print('There is a new version available: %s (currently %s).' %
-                    (self.latest_version, __version__))
+                    (self.latest_version, self.version))
         else:
             print('This version of grid-updates (%s) is up-to-date.' %
-                                                             __version__)
+                                                             self.version)
 
     def download_update(self):
         """Download script tarball."""

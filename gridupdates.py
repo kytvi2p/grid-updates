@@ -411,15 +411,18 @@ def main():
                     opts.verbosity)
         news.run_action()
     if opts.check_version or opts.download_update:
-        update = Update.Update(opts.output_dir,
-                            uri_dict['script'][1],
-                            opts.verbosity)
+        update = Update.Update(__version__,
+                                opts.output_dir,
+                                uri_dict['script'][1],
+                                opts.verbosity)
         if opts.check_version:
             update.run_action('check')
         elif opts.download_update:
             update.run_action('download')
     if opts.patch_ui or opts.undo_patch_ui:
-        webui = PatchWebUI.PatchWebUI(opts.tahoe_node_url, opts.verbosity)
+        webui = PatchWebUI.PatchWebUI(__patch_version__,
+                                        opts.tahoe_node_url,
+                                        opts.verbosity)
         if opts.patch_ui:
             webui.run_action('patch', web_static_dir)
         elif opts.undo_patch_ui:
