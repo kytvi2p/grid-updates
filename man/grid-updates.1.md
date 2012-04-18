@@ -32,7 +32,7 @@ ACTIONS
 -n, \--download-news
 :   Retrieve the news feed.  See the **NEWS** section below.
 
--r, \--repair-subscriptions
+-r, \--repair
 :   Maintain or repair the health of the subscription service's URIs.
 
 -R, \--community-repair
