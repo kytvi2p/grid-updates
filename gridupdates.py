@@ -251,6 +251,11 @@ def parse_args(argv):
             default = default_config['comrepair_uri'],
             help = ('Override default location of additional repair '
                     'subscription.'))
+    other_opts.add_option('--format',
+            action = 'store',
+            dest = 'update_format',
+            default = 'tar',
+            help = ('Specify in which format to download the update.'))
     other_opts.add_option('-o', '--output-dir',
             action = 'store',
             dest = 'output_dir',
@@ -418,7 +423,7 @@ def main():
         if opts.check_version:
             update.run_action('check')
         elif opts.download_update:
-            update.run_action('download')
+            update.run_action('download', opts.update_format)
     if opts.patch_ui or opts.undo_patch_ui:
         webui = PatchWebUI.PatchWebUI(__patch_version__,
                                         opts.tahoe_node_url,

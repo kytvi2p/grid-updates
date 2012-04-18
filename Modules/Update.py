@@ -27,17 +27,32 @@ class Update(object):
             print("-- Looking for script updates --")
         self.dir_url = self.url + '/?t=json'
 
-    def run_action(self, mode):
+    def run_action(self, mode, requested_dist='tar'):
         """Call this method to execute the desired action (--check-version or
         --download-update). It will run the necessary methods."""
         if self.new_version_available():
             if mode == 'check':
                 self.print_versions()
             elif mode == 'download':
-                self.download_update()
+                download_filename = self.gen_download_filename(requested_dist)
+                self.download_update(download_filename)
         else:
             if self.verbosity > 0:
                 print('No update available.')
+
+    def gen_download_filename(self, req_dist):
+        if req_dist == 'tar':
+            basename = ('grid-updates-' + self.latest_version)
+            download_filename = (basename + '.tar.gz')
+        elif req_dist == 'py2exe':
+            download_filename = (basename + '.py2exe.exe')
+        elif req_dist == 'exe':
+            download_filename = (basename + '.win32.exe')
+        elif req_dist == 'deb':
+            download_filename = ('grid-updates_' +
+                                self.latest_version +
+                                '-1_all.deb')
+        return download_filename
 
     def get_version_number(self):
         """Determine latest available version number by parsing the Tahoe
@@ -97,10 +112,9 @@ class Update(object):
             print('This version of grid-updates (%s) is up-to-date.' %
                                                              self.version)
 
-    def download_update(self):
+    def download_update(self, download_filename):
         """Download script tarball."""
-        download_url = (
-                self.url + '/grid-updates-v' + self.latest_version + '.tgz')
+        download_url = (self.url + '/' + download_filename)
         if self.verbosity > 1:
             print("INFO: Downloading", download_url)
         try:
@@ -113,8 +127,7 @@ class Update(object):
             print("ERROR: %s trying to download tarball from  %s." %
                             (urlexc, download_url), file=sys.stderr)
             sys.exit(1)
-        local_file = os.path.join(self.output_dir, 'grid-updates-v' +
-                                    self.latest_version + '.tgz')
+        local_file = os.path.join(self.output_dir, download_filename)
         try:
             with open(local_file,'wb') as output:
                 output.write(remote_file.read())
