@@ -24,7 +24,7 @@ def install_news_stub(web_static_dir):
 class PatchWebUI(object):
     """This class implements the patching functions of grid-updates."""
 
-    def __init__(self, tahoe_node_url, latest_patch_version, verbosity=0):
+    def __init__(self, latest_patch_version, tahoe_node_url, verbosity=0):
         self.verbosity = verbosity
         self.tahoe_node_url = tahoe_node_url
         self.latest_patch_version = latest_patch_version
