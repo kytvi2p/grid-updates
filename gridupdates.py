@@ -433,7 +433,7 @@ def main():
     if opts.repair:
         Repairs.repair_action(uri_dict, opts.verbosity)
     if opts.comrepair:
-        Repairs.comrepair_actionair(opts.tahoe_node_url,
+        Repairs.comrepair_action(opts.tahoe_node_url,
                 uri_dict, opts.verbosity)
 
 

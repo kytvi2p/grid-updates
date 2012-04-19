@@ -47,11 +47,17 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
     except HTTPError as exc:
         print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
                                                         file=sys.stderr)
-        sys.exit(1)
+        return
     except URLError as urlexc:
         print("ERROR: %s while running %s for %s." % (urlexc, mode, sharename),
                                                                file=sys.stderr)
+        return
+    except KeyboardInterrupt:
         sys.exit(1)
+    except:
+        print("ERROR: Could not run %s on %s." % (mode, sharename),
+                                                    file=sys.stderr)
+        return
     else:
         if mode == 'deep-check':
             # deep-check returns multiple JSON objects, 1 per line
@@ -60,10 +66,6 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
             # one-check returns a single JSON object
             result = response.read()
         return result
-    finally:
-        # TODO This can cause: UnboundLocalError: local variable 'response'
-        # referenced before assignment
-        response.close()
 
 def parse_result(result, mode, unhealthy, verbosity=0):
     """Parse JSON response from Tahoe deep-check operation.
@@ -119,6 +121,8 @@ def repair_action(uri_dict, verbosity=0):
     for sharename in sharelist:
         repair_uri = uri_dict[sharename][1]
         results = repair_share(sharename, repair_uri, mode, verbosity)
+        if not results:
+            return
         if verbosity > 1:
             print('INFO: Post-repair results for: %s' % sharename)
         for result in results:
@@ -150,11 +154,15 @@ def comrepair_action(tahoe_node_url, uri_dict, verbosity=0):
         mode       = share['mode']
         if mode == 'deep-check':
             results = repair_share(sharename, repair_uri, mode, verbosity)
+            if not results:
+                return
             for result in results:
                 status, unhealthy = parse_result(result.decode('utf8'),
                                                     mode, unhealthy, verbosity)
         if mode == 'one-check':
             result = repair_share(sharename, repair_uri, mode, verbosity)
+            if not result:
+                return
             status, unhealthy = parse_result(result.decode('utf8'), mode,
                                                         unhealthy, verbosity)
             if verbosity > 1:
