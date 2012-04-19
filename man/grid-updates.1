@@ -32,7 +32,7 @@ See the \f[B]NEWS\f[] section below.
 .RS
 .RE
 .TP
-.B -r, --repair-subscriptions
+.B -r, --repair
 Maintain or repair the health of the subscription service's URIs.
 .RS
 .RE
@@ -85,6 +85,14 @@ Specify the gateway node's URL (default: http://127.0.0.1:3456),
 .TP
 .B -d \f[I]directory\f[], --node-directory \f[I]directory\f[]
 Specify the node directory (default: \f[I]~/.tahoe\f[]),
+.RS
+.RE
+.TP
+.B --format \f[I]tar|deb|exe|py2exe\f[]
+Specify in which format to download the update.
+Choices are: `tar' (source archive), `deb' (Debian package), `exe'
+(Windows installer [requires Python]), `py2exe' (Windows installers
+[doesn't require Python]).
 .RS
 .RE
 .TP
