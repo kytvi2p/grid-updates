@@ -35,12 +35,16 @@ class Update(object):
                 self.print_versions()
             elif mode == 'download':
                 download_filename = self.gen_download_filename(requested_dist)
+                if not download_filename:
+                    return
                 self.download_update(download_filename)
         else:
             if self.verbosity > 0:
                 print('No update available.')
 
     def gen_download_filename(self, req_dist):
+        """This function accepts a file extension and returns the filename of a
+        grid-updates update."""
         if req_dist == 'tar':
             basename = ('grid-updates-' + self.latest_version)
             download_filename = (basename + '.tar.gz')
@@ -52,6 +56,10 @@ class Update(object):
             download_filename = ('grid-updates_' +
                                 self.latest_version +
                                 '-1_all.deb')
+        else:
+            print("ERROR: You've requested an unknown update format.",
+                    file=sys.stderr)
+            return
         return download_filename
 
     def get_version_number(self):
