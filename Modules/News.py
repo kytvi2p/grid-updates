@@ -38,7 +38,8 @@ class News(object):
         if self.verbosity > 2:
             print('DEBUG: Selected action: --download-news')
         self.download_news()
-        self.extract_tgz()
+        if not self.extract_tgz():
+            return
         if self.news_differ():
             self.print_news()
         else:
@@ -75,12 +76,19 @@ class News(object):
                     (self.local_archive, self.tempdir))
         try:
             tar = tarfile.open(self.local_archive, 'r:gz')
-            for newsfile in ['NEWS', 'NEWS.html', 'NEWS.atom']:
-                tar.extract(newsfile, self.tempdir)
-            tar.close()
         except tarfile.TarError:
             print('ERROR: Could not extract NEWS.tgz archive.', file=sys.stderr)
-            sys.exit(1)
+            return False
+        else:
+            for newsfile in ['NEWS', 'NEWS.html', 'NEWS.atom']:
+                try:
+                    tar.extract(newsfile, self.tempdir)
+                except KeyError:
+                    print("ERROR: '%s' not found in archive. Cannot continue." %
+                            newsfile, file=sys.stderr)
+                    return False
+            tar.close()
+            return True
 
     def news_differ(self):
         """Compare the local and newly downloaded NEWS files to determine of
