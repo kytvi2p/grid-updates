@@ -135,7 +135,6 @@ class News(object):
         except:
             print("ERROR: Couldn't copy one or more NEWS files into the "
                   "node directory.", file=sys.stderr)
-            sys.exit(1)
         else:
             if self.verbosity > 2:
                 print('DEBUG: Copied NEWS files into the node directory.')
