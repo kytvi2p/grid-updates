@@ -356,7 +356,7 @@ def main():
     # conflicting options
     if opts.merge and opts.sync:
         print('ERROR: --merge-introducers & --sync-introducers are '
-            ' mutually exclusive actions.', file=sys.stderr)
+            'mutually exclusive actions.', file=sys.stderr)
         sys.exit(2)
 
     # Check Tahoe node dir validity
