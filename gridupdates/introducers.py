@@ -28,6 +28,10 @@ class List(object):
     def run_action(self, mode):
         """Call this method to execute the desired action (--merge-introducers
         or --sync-introducers)."""
+        if not self.intro_dict:
+            if self.verbosity > 2:
+                print('DEBUG: introducer list appears to be empty. Aborting.')
+                return
         if mode == 'merge':
             if self.lists_differ():
                 if self.expired_intros and self.verbosity > 1:
@@ -48,23 +52,24 @@ class List(object):
     def create_intro_dict(self, json_response):
         """Compile a dictionary of introducers (uri->name,active) from a JSON
         object."""
+        intro_dict = {}
         try:
             new_list = json.loads(json_response.read().decode('utf8'))
         except:
             # TODO specific exception
-            print("ERROR: Couldn't parse new JSON introducer list.",
-                                                        file=sys.stderr)
-        intro_dict = {}
-        for introducer in new_list['introducers']:
-            uri = introducer['uri']
-            if is_valid_introducer(uri):
-                if self.verbosity > 2:
-                    print('DEBUG: Valid introducer address: %s' % uri)
-                intro_dict[uri] = (introducer['name'], introducer['active'])
-            else:
-                if self.verbosity > 0:
-                    print("WARN: '%s' is not a valid Tahoe-LAFS introducer "
-                            "address. Skipping.")
+            print("ERROR: Couldn't parse JSON introducer list.",
+                    file=sys.stderr)
+        else:
+            for introducer in new_list['introducers']:
+                uri = introducer['uri']
+                if is_valid_introducer(uri):
+                    if self.verbosity > 2:
+                        print('DEBUG: Valid introducer address: %s' % uri)
+                    intro_dict[uri] = (introducer['name'], introducer['active'])
+                else:
+                    if self.verbosity > 0:
+                        print("WARN: '%s' is not a valid Tahoe-LAFS introducer "
+                                "address. Skipping.")
         return intro_dict
 
     def read_existing_list(self):

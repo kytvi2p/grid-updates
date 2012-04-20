@@ -1,5 +1,3 @@
-* catch broken JSON list exceptions
-
 * pid/lock file for potentially long repair operations
 * set() for local lists in case of manually added duplicates?
 * always make sure there is at least a NEWS.html stub in web.static?
