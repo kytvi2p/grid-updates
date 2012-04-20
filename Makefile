@@ -9,7 +9,8 @@ APP= grid-updates
 INSTALL= install
 INSTALL_DATA= $(INSTALL) -m 644
 MAN= man/grid-updates.1
-PANDOC= pandoc -s -r rst -w html --email-obfuscation=none
+DOCCOMPILER= pandoc -s -r rst -w html --email-obfuscation=none -o
+#DOCCOMPILER= rst2html -
 TAHOE_DIR= http://127.0.0.1:3456/uri/URI%3ADIR2%3Anocmjemmatpn5yr4cfthvdvlxi%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a
 VERSION= $$(git tag | tail -n 1 | sed s/v//)
 RELEASE_BASENAME= grid-updates-$(VERSION)
@@ -35,9 +36,9 @@ viewman: man
 
 html:
 	@sed -e 's;\(INSTALL\\\?\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' README.txt\
-		| $(PANDOC) -o README.html
+		| $(DOCCOMPILER) README.html
 	@sed -e 's;\(README\\\?\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' INSTALL.txt\
-		| $(PANDOC) -o INSTALL.html
+		| $(DOCCOMPILER) INSTALL.html
 	@pandoc -s -r markdown -t html man/grid-updates.1.md -o MAN.html
 	@echo "Generated HTML documentation from Markdown sources."
 
