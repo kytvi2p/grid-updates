@@ -41,7 +41,7 @@ In order for this script to work, it needs to have read and write permission
 for the Tahoe-LAFS node's directory. This directory is typically located at
 ``%appdata%\.tahoe`` for Windows users and ``~/.tahoe`` for other systems.
 
-If asked to, ``grid-updates``` will update your introducers file and make a
+If asked to, ``grid-updates`` will update your introducers file and make a
 backup of it. When fetching NEWS, the script will write a plain text version to
 ``~/.tahoe/NEWS``.  Additionally, an HTML version and an Atom news feed will be
 saved to your Tahoe node's ``web.static`` directory (typically

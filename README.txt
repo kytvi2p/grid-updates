@@ -28,6 +28,7 @@ Download
 -  `Project Eepsite`_
 -  `Tahoe grid`_  [2]_
 -  Git
+
    -  `Git repository`_ (`Gitweb`_)
    -  `Git mirror 1 <http://darrob.i2p/grid-updates/grid-updates.git>`_
    -  `Git mirror 2 <http://killyourtv.i2p/git/grid-updates.git>`_ (`Gitweb 2`_ )
