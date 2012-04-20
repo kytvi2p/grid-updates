@@ -24,8 +24,8 @@ else:
     from urllib.error import HTTPError
     from urllib.error import URLError
 
-from Modules.Functions import find_datadir
-from Modules.Functions import remove_temporary_dir
+from gridupdates.functions import find_datadir
+from gridupdates.functions import remove_temporary_dir
 
 class MakeNews(object):
     """This class implements the --make-news function of grid-updates."""

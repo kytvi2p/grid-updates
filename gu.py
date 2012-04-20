@@ -16,17 +16,17 @@ else:
     from configparser import ConfigParser as SafeConfigParser
     from urllib.request import ProxyHandler, install_opener, build_opener
 
-from Modules import Introducers
-from Modules import MakeNews
-from Modules import News
-from Modules import PatchWebUI
-from Modules import Update
-from Modules import Repairs
-from Modules.Functions import find_datadir
-from Modules.Functions import find_webstatic_dir
-from Modules.Functions import gen_full_tahoe_uri
-from Modules.Functions import is_root
-from Modules.Functions import proxy_configured
+from gridupdates.introducers import List
+from gridupdates.makenews import MakeNews
+from gridupdates.news import News
+from gridupdates.patchwebui import PatchWebUI
+from gridupdates.update import Update
+from gridupdates import repairs
+from gridupdates.functions import find_datadir
+from gridupdates.functions import find_webstatic_dir
+from gridupdates.functions import gen_full_tahoe_uri
+from gridupdates.functions import is_root
+from gridupdates.functions import proxy_configured
 
 
 __author__ = ['darrob', 'KillYourTV']
@@ -402,7 +402,7 @@ def main():
     # Run actions
     # -----------
     if opts.merge or opts.sync:
-        intlist = Introducers.List(opts.tahoe_node_dir,
+        intlist = List(opts.tahoe_node_dir,
                         uri_dict['list'][1],
                         opts.verbosity)
         if opts.sync:
@@ -410,13 +410,13 @@ def main():
         elif opts.merge:
             intlist.run_action('merge')
     if opts.news:
-        news = News.News(opts.tahoe_node_dir,
+        news = News(opts.tahoe_node_dir,
                     web_static_dir,
                     uri_dict['news'][1],
                     opts.verbosity)
         news.run_action()
     if opts.check_version or opts.download_update:
-        update = Update.Update(__version__,
+        update = Update(__version__,
                                 opts.output_dir,
                                 uri_dict['script'][1],
                                 opts.verbosity)
@@ -425,7 +425,7 @@ def main():
         elif opts.download_update:
             update.run_action('download', opts.update_format)
     if opts.patch_ui or opts.undo_patch_ui:
-        webui = PatchWebUI.PatchWebUI(__patch_version__,
+        webui = PatchWebUI(__patch_version__,
                                         opts.tahoe_node_url,
                                         opts.verbosity)
         if opts.patch_ui:
@@ -433,12 +433,12 @@ def main():
         elif opts.undo_patch_ui:
             webui.run_action('undo', web_static_dir)
     if opts.mknews_md_file:
-        mknews = MakeNews.MakeNews(opts.verbosity)
+        mknews = MakeNews(opts.verbosity)
         mknews.run_action(opts.mknews_md_file, opts.output_dir)
     if opts.repair:
-        Repairs.repair_action(uri_dict, opts.verbosity)
+        repairs.repair_action(uri_dict, opts.verbosity)
     if opts.comrepair:
-        Repairs.comrepair_action(opts.tahoe_node_url,
+        repairs.comrepair_action(opts.tahoe_node_url,
                 uri_dict, opts.verbosity)
 
 

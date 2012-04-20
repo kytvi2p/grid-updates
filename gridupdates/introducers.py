@@ -5,8 +5,8 @@ import json
 import os
 import sys
 
-from Modules.Functions import tahoe_dl_file
-from Modules.Functions import is_valid_introducer
+from gridupdates.functions import tahoe_dl_file
+from gridupdates.functions import is_valid_introducer
 
 class List(object):
     """This class implements the introducer list related functions of

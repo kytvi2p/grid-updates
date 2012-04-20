@@ -7,10 +7,10 @@ import os
 import re
 import sys
 
-from Modules.Functions import find_tahoe_dir
-from Modules.Functions import find_datadir
-from Modules.Functions import is_root
-from Modules.Functions import get_tahoe_version
+from gridupdates.functions import find_tahoe_dir
+from gridupdates.functions import find_datadir
+from gridupdates.functions import is_root
+from gridupdates.functions import get_tahoe_version
 
 def install_news_stub(web_static_dir):
     """Copy a placeholder NEWS.html file to Tahoe's web.static directory to
