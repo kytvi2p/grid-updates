@@ -3,15 +3,11 @@
 		"name": "DeepWiki",
 		"uri": "URI:DIR2-RO:wopsv5eynwlttlhezt4ys3wihi:u77bklu64nj4dyd6ushjjipzmr7givj627go7qzrrik4qhjqsrsq",
 		"mode": "deep-check",
-		"comment": "",
-		"dateAdded": ""
 	},
 	{
 		"name": "DeepWiki Backups",
 		"uri": "URI:DIR2-RO:43q5z344njkka2jyufyc4rsn7m:ydcrpba74wwdtgiie4xocej7bs6k7uzcn3nw4z5glbdsnjyhyl6a",
 		"mode": "deep-check",
-		"comment": "",
-		"dateAdded": ""
 	}
 ]
 }
