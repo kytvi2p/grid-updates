@@ -37,7 +37,8 @@ class News(object):
         will run the necessary methods."""
         if self.verbosity > 2:
             print('DEBUG: Selected action: --download-news')
-        self.download_news()
+        if not self.download_news():
+            return
         if not self.extract_tgz():
             return
         if self.news_differ():
@@ -60,14 +61,15 @@ class News(object):
             response = urlopen(url).read()
         except HTTPError:
             print("ERROR: Couldn't find %s." % url, file=sys.stderr)
-            sys.exit(1)
+            return False
         except URLError as urlexc:
             print("ERROR: %s while looking for %s." % (urlexc, url),
                                                     file=sys.stderr)
-            sys.exit(1)
+            return False
         else:
             with open(self.local_archive,'wb') as output:
                 output.write(response)
+            return True
 
     def extract_tgz(self):
         """Extract NEWS.tgz archive into temporary directory."""
