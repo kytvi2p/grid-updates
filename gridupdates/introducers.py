@@ -8,7 +8,7 @@ import sys
 from gridupdates.functions import tahoe_dl_file
 from gridupdates.functions import is_valid_introducer
 
-class List(object):
+class Introducers(object):
     """This class implements the introducer list related functions of
     grid-updates."""
 
