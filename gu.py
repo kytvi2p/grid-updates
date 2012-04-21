@@ -61,6 +61,7 @@ def get_default_config():
     # 1. Default settings
     default_config = {
             'tahoe_node_dir' : default_tahoe_node_dir,
+            'tahoe_node_url' : 'http://127.0.0.1:3456',
             'list_uri'       : 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua',
             'news_uri'       : 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q',
             'script_uri'     : 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a',
@@ -114,6 +115,7 @@ def parse_config_files(argv):
     # uses defaults (above) if not found in config file
     config = SafeConfigParser({
         'tahoe_node_dir' : default_config['tahoe_node_dir'],
+        'tahoe_node_url' : default_config['tahoe_node_url'],
         'list_uri'       : default_config['list_uri'],
         'list_uri'       : default_config['list_uri'],
         'news_uri'       : default_config['news_uri'],
@@ -140,6 +142,7 @@ def parse_config_files(argv):
         # Set standard fallback values if no config files found
         config.read(available_cfg_files)
         default_config['tahoe_node_dir'] = config.get('OPTIONS', 'tahoe_node_dir')
+        default_config['tahoe_node_url'] = config.get('OPTIONS', 'tahoe_node_url')
         default_config['list_uri']       = config.get('OPTIONS', 'list_uri')
         default_config['news_uri']       = config.get('OPTIONS', 'news_uri')
         default_config['script_uri']     = config.get('OPTIONS', 'script_uri')
@@ -225,6 +228,7 @@ def parse_args(argv):
     other_opts.add_option('-u', '--node-url',
             action = 'store',
             dest = 'tahoe_node_url',
+            default = default_config['tahoe_node_url'],
             help = "Specify the Tahoe gateway node's URL.")
     other_opts.add_option('--list-uri',
             action = 'store',
@@ -365,19 +369,27 @@ def main():
                 file=sys.stderr)
         sys.exit(1)
 
-    # Parse ~/.tahoe/node.url (if not set using -u)
-    if opts.tahoe_node_url:
-        tahoe_node_url = opts.tahoe_node_url
+    # Parse ~/.tahoe/node.url and use its value if it's not overridden by
+    # --node-url
+    #
+    # remove trailing slashes to be able to compare the strings and to avoid
+    # double slashes in later URL's (which would fail).
+    node_url_cli = re.sub(r'/$', '', opts.tahoe_node_url)
+    node_url_file = os.path.join(opts.tahoe_node_dir, 'node.url')
+    try:
+        with open(node_url_file, 'r') as nuf:
+            node_url_parsed = nuf.readlines()[0].strip()
+            # remove trailing slashes to be able to compare the strings and to
+            # avoid double slashes in later URL's (which would fail).
+            node_url_parsed = re.sub(r'/$', '', node_url_parsed)
+    except IOError:
+        print('ERROR: %s not found.' % node_url_file, file=sys.stderr)
+        sys.exit(1)
+    if node_url_cli != node_url_parsed:
+        # Prefer node URL specified on the command line over parsed URL
+        tahoe_node_url = node_url_cli
     else:
-        node_url_file = os.path.join(opts.tahoe_node_dir, 'node.url')
-        try:
-            with open(node_url_file, 'r') as nuf:
-                tahoe_node_url = nuf.readlines()[0].strip()
-        except IOError:
-            print('ERROR: %s not found.' % node_url_file, file=sys.stderr)
-            sys.exit(1)
-    # strip trailing slashes in node url because prevent file downloads
-    tahoe_node_url = re.sub(r'/$', '', tahoe_node_url)
+        tahoe_node_url = node_url_parsed
 
     if proxy_configured():
         print("WARNING: Found (and unset) the 'http_proxy' variable.")
