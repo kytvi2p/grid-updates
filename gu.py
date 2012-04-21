@@ -16,7 +16,7 @@ else:
     from configparser import ConfigParser as SafeConfigParser
     from urllib.request import ProxyHandler, install_opener, build_opener
 
-from gridupdates.introducers import List
+from gridupdates.introducers import Introducers
 from gridupdates.makenews import MakeNews
 from gridupdates.news import News
 from gridupdates.patchwebui import PatchWebUI
@@ -402,7 +402,7 @@ def main():
     # Run actions
     # -----------
     if opts.merge or opts.sync:
-        intlist = List(opts.tahoe_node_dir,
+        intlist = Introducers(opts.tahoe_node_dir,
                         uri_dict['list'][1],
                         opts.verbosity)
         if opts.sync:
