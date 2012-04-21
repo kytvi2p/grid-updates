@@ -38,8 +38,30 @@ __status__ = "Development"
 
 __patch_version__ = '1.8.3-gu5'
 
-# Actions
-# =======
+
+def determine_tahoe_node_url(tahoe_node_dir, node_url_cli):
+    """
+    Parse ~/.tahoe/node.url and use its value unless its overridden by
+    --node-url.
+    """
+    # remove trailing slashes to be able to compare the strings and to avoid
+    # double slashes in later URL's (which would fail).
+    node_url_cli = re.sub(r'/$', '', node_url_cli)
+    node_url_file = os.path.join(tahoe_node_dir, 'node.url')
+    try:
+        with open(node_url_file, 'r') as nuf:
+            node_url_parsed = nuf.readlines()[0].strip()
+            # remove trailing slashes to be able to compare the strings and to
+            # avoid double slashes in later URL's (which would fail).
+            node_url_parsed = re.sub(r'/$', '', node_url_parsed)
+    except IOError:
+        print('ERROR: %s not found.' % node_url_file, file=sys.stderr)
+        sys.exit(1)
+    if node_url_cli != node_url_parsed:
+        # Prefer node URL specified on the command line over parsed URL
+        return node_url_cli
+    else:
+        return node_url_parsed
 
 # Config parsing
 # ==============
@@ -369,27 +391,8 @@ def main():
                 file=sys.stderr)
         sys.exit(1)
 
-    # Parse ~/.tahoe/node.url and use its value if it's not overridden by
-    # --node-url
-    #
-    # remove trailing slashes to be able to compare the strings and to avoid
-    # double slashes in later URL's (which would fail).
-    node_url_cli = re.sub(r'/$', '', opts.tahoe_node_url)
-    node_url_file = os.path.join(opts.tahoe_node_dir, 'node.url')
-    try:
-        with open(node_url_file, 'r') as nuf:
-            node_url_parsed = nuf.readlines()[0].strip()
-            # remove trailing slashes to be able to compare the strings and to
-            # avoid double slashes in later URL's (which would fail).
-            node_url_parsed = re.sub(r'/$', '', node_url_parsed)
-    except IOError:
-        print('ERROR: %s not found.' % node_url_file, file=sys.stderr)
-        sys.exit(1)
-    if node_url_cli != node_url_parsed:
-        # Prefer node URL specified on the command line over parsed URL
-        tahoe_node_url = node_url_cli
-    else:
-        tahoe_node_url = node_url_parsed
+    tahoe_node_url = determine_tahoe_node_url(opts.tahoe_node_dir,
+                                                opts.tahoe_node_url)
 
     if proxy_configured():
         print("WARNING: Found (and unset) the 'http_proxy' variable.")
