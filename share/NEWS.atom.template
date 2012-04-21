@@ -3,8 +3,8 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>grid-updates Feed</title>
 	<subtitle>Notifications about Tahoe-LAFS grid news</subtitle>
-	<link href="/static/NEWS.atom" rel="self" />
-	<link href="/static/NEWS.html" />
+	<link href="TAHOENODEURL/static/NEWS.atom" rel="self" />
+	<link href="TAHOENODEURL/static/NEWS.html" />
 	<id>urn:uuid:a602a98e-3962-11e1-a2fb-001125491f79</id>
 	<updated>REPLACEDATE</updated>
 	<author>
@@ -17,7 +17,7 @@
 
 	<entry>
 		<title>Latest update: REPLACEDATE</title>
-		<link href="/static/NEWS.html" />
+		<link href="TAHOENODEURL/static/NEWS.html" />
 		<updated>REPLACEDATE</updated>
 		<id>REPLACEID</id>
 		<summary>There are news regarding the Tahoe-LAFS grid. Please read.</summary>

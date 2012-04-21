@@ -3,6 +3,7 @@
 from __future__ import print_function
 from shutil import copyfile
 import os
+import re
 import sys
 import tarfile
 import tempfile # use os.tmpfile()?
@@ -19,12 +20,14 @@ else:
 class News(object):
     """This class implements the --download-news function of grid-updates."""
 
-    def __init__(self, tahoe_node_dir, web_static_dir, url, verbosity=0):
+    def __init__(self, tahoe_node_dir, web_static_dir, tahoe_node_url,
+                                                    url, verbosity=0):
         self.verbosity = verbosity
         if self.verbosity > 0:
             print("-- Updating NEWS --")
         self.tahoe_node_dir = tahoe_node_dir
         self.web_static = web_static_dir
+        self.tahoe_node_url = tahoe_node_url
         if not os.path.exists(web_static_dir):
             os.mkdir(web_static_dir)
         self.url = url
@@ -46,6 +49,8 @@ class News(object):
         else:
             if self.verbosity > 0:
                 print('There are no news.')
+        # adjust Atom links to point to the configured node URL
+        self.fix_atom_links()
         # Copy in any case to make easily make sure that all versions
         # (escpecially the HTML version) are always present:
         self.install_files()
@@ -91,6 +96,16 @@ class News(object):
                     return False
             tar.close()
             return True
+
+    def fix_atom_links(self):
+        """This methode replaces the placeholder TAHOENODEURL with the actual
+        node URL parsed by or passed to grid-updates."""
+        atom_file = os.path.join(self.tempdir, 'NEWS.atom')
+        with open(atom_file, 'r+') as atom:
+            content = atom.read()
+            formatted = re.sub(r'TAHOENODEURL', self.tahoe_node_url, content)
+            atom.seek(0)
+            atom.write(formatted)
 
     def news_differ(self):
         """Compare the local and newly downloaded NEWS files to determine of

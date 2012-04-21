@@ -422,6 +422,7 @@ def main():
     if opts.news:
         news = News(opts.tahoe_node_dir,
                     web_static_dir,
+                    tahoe_node_url,
                     uri_dict['news'][1],
                     opts.verbosity)
         news.run_action()
