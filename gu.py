@@ -376,9 +376,8 @@ def main():
         except IOError:
             print('ERROR: %s not found.' % node_url_file, file=sys.stderr)
             sys.exit(1)
-        else:
-            # strip trailing slash
-            tahoe_node_url = re.sub(r'/$', '', tahoe_node_url)
+    # strip trailing slashes in node url because prevent file downloads
+    tahoe_node_url = re.sub(r'/$', '', tahoe_node_url)
 
     if proxy_configured():
         print("WARNING: Found (and unset) the 'http_proxy' variable.")
