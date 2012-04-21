@@ -31,7 +31,7 @@ class List(object):
         if not self.intro_dict:
             if self.verbosity > 2:
                 print('DEBUG: introducer list appears to be empty. Aborting.')
-                return
+            return
         if mode == 'merge':
             if self.lists_differ():
                 if self.expired_intros and self.verbosity > 1:
