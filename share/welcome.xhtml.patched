@@ -33,7 +33,7 @@
 	<div class="grid-updates">
 		Please note: the above are <a class="grid-updates" href="static/NEWS.html">news</a>
 		retrieved by <a class="grid-updates"
-		href="http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Amjozenx3522pxtqyruekcx7mh4%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/"
+		href="/uri/URI%3ADIR2-RO%3Amjozenx3522pxtqyruekcx7mh4%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/"
 		>grid-updates</a>.
 		You need to run it regularly to update these news.
 	</div>
