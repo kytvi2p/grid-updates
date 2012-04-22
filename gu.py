@@ -139,7 +139,6 @@ def parse_config_files(argv):
         'tahoe_node_dir' : default_config['tahoe_node_dir'],
         'tahoe_node_url' : default_config['tahoe_node_url'],
         'list_uri'       : default_config['list_uri'],
-        'list_uri'       : default_config['list_uri'],
         'news_uri'       : default_config['news_uri'],
         'script_uri'     : default_config['script_uri'],
         'comrepair_uri'  : default_config['comrepair_uri'],
