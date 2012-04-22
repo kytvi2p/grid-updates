@@ -159,7 +159,7 @@ def remove_temporary_dir(directory, verbosity=0):
     """Remove a (temprorary) directory."""
     try:
         rmtree(directory)
-    except:
+    except (IOError, os.error):
         print("ERROR: Couldn't remove temporary dir: %s." % directory,
                 file=sys.stderr)
     else:
