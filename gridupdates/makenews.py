@@ -64,16 +64,16 @@ class MakeNews(object):
         the file path."""
         atom_tmplt = os.path.join(self.datadir, 'NEWS.atom.template')
         output_atom = os.path.join(self.tempdir, 'NEWS.atom')
-        with open(atom_tmplt, 'r') as f:
-            formatted = f.read()
+        with open(atom_tmplt, 'r') as atom_template:
+            formatted = atom_template.read()
         # insert date
         now = datetime.now()
         formatted = re.sub(r'REPLACEDATE', now.isoformat(), formatted)
         # insert UUID
         uuid = str(uuid4())
         formatted = re.sub(r'REPLACEID', uuid, formatted)
-        with open(output_atom, 'w') as f:
-            f.write(formatted)
+        with open(output_atom, 'w') as atom_file:
+            atom_file.write(formatted)
         return output_atom
 
     def make_tarball(self, include_list, output_dir):

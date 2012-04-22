@@ -105,9 +105,9 @@ class PatchWebUI(object):
 
     def read_patch_version(self, uifile):
         """Get the patches' versions from web UI files."""
-        with open(uifile, 'r') as f:
+        with open(uifile, 'r') as welcome_file:
             match = re.search(r'grid-updates\ patch\ VERSION=(.*)\ ',
-                    f.readlines()[-1])
+                    welcome_file.readlines()[-1])
             if match:
                 patch_version = match.group(1)
                 if self.verbosity > 2:
