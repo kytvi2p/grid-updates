@@ -145,8 +145,12 @@ def comrepair_action(tahoe_node_url, uri_dict, verbosity=0):
     url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
     subscriptionfile = tahoe_dl_file(url, verbosity).read()
     # shuffle() to even out chances of all shares to get repaired
-    sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
-                                            ['community-shares']))
+    try:
+        sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
+                                                ['community-shares']))
+    except ValueError:
+        print('ERROR: Invalid community repair list.', file=sys.stderr)
+        return
     random.shuffle(sharelist)
     for share in sharelist:
         sharename  = share['name']
