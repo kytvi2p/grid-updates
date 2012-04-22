@@ -45,7 +45,7 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
     try:
         response = urlopen(repair_uri, params)
     except HTTPError as exc:
-        print('ERROR: Could not run %s for %s: %s', (mode, sharename, exc),
+        print('ERROR: Could not run %s for %s: %s' % (mode, sharename, exc),
                                                         file=sys.stderr)
         return
     except URLError as urlexc:
