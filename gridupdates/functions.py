@@ -69,6 +69,7 @@ def is_valid_introducer(uri):
         return False
 
 def proxy_configured():
+    """Determine if the http_proxy environment variable is set."""
     try:
         if os.environ["http_proxy"]:
             return True

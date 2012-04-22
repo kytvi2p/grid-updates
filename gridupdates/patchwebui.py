@@ -1,3 +1,5 @@
+"""This module handles WebUI patching duties."""
+
 from __future__ import print_function
 from distutils.version import LooseVersion
 from shutil import copyfile
