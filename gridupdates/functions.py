@@ -9,11 +9,13 @@ import re
 import sys
 # Maybe this is better than try -> except?
 if sys.version_info[0] == 2:
+    import ConfigParser
     from ConfigParser import SafeConfigParser
     from urllib2 import HTTPError
     from urllib2 import urlopen
     from urllib2 import URLError
 else:
+    import configparser as ConfigParser
     from configparser import ConfigParser as SafeConfigParser
     from urllib.request import urlopen
     from urllib.error import HTTPError
@@ -139,8 +141,7 @@ def find_webstatic_dir(tahoe_node_dir):
                 os.path.join(
                         tahoe_node_dir,
                         tahoe_config.get('node', 'web.static')))
-    # TODO except ConfigParser.NoSectionError: doesn't work
-    except:
+    except ConfigParser.NoSectionError:
         print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
                 file=sys.stderr)
         return False
