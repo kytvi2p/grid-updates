@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
 from shutil import rmtree
 import ctypes # TODO import only needed function?
