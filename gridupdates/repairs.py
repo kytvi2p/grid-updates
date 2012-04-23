@@ -176,7 +176,7 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
             repair_uris[sharename] = repair_uri # add root dir
             while levels > 0: # keep adding items of subdirectories
                 for item in list(repair_uris.keys()):
-                    repair_uris = add_subdir_items(repair_uris, repair_uris[item])
+                    repair_uris = add_subdir_items(repair_uris, item)
                 levels = levels - 1
             for item in list(repair_uris.keys()):
                 print('Will repair %s.' % repair_uris.keys())
@@ -188,13 +188,14 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
     if verbosity > 0:
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
-def add_subdir_items(repair_uris, dir_uri):
-    dir_req = urlopen(dir_uri + '?t=json').read()
+def add_subdir_items(repair_uris, sharename):
+    shareuri = repair_uris[sharename]
+    dir_req = urlopen(shareuri + '?t=json').read()
     if not json.loads(dir_req)[0] == 'dirnode':
-        print('Skipping file')
+        print('Skipping %s' %sharename)
         return repair_uris
     for child in json.loads(dir_req)[1]['children']:
-        childname = dir_uri + '/' + child
+        childname = sharename + '/' + child
         print('Adding %s' % childname)
-        repair_uris[childname] = dir_uri + '/' + child
+        repair_uris[childname] = shareuri + '/' + child
     return repair_uris
