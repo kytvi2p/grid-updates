@@ -1,6 +1,7 @@
 from __future__ import print_function
 import json
 import random
+import re
 import sys
 # Maybe this is better than try -> except?
 if sys.version_info[0] == 2:
@@ -170,8 +171,9 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
             if verbosity > 1:
                 print("  Status: %s" % status)
         if mode.startswith('level-check '):
+            levels = int(re.sub(r'level-check\ (\d+)', r'\1', mode))
+            print('DEBUG: Will check %d levels deep.' % levels)
             mode = 'one-check' # all item will be one-checked
-            levels = 2 # TODO re.match
             repair_uris = {}
             repair_uris[sharename] = repair_uri # add root dir
             added = []
