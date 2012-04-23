@@ -239,8 +239,4 @@ class RepairList(object):
         for item in sorted(list(repair_uris.keys())):
             if self.verbosity > 2:
                 print('Will repair %s.' % sorted(list(repair_uris.keys())))
-            result = repair_share(item, repair_uris[item], mode, self.verbosity)
-            if not result:
-                return
-            status, self.unhealthy = parse_result(result.decode('utf8'), mode,
-                                                    self.unhealthy, self.verbosity)
+            self.one_check(item, repair_uris[item], mode)
