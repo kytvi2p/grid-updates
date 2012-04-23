@@ -71,7 +71,7 @@ please also add the ``--repair`` action to your cron job, or run
 it separately every once in a while. This is necessary to keep the service
 available.
 
-``--community-repair`` is another subscription-based service. It will download
+``--repair-list`` is another subscription-based service. It will download
 download a list of shares and check/repair them. This is supposed to make it
 easier for a community or group of people to support each others Tahoe shares.
 (The default subscription includes shares such as the DeepWiki on the I2P

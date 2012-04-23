@@ -35,7 +35,7 @@ ACTIONS
 -r, \--repair
 :   Maintain or repair the health of the subscription service's URIs.
 
--R, \--community-repair
+-R, \--repair-list
 :   Retrieve a list of shares and maintain/repair them.
 
 \--patch-tahoe
@@ -83,8 +83,8 @@ OPTIONS
 \--script-uri *URI*
 :   Override the default location of script updates.
 
-\--comrepair-uri *URI*
-:   Override the default location of the \--community-repair subscription file.
+\--repairlist-uri *URI*
+:   Override the default location of the \--repair-list subscription file.
 
 -v
 :   Increase verbosity of output.
@@ -162,8 +162,8 @@ INFORMATION FOR SUBSCRIPTION MAINTAINERS
 If you want to offer a *grid-updates* subscription service, you will have to
 provide users with URIs to directories that contain the subscription files. The
 available subscription types are the news feed (called **NEWS.tgz**), the
-introducer list (called **introducers.json.txt**) and the community repair list
-of shares (called **community-repair.json.txt**).
+introducer list (called **introducers.json.txt**) and the repair list (called
+**repair-list.json.txt**).
 
 For the specific requirements of the JSON lists, please see the included
 example files in the share directory.
