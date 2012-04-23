@@ -137,12 +137,12 @@ def repair_action(uri_dict, verbosity=0):
         print("Deep-check of grid-updates shares completed: "
                             "%d %s unhealthy." % (unhealthy, sub))
 
-def repairlist_action(tahoe_node_url, uri_dict, verbosity=0):
+def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
     """The --repair-list command. Repair all shares in the subscription file."""
     if verbosity > 0:
         print("-- Repairing Tahoe shares. --")
     unhealthy = 0
-    url = uri_dict['repairlist'][1] + '/repair-list.json.txt'
+    url = subscription_uri + '/repair-list.json.txt'
     subscriptionfile = tahoe_dl_file(url, verbosity).read()
     # shuffle() to even out chances of all shares to get repaired
     try:
