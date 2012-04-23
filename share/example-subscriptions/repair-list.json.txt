@@ -1,4 +1,4 @@
-{"community-shares": [
+{"repair-list": [
 	{
 		"name": "DeepWiki",
 		"uri": "URI:DIR2-RO:wopsv5eynwlttlhezt4ys3wihi:u77bklu64nj4dyd6ushjjipzmr7givj627go7qzrrik4qhjqsrsq",
