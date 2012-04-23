@@ -190,6 +190,9 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
                     return
                 status, unhealthy = parse_result(result.decode('utf8'), mode,
                                                         unhealthy, verbosity)
+        else:
+            print("ERROR: Unknown repair mode: '%s'." % mode, file=sys.stderr)
+            return
     if verbosity > 0:
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
