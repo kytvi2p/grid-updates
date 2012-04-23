@@ -138,7 +138,17 @@ def repair_action(uri_dict, verbosity=0):
                             "%d %s unhealthy." % (unhealthy, sub))
 
 def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
-    """The --repair-list command. Repair all shares in the subscription file."""
+    """
+    The --repair-list command. Repair all shares in the subscription file.
+
+    This will download a json file and repair the included shares. The json
+    file must include the repair mode to be used.  Known modes are one-check,
+    deep-check and level-check.
+
+    level-check is a custom mode that tries to be a limited version of
+    deep-check. It will repair a directory structure as far as the configured
+    number of levels allows.
+    """
     if verbosity > 0:
         print("-- Repairing Tahoe shares. --")
     unhealthy = 0
@@ -172,7 +182,8 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
                 print("  Status: %s" % status)
         if mode.startswith('level-check '):
             levels = int(re.sub(r'level-check\ (\d+)', r'\1', mode))
-            print('DEBUG: Will check %d levels deep.' % levels)
+            if verbosity > 1:
+                print('INFO: Will check %d levels deep.' % levels)
             mode = 'one-check' # all item will be one-checked
             repair_uris = {}
             repair_uris[sharename] = repair_uri # add root dir
@@ -180,11 +191,12 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
             while levels > 0: # keep adding items of subdirectories
                 for item in list(repair_uris.keys()):
                     if not item in added:
-                        repair_uris = add_subdir_items(repair_uris, item)
+                        repair_uris = add_subdir_items(repair_uris, item, verbosity)
                     added.append(item)
                 levels = levels - 1
-            for item in list(repair_uris.keys()):
-                print('Will repair %s.' % repair_uris.keys())
+            for item in sorted(list(repair_uris.keys())):
+                if verbosity > 2:
+                    print('Will repair %s.' % sorted(list(repair_uris.keys())))
                 result = repair_share(item, repair_uris[item], mode, verbosity)
                 if not result:
                     return
@@ -196,14 +208,20 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
     if verbosity > 0:
         print('Repairs have completed (unhealthy: %d).' % unhealthy)
 
-def add_subdir_items(repair_uris, sharename):
+def add_subdir_items(repair_uris, sharename, verbosity):
+    """
+    This function checks if a given item is a directory and adds its contents
+    to the directory.
+    """
     shareuri = repair_uris[sharename]
     dir_req = urlopen(shareuri + '?t=json').read()
     if not json.loads(dir_req)[0] == 'dirnode':
-        print('Skipping %s' %sharename)
+        if verbosity > 2:
+            print('DEBUG: Skipping %s' %sharename)
         return repair_uris
     for child in json.loads(dir_req)[1]['children']:
         childname = sharename + '/' + child
-        print('Adding %s' % childname)
+        if verbosity > 2:
+            print('DEBUG: Adding %s to repair list' % childname)
         repair_uris[childname] = shareuri + '/' + child
     return repair_uris
