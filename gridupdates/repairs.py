@@ -174,9 +174,12 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
             levels = 2 # TODO re.match
             repair_uris = {}
             repair_uris[sharename] = repair_uri # add root dir
+            added = []
             while levels > 0: # keep adding items of subdirectories
                 for item in list(repair_uris.keys()):
-                    repair_uris = add_subdir_items(repair_uris, item)
+                    if not item in added:
+                        repair_uris = add_subdir_items(repair_uris, item)
+                    added.append(item)
                 levels = levels - 1
             for item in list(repair_uris.keys()):
                 print('Will repair %s.' % repair_uris.keys())
