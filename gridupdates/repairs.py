@@ -142,7 +142,7 @@ def comrepair_action(tahoe_node_url, uri_dict, verbosity=0):
     if verbosity > 0:
         print("-- Repairing Tahoe shares. --")
     unhealthy = 0
-    url = uri_dict['comrepair'][1] + '/community-repair.json.txt'
+    url = uri_dict['comrepair'][1] + '/repair-list.json.txt'
     subscriptionfile = tahoe_dl_file(url, verbosity).read()
     # shuffle() to even out chances of all shares to get repaired
     try:
