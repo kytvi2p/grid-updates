@@ -87,7 +87,7 @@ def get_default_config():
             'list_uri'       : 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua',
             'news_uri'       : 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q',
             'script_uri'     : 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a',
-            'comrepair_uri'  : 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a',
+            'repairlist_uri'  : 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a',
             'output_dir'     : os.path.abspath(os.getcwd())
             }
     return default_config
@@ -141,7 +141,7 @@ def parse_config_files(argv):
         'list_uri'       : default_config['list_uri'],
         'news_uri'       : default_config['news_uri'],
         'script_uri'     : default_config['script_uri'],
-        'comrepair_uri'  : default_config['comrepair_uri'],
+        'repairlist_uri'  : default_config['repairlist_uri'],
         'output_dir'     : default_config['output_dir']
         })
 
@@ -167,7 +167,7 @@ def parse_config_files(argv):
         default_config['list_uri']       = config.get('OPTIONS', 'list_uri')
         default_config['news_uri']       = config.get('OPTIONS', 'news_uri')
         default_config['script_uri']     = config.get('OPTIONS', 'script_uri')
-        default_config['comrepair_uri']  = config.get('OPTIONS', 'comrepair_uri')
+        default_config['repairlist_uri']  = config.get('OPTIONS', 'repairlist_uri')
         default_config['output_dir']     = config.get('OPTIONS', 'output_dir')
     return default_config
 
@@ -205,11 +205,16 @@ def parse_args(argv):
             dest = "repair",
             default = False,
             help = 'Run a deep-check and repair on all grid-updates shares.')
-    action_opts.add_option('-R', '--community-repair',
+    action_opts.add_option('-R', '--repair-list',
             action = 'store_true',
-            dest = "comrepair",
+            dest = "repairlist",
             default = False,
             help = 'Retrieve a list of shares and maintain/repair them.')
+    action_opts.add_option('--community-repair',
+            action = 'store_true',
+            dest = "repairlist",
+            default = False,
+            help = 'This action is deprecated! Please use --repair-list instead.')
     action_opts.add_option('--check-version',
             action = 'store_true',
             dest = "check_version",
@@ -266,12 +271,18 @@ def parse_args(argv):
             dest = 'script_uri',
             default = default_config['script_uri'],
             help = 'Override default location of script releases.')
-    other_opts.add_option('--comrepair-uri',
+    other_opts.add_option('--repairlist-uri',
             action = 'store',
-            dest = 'comrepair_uri',
-            default = default_config['comrepair_uri'],
+            dest = 'repairlist_uri',
+            default = default_config['repairlist_uri'],
             help = ('Override default location of additional repair '
                     'subscription.'))
+    other_opts.add_option('--comrepair-uri',
+            action = 'store',
+            dest = 'repairlist_uri',
+            default = default_config['repairlist_uri'],
+            help = ('This option is deprecated! Please use --repairlist-uri'
+                    'instead.'))
     other_opts.add_option('--format',
             action = 'store',
             dest = 'update_format',
@@ -320,11 +331,10 @@ def parse_args(argv):
                 opts.list_uri,
                 opts.news_uri,
                 opts.script_uri,
-                opts.comrepair_uri,
+                opts.repairlist_uri,
                 opts.output_dir]:
             print('  %s' % opt)
         print("DEBUG: Patch directory is", find_datadir())
-
     return (opts, args)
 
 def main():
@@ -366,7 +376,7 @@ def main():
     and not opts.repair
     and not opts.check_version
     and not opts.download_update
-    and not opts.comrepair
+    and not opts.repairlist
     and not opts.patch_ui
     and not opts.undo_patch_ui
     and not opts.mknews_md_file):
@@ -409,10 +419,10 @@ def main():
                                     gen_full_tahoe_uri(
                                             tahoe_node_url,
                                             opts.script_uri)),
-                'comrepair': (opts.comrepair_uri,
+                'repairlist': (opts.repairlist_uri,
                                     gen_full_tahoe_uri(
                                             tahoe_node_url,
-                                            opts.comrepair_uri))
+                                            opts.repairlist_uri))
                 }
     # Check URI validity
     for uri in list(uri_dict.values()):
@@ -462,8 +472,8 @@ def main():
         mknews.run_action(opts.mknews_md_file, opts.output_dir)
     if opts.repair:
         repairs.repair_action(uri_dict, opts.verbosity)
-    if opts.comrepair:
-        repairs.comrepair_action(tahoe_node_url,
+    if opts.repairlist:
+        repairs.repairlist_action(tahoe_node_url,
                 uri_dict, opts.verbosity)
 
 
