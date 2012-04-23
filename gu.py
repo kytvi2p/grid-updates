@@ -212,7 +212,7 @@ def parse_args(argv):
             help = 'Retrieve a list of shares and maintain/repair them.')
     action_opts.add_option('--community-repair',
             action = 'store_true',
-            dest = "repairlist",
+            dest = "deprecated",
             default = False,
             help = 'This action is deprecated! Please use --repair-list instead.')
     action_opts.add_option('--check-version',
@@ -278,10 +278,10 @@ def parse_args(argv):
             help = ('Override default location of additional repair '
                     'subscription.'))
     other_opts.add_option('--comrepair-uri',
-            action = 'store',
-            dest = 'repairlist_uri',
-            default = default_config['repairlist_uri'],
-            help = ('This option is deprecated! Please use --repairlist-uri'
+            action = 'store_true',
+            dest = 'deprecated',
+            default = False,
+            help = ('This option is deprecated! Please use --repairlist-uri '
                     'instead.'))
     other_opts.add_option('--format',
             action = 'store',
@@ -335,6 +335,13 @@ def parse_args(argv):
                 opts.output_dir]:
             print('  %s' % opt)
         print("DEBUG: Patch directory is", find_datadir())
+
+    # Temporar: abort on deprecated options
+    if opts.deprecated:
+        print('ERROR: you have used a deprecated command. Please see %s --help.' %
+                sys.argv[0], file=sys.stderr)
+        sys.exit(1)
+
     return (opts, args)
 
 def main():
