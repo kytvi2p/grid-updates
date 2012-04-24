@@ -24,16 +24,6 @@ from gridupdates.functions import determine_tahoe_node_url
 from gridupdates.config import parse_args
 
 
-__author__ = ['darrob', 'KillYourTV']
-__license__ = "Public Domain"
-__version__ = "1.0.0git"
-__maintainer__ = ['darrob', 'KillYourTV']
-__email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
-__status__ = "Development"
-
-__patch_version__ = '1.8.3-gu5'
-
-
 def main():
     """Main function: run selected actions."""
 
