@@ -3,7 +3,7 @@
 		"name": "duck",
 		"uri": "pb://vysqjw7x7hfiuozjsggpd5lmyj35pggu@iyawu4w66gd2356vguey2veyn7jbpyzqgpmb74wd2gxzvkuzbxya.b32.i2p/introducer",
 		"contact": "<duck@mail.i2p> (http://duck.i2p)",
-		"active": false,
+		"active": false
 	}
 ]
 }
