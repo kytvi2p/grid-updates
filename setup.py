@@ -16,20 +16,20 @@ extra_args = {}
 SCRIPTS = []
 
 if platform.system() == 'Windows':
-    shutil.copy('scripts/grid-updates', 'scripts/grid-updates.py')
-    script_name = 'scripts/grid-updates.py'
+    shutil.copy('grid-updates', 'grid-updates.py')
+    script_name = 'grid-updates.py'
     try:
         import py2exe
-        extra_args['console'] = ['scripts/grid-updates.py']
+        extra_args['console'] = ['grid-updates.py']
     except ImportError:
         pass
 else:
-    script_name = 'scripts/grid-updates'
+    script_name = 'grid-updates'
 SCRIPTS.append(script_name)
 
 setup(name = 'grid-updates',
         # Get the version number dynamically after importing g-u
-        version = __import__('gridupdates').__version__,
+        version = __import__('gridupdates.grid_updates').__version__,
         py_modules = ['gridupdates'],
         description = 'Tahoe-LAFS helper script',
         long_description = """\

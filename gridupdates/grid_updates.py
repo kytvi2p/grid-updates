@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """grid-updates is a helper script for Tahoe-LAFS nodes."""
 
 from __future__ import print_function
