@@ -24,7 +24,8 @@ uninstall:
 	@echo "$(APP) successfully uninstalled."
 
 clean:
-	@rm -f README.html INSTALL.html MAN.html *.log *.pyc MANIFEST
+	@rm -f README.html INSTALL.html MAN.html MANIFEST
+	@find . \( -name "*\.py[co]" -o -name "*\.log" \) -exec rm -f {} \;
 	@rm -rf dist tahoe-html
 
 man:
@@ -66,7 +67,7 @@ help:
 	@echo "Type 'make release' to create a release tarball."
 
 lint:
-	for f in *.py; \
+	for f in *.py gridupdates/*.py; \
 		do \
 		echo "$$f" ;\
 		#pychecker "$$f" > "$$f".pychecker.log; \

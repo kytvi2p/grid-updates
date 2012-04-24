@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+"""This module handles WebUI patching duties."""
 
 from __future__ import print_function
 from distutils.version import LooseVersion
@@ -7,10 +7,10 @@ import os
 import re
 import sys
 
-from functions import find_tahoe_dir
-from functions import find_datadir
-from functions import is_root
-from functions import get_tahoe_version
+from gridupdates.functions import find_tahoe_dir
+from gridupdates.functions import find_datadir
+from gridupdates.functions import is_root
+from gridupdates.functions import get_tahoe_version
 
 def install_news_stub(web_static_dir):
     """Copy a placeholder NEWS.html file to Tahoe's web.static directory to
@@ -107,9 +107,9 @@ class PatchWebUI(object):
 
     def read_patch_version(self, uifile):
         """Get the patches' versions from web UI files."""
-        with open(uifile, 'r') as f:
+        with open(uifile, 'r') as welcome_file:
             match = re.search(r'grid-updates\ patch\ VERSION=(.*)\ ',
-                    f.readlines()[-1])
+                    welcome_file.readlines()[-1])
             if match:
                 patch_version = match.group(1)
                 if self.verbosity > 2:

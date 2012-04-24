@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
 from shutil import copyfile
 import os
@@ -112,7 +110,7 @@ class News(object):
         there are new news. Return True/False."""
         try:
             locnews = open(self.local_news, 'r')
-        except:
+        except IOError:
             if self.verbosity > 2:
                 print('DEBUG: No NEWS file found in node directory.')
             differ = True
@@ -147,7 +145,7 @@ class News(object):
                         os.path.join(self.tahoe_node_dir,
                                         self.web_static,
                                         newsfile))
-        except:
+        except (IOError, os.error):
             print("ERROR: Couldn't copy one or more NEWS files into the "
                   "node directory.", file=sys.stderr)
         else:

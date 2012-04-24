@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
 import json
 import random
@@ -16,9 +14,9 @@ else:
     from urllib.error import HTTPError
     from urllib.error import URLError
 
-from functions import gen_full_tahoe_uri
-from functions import is_literal_file
-from functions import tahoe_dl_file
+from gridupdates.functions import gen_full_tahoe_uri
+from gridupdates.functions import is_literal_file
+from gridupdates.functions import tahoe_dl_file
 
 def repair_share(sharename, repair_uri, mode, verbosity=0):
     """Run (deep-)checks including repair and add-lease on a Tahoe share;

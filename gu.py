@@ -10,9 +10,11 @@ import re
 import sys
 # Maybe this is better than try -> except?
 if sys.version_info[0] == 2:
+    import ConfigParser as ConfigParser
     from ConfigParser import SafeConfigParser
     from urllib2 import ProxyHandler, install_opener, build_opener
 else:
+    import configparser as ConfigParser
     from configparser import ConfigParser as SafeConfigParser
     from urllib.request import ProxyHandler, install_opener, build_opener
 
@@ -162,13 +164,17 @@ def parse_config_files(argv):
         # Parse config files in standard locations if available
         # Set standard fallback values if no config files found
         config.read(available_cfg_files)
-        default_config['tahoe_node_dir'] = config.get('OPTIONS', 'tahoe_node_dir')
-        default_config['tahoe_node_url'] = config.get('OPTIONS', 'tahoe_node_url')
-        default_config['list_uri']       = config.get('OPTIONS', 'list_uri')
-        default_config['news_uri']       = config.get('OPTIONS', 'news_uri')
-        default_config['script_uri']     = config.get('OPTIONS', 'script_uri')
-        default_config['repairlist_uri']  = config.get('OPTIONS', 'repairlist_uri')
-        default_config['output_dir']     = config.get('OPTIONS', 'output_dir')
+        try:
+            default_config['tahoe_node_dir'] = config.get('OPTIONS', 'tahoe_node_dir')
+            default_config['tahoe_node_url'] = config.get('OPTIONS', 'tahoe_node_url')
+            default_config['list_uri']       = config.get('OPTIONS', 'list_uri')
+            default_config['news_uri']       = config.get('OPTIONS', 'news_uri')
+            default_config['script_uri']     = config.get('OPTIONS', 'script_uri')
+            default_config['repairlist_uri']  = config.get('OPTIONS', 'repairlist_uri')
+            default_config['output_dir']     = config.get('OPTIONS', 'output_dir')
+        except ConfigParser.NoSectionError:
+            print("Invalid configfile detected. Please correct", str(available_cfg_files), "and try again")
+            sys.exit(1)
     return default_config
 
 def parse_args(argv):

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
 from shutil import rmtree
 import ctypes # TODO import only needed function?
@@ -11,11 +9,13 @@ import re
 import sys
 # Maybe this is better than try -> except?
 if sys.version_info[0] == 2:
+    import ConfigParser
     from ConfigParser import SafeConfigParser
     from urllib2 import HTTPError
     from urllib2 import urlopen
     from urllib2 import URLError
 else:
+    import configparser as ConfigParser
     from configparser import ConfigParser as SafeConfigParser
     from urllib.request import urlopen
     from urllib.error import HTTPError
@@ -69,6 +69,7 @@ def is_valid_introducer(uri):
         return False
 
 def proxy_configured():
+    """Determine if the http_proxy environment variable is set."""
     try:
         if os.environ["http_proxy"]:
             return True
@@ -141,8 +142,7 @@ def find_webstatic_dir(tahoe_node_dir):
                 os.path.join(
                         tahoe_node_dir,
                         tahoe_config.get('node', 'web.static')))
-    # TODO except ConfigParser.NoSectionError: doesn't work
-    except:
+    except ConfigParser.NoSectionError:
         print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
                 file=sys.stderr)
         return False
@@ -160,7 +160,7 @@ def remove_temporary_dir(directory, verbosity=0):
     """Remove a (temprorary) directory."""
     try:
         rmtree(directory)
-    except:
+    except (IOError, os.error):
         print("ERROR: Couldn't remove temporary dir: %s." % directory,
                 file=sys.stderr)
     else:
