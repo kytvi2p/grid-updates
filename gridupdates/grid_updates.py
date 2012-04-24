@@ -10,6 +10,7 @@ if sys.version_info[0] == 2:
 else:
     from urllib.request import ProxyHandler, install_opener, build_opener
 
+from gridupdates.version import __version__
 from gridupdates.introducers import Introducers
 from gridupdates.makenews import MakeNews
 from gridupdates.news import News

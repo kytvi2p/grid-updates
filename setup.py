@@ -12,7 +12,7 @@ if sys.hexversion < int(0x020600f0):
 from distutils.core import setup
 import platform
 import shutil
-from gridupdates import __version__
+from gridupdates.version import __version__
 extra_args = {}
 SCRIPTS = []
 
