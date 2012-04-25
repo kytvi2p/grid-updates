@@ -52,22 +52,24 @@ class Introducers(object):
         object."""
         intro_dict = {}
         try:
-            new_list = json.loads(json_response.read().decode('utf8'))
+            new_list = json_response.read().decode('utf8')
         except:
             # TODO specific exception
-            print("ERROR: Couldn't parse JSON introducer list.",
+            print("ERROR: Couldn't read introducer list.",
                     file=sys.stderr)
-        else:
-            for introducer in new_list['introducers']:
-                uri = introducer['uri']
-                if is_valid_introducer(uri):
-                    if self.verbosity > 2:
-                        print('DEBUG: Valid introducer address: %s' % uri)
-                    intro_dict[uri] = (introducer['name'], introducer['active'])
-                else:
-                    if self.verbosity > 0:
-                        print("WARN: '%s' is not a valid Tahoe-LAFS introducer "
-                                "address. Skipping.")
+            return
+        # TODO json verification
+        for uri in json.loads(new_list).keys():
+            name = json.loads(new_list)[uri]['name']
+            active = json.loads(new_list)[uri]['active']
+            if is_valid_introducer(uri):
+                if self.verbosity > 2:
+                    print('DEBUG: Valid introducer address: %s' % uri)
+                intro_dict[uri] = (name, active)
+            else:
+                if self.verbosity > 0:
+                    print("WARN: '%s' is not a valid Tahoe-LAFS introducer "
+                            "address. Skipping.")
         return intro_dict
 
     def read_existing_list(self):
