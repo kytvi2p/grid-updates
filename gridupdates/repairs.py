@@ -141,28 +141,28 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
         print("-- Repairing Tahoe shares. --")
     unhealthy = 0
     url = subscription_uri + '/repair-list.json.txt'
-    subscriptionfile = tahoe_dl_file(url, verbosity).read()
-    # shuffle() to even out chances of all shares to get repaired
+    shares = tahoe_dl_file(url, verbosity).read()
+    # create a list of URI's to be shuffled; also serves as syntax verification
     try:
-        sharelist = (list(json.loads(subscriptionfile.decode('utf8'))
-                                                ['repair-list']))
+        sharelist = list(json.loads(shares).keys())
     except ValueError:
-        print('ERROR: Invalid community repair list.', file=sys.stderr)
+        print('ERROR: Invalid repair list.', file=sys.stderr)
         return
+    # shuffle() to even out chances of all shares to get repaired
     random.shuffle(sharelist)
-    for share in sharelist:
-        sharename  = share['name']
-        repair_uri = gen_full_tahoe_uri(tahoe_node_url, share['uri'])
-        mode       = share['mode']
+    for uri in sharelist:
+        name  = json.loads(shares)[uri]['name']
+        repair_uri = gen_full_tahoe_uri(tahoe_node_url, uri)
+        mode  = json.loads(shares)[uri]['mode']
         if mode == 'deep-check':
-            results = repair_share(sharename, repair_uri, mode, verbosity)
+            results = repair_share(name, repair_uri, mode, verbosity)
             if not results:
                 return
             for result in results:
                 status, unhealthy = parse_result(result.decode('utf8'),
                                                     mode, unhealthy, verbosity)
         if mode == 'one-check':
-            result = repair_share(sharename, repair_uri, mode, verbosity)
+            result = repair_share(name, repair_uri, mode, verbosity)
             if not result:
                 return
             status, unhealthy = parse_result(result.decode('utf8'), mode,
