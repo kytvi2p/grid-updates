@@ -197,8 +197,13 @@ def json_list_is_valid(json_list, verbosity=0):
     except ValueError:
         print("ERROR: Can't parse JSON list.", file=sys.stderr)
         return False
-    else:
-        if verbosity > 2:
-            print('DEBUG: JSON list seems to be valid. Found %d keys.' %
-                    len(keys))
-        return True
+    for uri in list(keys):
+        try:
+            name = json.loads(json_list)[uri]['name']
+        except TypeError:
+            print("ERROR: Can't parse JSON list.", file=sys.stderr)
+            return False
+    if verbosity > 2:
+        print('DEBUG: JSON list seems to be valid. Found %d keys.' %
+                len(keys))
+    return True

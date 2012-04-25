@@ -17,6 +17,7 @@ else:
 from gridupdates.functions import gen_full_tahoe_uri
 from gridupdates.functions import is_literal_file
 from gridupdates.functions import tahoe_dl_file
+from gridupdates.functions import json_list_is_valid
 
 def repair_share(sharename, repair_uri, mode, verbosity=0):
     """Run (deep-)checks including repair and add-lease on a Tahoe share;
@@ -143,10 +144,9 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
     url = subscription_uri + '/repair-list.json.txt'
     shares = tahoe_dl_file(url, verbosity).read()
     # create a list of URI's to be shuffled; also serves as syntax verification
-    try:
+    if json_list_is_valid(shares):
         sharelist = list(json.loads(shares).keys())
-    except ValueError:
-        print('ERROR: Invalid repair list.', file=sys.stderr)
+    else:
         return
     # shuffle() to even out chances of all shares to get repaired
     random.shuffle(sharelist)
