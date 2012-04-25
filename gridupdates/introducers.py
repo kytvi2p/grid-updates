@@ -5,6 +5,7 @@ import sys
 
 from gridupdates.functions import tahoe_dl_file
 from gridupdates.functions import is_valid_introducer
+from gridupdates.functions import json_list_is_valid
 
 class Introducers(object):
     """This class implements the introducer list related functions of
@@ -58,7 +59,8 @@ class Introducers(object):
             print("ERROR: Couldn't read introducer list.",
                     file=sys.stderr)
             return
-        # TODO json verification
+        if not json_list_is_valid(new_list, self.verbosity):
+            return
         for uri in json.loads(new_list).keys():
             name = json.loads(new_list)[uri]['name']
             active = json.loads(new_list)[uri]['active']
