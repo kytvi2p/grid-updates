@@ -32,7 +32,6 @@ def get_default_config():
     # 1. Default settings
     default_config = {
             'tahoe_node_dir' : default_tahoe_node_dir,
-            'tahoe_node_url' : 'http://127.0.0.1:3456',
             'list_uri'       : 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua',
             'news_uri'       : 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q',
             'script_uri'     : 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a',
@@ -86,7 +85,6 @@ def parse_config_files(argv):
     # uses defaults (above) if not found in config file
     config = SafeConfigParser({
         'tahoe_node_dir' : default_config['tahoe_node_dir'],
-        'tahoe_node_url' : default_config['tahoe_node_url'],
         'list_uri'       : default_config['list_uri'],
         'news_uri'       : default_config['news_uri'],
         'script_uri'     : default_config['script_uri'],
@@ -113,7 +111,6 @@ def parse_config_files(argv):
         config.read(available_cfg_files)
         try:
             default_config['tahoe_node_dir'] = config.get('OPTIONS', 'tahoe_node_dir')
-            default_config['tahoe_node_url'] = config.get('OPTIONS', 'tahoe_node_url')
             default_config['list_uri']       = config.get('OPTIONS', 'list_uri')
             default_config['news_uri']       = config.get('OPTIONS', 'news_uri')
             default_config['script_uri']     = config.get('OPTIONS', 'script_uri')
@@ -207,7 +204,6 @@ def parse_args(argv):
     other_opts.add_option('-u', '--node-url',
             action = 'store',
             dest = 'tahoe_node_url',
-            default = default_config['tahoe_node_url'],
             help = "Specify the Tahoe gateway node's URL.")
     other_opts.add_option('--list-uri',
             action = 'store',

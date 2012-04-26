@@ -21,7 +21,7 @@ from gridupdates.functions import find_webstatic_dir
 from gridupdates.functions import gen_full_tahoe_uri
 from gridupdates.functions import is_root
 from gridupdates.functions import proxy_configured
-from gridupdates.functions import determine_tahoe_node_url
+from gridupdates.functions import set_tahoe_node_url
 from gridupdates.config import parse_args
 
 
@@ -88,8 +88,10 @@ def main():
                 file=sys.stderr)
         sys.exit(1)
 
-    tahoe_node_url = determine_tahoe_node_url(opts.tahoe_node_dir,
-                                                opts.tahoe_node_url)
+    tahoe_node_url = set_tahoe_node_url(opts.tahoe_node_url,
+                                        opts.tahoe_node_dir)
+    if opts.verbosity > 2:
+        print('DEBUG: tahoe_node_url is: %s.' % tahoe_node_url)
 
     if proxy_configured():
         print("WARNING: Found (and unset) the 'http_proxy' variable.")

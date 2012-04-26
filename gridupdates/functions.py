@@ -167,14 +167,17 @@ def remove_temporary_dir(directory, verbosity=0):
         if verbosity > 2:
             print('DEBUG: Removed temporary dir: %s.' % directory)
 
-def determine_tahoe_node_url(tahoe_node_dir, node_url_cli):
+def set_tahoe_node_url(cli_node_url, tahoe_node_dir):
     """
     Parse ~/.tahoe/node.url and use its value unless its overridden by
     --node-url.
     """
+    # Prefer node URL specified on the command line over parsed URL
+    if cli_node_url is not None:
+        cli_node_url = re.sub(r'/$', '', cli_node_url)
+        return cli_node_url
     # remove trailing slashes to be able to compare the strings and to avoid
     # double slashes in later URL's (which would fail).
-    node_url_cli = re.sub(r'/$', '', node_url_cli)
     node_url_file = os.path.join(tahoe_node_dir, 'node.url')
     try:
         with open(node_url_file, 'r') as nuf:
@@ -185,11 +188,7 @@ def determine_tahoe_node_url(tahoe_node_dir, node_url_cli):
     except IOError:
         print('ERROR: %s not found.' % node_url_file, file=sys.stderr)
         sys.exit(1)
-    if node_url_cli != node_url_parsed:
-        # Prefer node URL specified on the command line over parsed URL
-        return node_url_cli
-    else:
-        return node_url_parsed
+    return node_url_parsed
 
 def json_list_is_valid(json_list, verbosity=0):
     try:
