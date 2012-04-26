@@ -1,6 +1,6 @@
 % GRID-UPDATES(1) User Commands
 % darrob <darrob@mail.i2p>, KillYourTV <killyourtv@mail.i2p>
-% March 2012
+% April 2012
 
 NAME
 ====
@@ -108,8 +108,6 @@ Accepted options are:
 
 tahoe\_node\_dir = *directory*
 :    Same as \--node-dir above
-tahoe\_node\_url = *URL*
-:    Same as \--node-url above
 list_uri = *URI*
 :    Same as \--list-uri option above
 news_uri = *URI*

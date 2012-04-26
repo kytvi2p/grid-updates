@@ -1,4 +1,4 @@
-.TH GRID-UPDATES 1 "March 2012" "User Commands"
+.TH GRID-UPDATES 1 "April 2012" "User Commands"
 .SH NAME
 .PP
 grid-updates - Helper Script for Tahoe-LAFS Nodes
@@ -8,21 +8,21 @@ grid-updates - Helper Script for Tahoe-LAFS Nodes
 .SH DESCRIPTION
 .PP
 \f[I]grid-updates\f[] is a Python script intended to help keep
-Tahoe-LAFS nodes' configurations up-to-date.
+Tahoe-LAFS nodes\[aq] configurations up-to-date.
 It can retrieve lists of introducers as well as news feeds from the
 Tahoe grid.
-This is useful for any public grid that relies solely on
-volunteers.
+This is useful for any public grid that relies solely on volunteers.
 .SH ACTIONS
 .TP
 .B -s, --sync-introducers
-Synchronize your node's local list of introducers with the master
+Synchronize your node\[aq]s local list of introducers with the master
 list.
 .RS
 .RE
 .TP
 .B -m, --merge-introducers
-Merge your node's local introducers list with the subscription's.
+Merge your node\[aq]s local introducers list with the
+subscription\[aq]s.
 .RS
 .RE
 .TP
@@ -33,7 +33,7 @@ See the \f[B]NEWS\f[] section below.
 .RE
 .TP
 .B -r, --repair
-Maintain or repair the health of the subscription service's URIs.
+Maintain or repair the health of the subscription service\[aq]s URIs.
 .RS
 .RE
 .TP
@@ -43,20 +43,20 @@ Retrieve a list of shares and maintain/repair them.
 .RE
 .TP
 .B --patch-tahoe
-Patch the Tahoe-LAFS web console to display the grid-updates news
-feed in an Iframe.
+Patch the Tahoe-LAFS web console to display the grid-updates news feed
+in an Iframe.
 .RS
 .RE
 .TP
 .B --undo-patch-tahoe
-Remove the grid-updates patch to the Tahoe web console and restore
-its original version.
+Remove the grid-updates patch to the Tahoe web console and restore its
+original version.
 .RS
 .RE
 .TP
 .B --make-news \f[I]file\f[]
-Create a \f[I]grid-updates\f[]-compatible NEWS.tgz file from a
-Markdown source file.
+Create a \f[I]grid-updates\f[]-compatible NEWS.tgz file from a Markdown
+source file.
 .RS
 .RE
 .TP
@@ -66,8 +66,8 @@ Check for a new version of this script on the grid.
 .RE
 .TP
 .B --download-update
-Download a new version of this script from the grid to the
-specified directory (implies \f[B]--check-update\f[]).
+Download a new version of this script from the grid to the specified
+directory (implies \f[C]--check-update\f[]).
 .RS
 .RE
 .SH OPTIONS
@@ -79,7 +79,7 @@ See \f[B]CONFIG FILES\f[] section below.
 .RE
 .TP
 .B -u \f[I]URL\f[], --node-url \f[I]URL\f[]
-Specify the gateway node's URL (default: http://127.0.0.1:3456),
+Specify the gateway node\[aq]s URL (default: http://127.0.0.1:3456),
 .RS
 .RE
 .TP
@@ -90,9 +90,9 @@ Specify the node directory (default: \f[I]~/.tahoe\f[]),
 .TP
 .B --format \f[I]tar|deb|exe|py2exe\f[]
 Specify in which format to download the update.
-Choices are: `tar' (source archive), `deb' (Debian package), `exe'
-(Windows installer [requires Python]), `py2exe' (Windows installers
-[doesn't require Python]).
+Choices are: \[aq]tar\[aq] (source archive), \[aq]deb\[aq] (Debian
+package), \[aq]exe\[aq] (Windows installer [requires Python]),
+\[aq]py2exe\[aq] (Windows installers [doesn\[aq]t require Python]).
 .RS
 .RE
 .TP
@@ -112,8 +112,7 @@ Override the default location of script updates.
 .RE
 .TP
 .B --repairlist-uri \f[I]URI\f[]
-Override the default location of the --repair-list subscription
-file.
+Override the default location of the --repair-list subscription file.
 .RS
 .RE
 .TP
@@ -137,17 +136,12 @@ Print usage information.
 $XDG_CONFIG_HOME/grid-updates/config.ini and
 $XDG_CONFIG_DIRS/grid-updates/config.ini.
 .PP
-All options must be listed below the section \f[B][OPTIONS]\f[].
+All options must be listed below the section \f[C][OPTIONS]\f[].
 .PP
 Accepted options are:
 .TP
 .B tahoe_node_dir = \f[I]directory\f[]
 Same as --node-dir above
-.RS
-.RE
-.TP
-.B tahoe_node_url = \f[I]URL\f[]
-Same as --node-url above
 .RS
 .RE
 .TP
@@ -172,60 +166,57 @@ Same as --comrepair-uri option above
 .RE
 .SH NOTES
 .PP
-\f[I]URIs\f[], in this context, are Tahoe-LAFS directories like,
-for example
-\f[B]URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq\f[].
+\f[I]URIs\f[], in this context, are Tahoe-LAFS directories like, for
+example
+\f[C]URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq\f[].
 .SH NEWS
 .PP
 If you choose to download the news feed, \f[I]grid-updates\f[] will
-place a plain text version of it in your node's directory and print
+place a plain text version of it in your node\[aq]s directory and print
 it to stdout.
 This is intended to be sent by cron mail.
 .PP
-There is also an HTML version of the news feed that you can view in
-a web browser.
+There is also an HTML version of the news feed that you can view in a
+web browser.
 You can access it either directly
-(http://127.0.0.1:3456/static/NEWS.html) or have it be displayed on
-your Tahoe node's web console.
+(http://127.0.0.1:3456/static/NEWS.html) or have it be displayed on your
+Tahoe node\[aq]s web console.
 You can prepare the console by running
-\f[B]grid-updates\ --patch-tahoe\f[] once.
+\f[C]grid-updates\ --patch-tahoe\f[] once.
 .PP
-The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be
-used by regular feed readers to check for \f[I]grid-updates\f[]
-news.
-(Please note, however, that you cannot \[lq]refresh\[rq] the feed
-with regular news readers.
-These files have to always be fetched by \f[I]grid-updates\f[]
-first.)
+The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used
+by regular feed readers to check for \f[I]grid-updates\f[] news.
+(Please note, however, that you cannot "refresh" the feed with regular
+news readers.
+These files have to always be fetched by \f[I]grid-updates\f[] first.)
 .SH SHARE HEALTH
 .PP
-All \f[I]grid-updates\f[] subscriptions reside on the Tahoe grid,
-which means that they need to be maintained (renewal of leases,
-repairs).
+All \f[I]grid-updates\f[] subscriptions reside on the Tahoe grid, which
+means that they need to be maintained (renewal of leases, repairs).
 Please contribute to their maintenance by running
-\f[B]--repair-subscriptions\f[] from time to time.
+\f[C]--repair-subscriptions\f[] from time to time.
 .PP
 If the script repeatedly fails to retrieve files from the grid, the
 share may be damaged and you will have to find a new set of URIs to
 subscribe to.
-One way to possibly get them is to run \f[B]--check-version\f[] to
-see if there is a new version of \f[I]grid-updates\f[] available.
+One way to possibly get them is to run \f[C]--check-version\f[] to see
+if there is a new version of \f[I]grid-updates\f[] available.
 Newer versions might already include new default URIs.
 .SH INFORMATION FOR SUBSCRIPTION MAINTAINERS
 .PP
-If you want to offer a \f[I]grid-updates\f[] subscription service,
-you will have to provide users with URIs to directories that
-contain the subscription files.
+If you want to offer a \f[I]grid-updates\f[] subscription service, you
+will have to provide users with URIs to directories that contain the
+subscription files.
 The available subscription types are the news feed (called
 \f[B]NEWS.tgz\f[]), the introducer list (called
 \f[B]introducers.json.txt\f[]) and the repair list (called
 \f[B]repair-list.json.txt\f[]).
 .PP
-For the specific requirements of the JSON lists, please see the
-included example files in the share directory.
+For the specific requirements of the JSON lists, please see the included
+example files in the share directory.
 .PP
-Please note that \f[I]grid-updates\f[] expects the URIs of
-directories, not of the files themselves.
+Please note that \f[I]grid-updates\f[] expects the URIs of directories,
+not of the files themselves.
 It will append the filenames itself.
 .SH FILES
 .IP \[bu] 2
@@ -233,39 +224,31 @@ It will append the filenames itself.
 .PD 0
 .P
 .PD
-
 .IP \[bu] 2
 \f[I]~/.tahoe/NEWS\f[]
 .PD 0
 .P
 .PD
-
 .IP \[bu] 2
 \f[I]~/.tahoe/public_html/NEWS.html\f[]
 .PD 0
 .P
 .PD
-
 .IP \[bu] 2
 \f[I]~/.tahoe/public_html/NEWS.atom\f[]
 .PD 0
 .P
 .PD
-
 .IP \[bu] 2
-\f[I]$XDG_CONFIG_HOME/grid-updates/config\f[] (most commonly
-~/.config)
+\f[I]$XDG_CONFIG_HOME/grid-updates/config\f[] (most commonly ~/.config)
 .PD 0
 .P
 .PD
-
 .IP \[bu] 2
-\f[I]$XDG_CONFIG_DIRS/grid-updates/config\f[] (most commonly
-/etc/xdg)
+\f[I]$XDG_CONFIG_DIRS/grid-updates/config\f[] (most commonly /etc/xdg)
 .SH BUGS
 .PP
-Please report bugs in #tahoe-lafs on Irc2p or via email (see
-below).
+Please report bugs in #tahoe-lafs on Irc2p or via email (see below).
 .SH SEE ALSO
 .PP
 The \f[I]grid-updates\f[] Git repositories:
@@ -274,21 +257,21 @@ http://darrob.i2p/grid-updates/
 .PD 0
 .P
 .PD
-
 .IP \[bu] 2
 http://git.repo.i2p/r/grid-updates.git
 .PD 0
 .P
 .PD
-
 .IP \[bu] 2
 http://killyourtv.i2p/git/grid-updates.git
 .PP
 The README on the grid:
-.PP
-\f[CR]
-      URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
+.IP
+.nf
+\f[C]
+URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
 \f[]
+.fi
 .PP
 Information about Tahoe-LAFS for I2P and the I2P grid:
 http://killyourtv.i2p
@@ -298,4 +281,3 @@ http://killyourtv.i2p
 This means that you can do whatever you please with it.
 .SH AUTHORS
 darrob <darrob@mail.i2p>, KillYourTV <killyourtv@mail.i2p>.
-
