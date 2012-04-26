@@ -1,5 +1,6 @@
 recursive-include share *.template  *.html  *.patched
-include *.py *.txt CHANGES TODO *.html
+include *.txt CHANGES TODO *.html
+include grid-updates
 graft man
 graft debian
 graft share/example-subscriptions

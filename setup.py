@@ -31,7 +31,7 @@ SCRIPTS.append(script_name)
 setup(name = 'grid-updates',
         # Get the version number dynamically after importing g-u
         version = __version__,
-        py_modules = ['gridupdates'],
+        packages = ['gridupdates'],
         description = 'Tahoe-LAFS helper script',
         long_description = """\
 `grid-updates` is intended to help keep Tahoe-LAFS
