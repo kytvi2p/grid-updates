@@ -157,7 +157,7 @@ def get_tahoe_version(tahoe_node_url):
     return version
 
 def remove_temporary_dir(directory, verbosity=0):
-    """Remove a (temprorary) directory."""
+    """Remove a (temporary) directory."""
     try:
         rmtree(directory)
     except (IOError, os.error):
