@@ -35,6 +35,9 @@ def main():
     # Parse config files and command line arguments
     (opts, args) = parse_args(sys.argv)
 
+    if len(args) > 0:
+        print("WARN: %s doesn't take arguments." % sys.argv[0])
+
     # ACTION PARSING AND EXECUTION
     # ============================
 
