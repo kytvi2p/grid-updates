@@ -15,6 +15,8 @@ else:
     from urllib.error import HTTPError
     from urllib.error import URLError
 
+from gridupdates.functions import remove_temporary_dir
+
 class News(object):
     """This class implements the --download-news function of grid-updates."""
 
@@ -151,3 +153,5 @@ class News(object):
         else:
             if self.verbosity > 2:
                 print('DEBUG: Copied NEWS files into the node directory.')
+        finally:
+            remove_temporary_dir(self.tempdir, self.verbosity)
