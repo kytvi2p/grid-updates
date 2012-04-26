@@ -1,5 +1,6 @@
 recursive-include share *.template  *.html  *.patched
-include *.txt CHANGES TODO *.html
+include CHANGES TODO
+include INSTALL.txt  README.txt README.html INSTALL.html MAN.html
 include grid-updates
 graft man
 graft debian
