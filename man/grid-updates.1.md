@@ -146,7 +146,7 @@ SHARE HEALTH
 
 All *grid-updates* subscriptions reside on the Tahoe grid, which means that
 they need to be maintained (renewal of leases, repairs).  Please contribute to
-their maintenance by running `--repair-subscriptions` from time to time.
+their maintenance by running `--repair` from time to time.
 
 If the script repeatedly fails to retrieve files from the grid, the share may
 be damaged and you will have to find a new set of URIs to subscribe to.  One

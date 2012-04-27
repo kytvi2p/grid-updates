@@ -85,7 +85,7 @@ Example cron job setup
  ::
 
   0  0 *   * * grid-updates --sync-introducers --download-news --check-version
-  30 0 */2 * * grid-updates --repair-subscriptions
+  30 0 */2 * * grid-updates --repair
 
 Authors
 =======
