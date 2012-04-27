@@ -50,6 +50,8 @@ tahoehtml: html
 		sed -e "s|\(href=\"\)\([INSTALL|README|MAN]\)|\1$(TAHOE_DIR)/\2|g" < $$file >  $$file.tmp ;\
 		mv $$file.tmp tahoe-html/`basename $$file.tmp .tmp` ;\
 		done
+	@sed -e 's|http\://127\.0\.0\.1\:3456||g' tahoe-html/README.html > tahoe-html/README.html.tmp
+	@mv tahoe-html/README.html.tmp tahoe-html/README.html
 	@echo "Added links to Tahoe locations."
 
 release: html
