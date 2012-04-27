@@ -275,14 +275,14 @@ def parse_args(argv):
     if opts.verbosity > 2:
         print('DEBUG: The following options have been set:')
         for opt in [
-                opts.tahoe_node_dir,
-                opts.tahoe_node_url,
-                opts.list_uri,
-                opts.news_uri,
-                opts.script_uri,
-                opts.repairlist_uri,
-                opts.output_dir]:
-            print('  %s' % opt)
+                'tahoe_node_dir',
+                'tahoe_node_url',
+                'list_uri',
+                'news_uri',
+                'script_uri',
+                'repairlist_uri',
+                'output_dir']:
+            print('%16s: %s' % (opt, vars(opts)[opt]))
         print("DEBUG: Patch directory is", find_datadir())
 
     # Temporar: abort on deprecated options
