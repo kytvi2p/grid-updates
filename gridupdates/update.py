@@ -35,7 +35,8 @@ class Update(object):
                 download_filename = self.gen_download_filename(requested_dist)
                 if not download_filename:
                     return
-                self.download_update(download_filename)
+                self.download(download_filename, 'update')
+                self.download(download_filename + '.sig', 'signature')
         else:
             if self.verbosity > 0:
                 print('No update available.')
@@ -118,20 +119,20 @@ class Update(object):
             print('This version of grid-updates (%s) is up-to-date.' %
                                                              self.version)
 
-    def download_update(self, download_filename):
-        """Download script tarball."""
+    def download(self, download_filename, type):
+        """Download script tarball and/or signature."""
         download_url = (self.url + '/' + download_filename)
         if self.verbosity > 1:
             print("INFO: Downloading", download_url)
         try:
             remote_file = urlopen(download_url)
         except HTTPError as exc:
-            print('ERROR: Could not download the tarball:', exc,
+            print('ERROR: Could not download', download_filename, ': ', exc,
                     file=sys.stderr)
             sys.exit(1)
         except URLError as urlexc:
-            print("ERROR: %s trying to download tarball from  %s." %
-                            (urlexc, download_url), file=sys.stderr)
+            print("ERROR: %s trying to download %s from  %s." %
+                            (download_filename, urlexc, download_url), file=sys.stderr)
             sys.exit(1)
         local_file = os.path.join(self.output_dir, download_filename)
         try:
@@ -143,5 +144,5 @@ class Update(object):
             sys.exit(1)
         else:
             if self.verbosity > 0:
-                print('Success: downloaded an update to %s.' %
-                        os.path.abspath(local_file))
+                print('Success: Saved %s file to %s.' %
+                        (type, os.path.abspath(local_file)))
