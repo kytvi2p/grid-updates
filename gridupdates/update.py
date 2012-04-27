@@ -47,6 +47,8 @@ class Update(object):
         if req_dist == 'tar':
             basename = ('grid-updates-' + self.latest_version)
             download_filename = (basename + '.tar.gz')
+        elif req_dist == 'zip':
+            download_filename = (basename + '.zip')
         elif req_dist == 'py2exe':
             download_filename = (basename + '.py2exe.exe')
         elif req_dist == 'exe':

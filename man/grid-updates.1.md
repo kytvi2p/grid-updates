@@ -69,10 +69,11 @@ OPTIONS
 -d *directory*, \--node-directory *directory*
 :   Specify the node directory (default: *~/.tahoe*),
 
-\--format *tar|deb|exe|py2exe*
-:   Specify in which format to download the update. Choices are: 'tar' (source
-	archive), 'deb' (Debian package), 'exe' (Windows installer [requires
-	Python]), 'py2exe' (Windows installers [doesn't require Python]).
+\--format *tar|deb|zip|exe|py2exe*
+:   Specify in which format to download the update. Choices are: 'tar' (unix source
+	archive), 'deb' (Debian package), 'zip' (Windows source archive),
+	'exe' (Windows installer [requires Python]),
+	'py2exe' (Windows installers [doesn't require Python]).
 
 \--list-uri *URI*
 :   Override the default location of the introducers list.

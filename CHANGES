@@ -5,7 +5,7 @@
 	* Changed expected filename community-repair.json.txt to
 	  repair-list.json.txt
 	* Improved JSON list format (incompatible to 1.0.0)
-	* --download-update now takes an argument (tar, deb, exe, py2exe)
+	* --download-update now takes an argument (tar, deb, zip, exe, py2exe)
 	* Split gridupdates.py into separate modules
 	* Changed default Tahoe dir for script updates
 	* Various bug fixes
