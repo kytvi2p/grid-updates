@@ -44,8 +44,8 @@ class Update(object):
     def gen_download_filename(self, req_dist):
         """This function accepts a file extension and returns the filename of a
         grid-updates update."""
-        if req_dist == 'tar':
-            basename = ('grid-updates-' + self.latest_version)
+        basename = ('grid-updates-' + self.latest_version)
+        if req_dist == 'tar' :
             download_filename = (basename + '.tar.gz')
         elif req_dist == 'zip':
             download_filename = (basename + '.zip')
