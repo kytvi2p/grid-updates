@@ -34,8 +34,8 @@ def get_default_config():
             'tahoe_node_dir' : default_tahoe_node_dir,
             'list_uri'       : 'URI:DIR2-RO:t4fs6cqxaoav3r767ce5t6j3h4:gvjawwbjljythw4bjhgbco4mqn43ywfshdi2iqdxyhqzovrqazua',
             'news_uri'       : 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q',
-            'script_uri'     : 'URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a',
-            'repairlist_uri'  : 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a',
+            'script_uri'     : 'URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq',
+            'repairlist_uri' : 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a',
             'output_dir'     : os.path.abspath(os.getcwd())
             }
     return default_config
