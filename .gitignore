@@ -1,4 +1,5 @@
 *.pyc
+*.pyo
 dist
 MANIFEST
 build
@@ -9,3 +10,7 @@ tahoe-html
 README.html
 INSTALL.html
 MAN.html
+*.exe
+*.tar.gz
+*.zip
+*.sig
