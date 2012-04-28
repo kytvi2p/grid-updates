@@ -11,7 +11,7 @@ INSTALL_DATA= $(INSTALL) -m 644
 MAN= man/grid-updates.1
 DOCCOMPILER= pandoc -s -r rst -w html --email-obfuscation=none -o
 #DOCCOMPILER= rst2html -
-TAHOE_DIR= /uri/URI%3ADIR2%3Anocmjemmatpn5yr4cfthvdvlxi%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a
+TAHOE_DIR= /uri/URI%3ADIR2-RO%3Ahgh5ylzzj6ey4a654ir2yxxblu%3Ahzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/
 VERSION= $$(git tag | tail -n 1 | sed s/v//)
 RELEASE_BASENAME= grid-updates-$(VERSION)
 
