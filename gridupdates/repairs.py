@@ -142,7 +142,7 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
         print("-- Repairing Tahoe shares. --")
     unhealthy = 0
     url = subscription_uri + '/repair-list.json.txt'
-    shares = tahoe_dl_file(url, verbosity).read()
+    shares = tahoe_dl_file(url, verbosity).read().decode('utf8')
     # create a list of URI's to be shuffled; also serves as syntax verification
     if json_list_is_valid(shares):
         sharelist = list(json.loads(shares).keys())
