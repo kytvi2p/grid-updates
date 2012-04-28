@@ -34,7 +34,7 @@ Download
    -  `Git mirror 2 <http://killyourtv.i2p/git/grid-updates.git>`_ (`Gitweb 2`_ )
 
 .. _Project Eepsite:  http://darrob.i2p/grid-updates/
-.. _Tahoe grid: http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Amjozenx3522pxtqyruekcx7mh4%3Aeaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/
+.. _Tahoe grid: http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Ahgh5ylzzj6ey4a654ir2yxxblu%3Ahzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/
 .. _Git repository:  http://git.repo.i2p/r/grid-updates.git
 .. _Gitweb: http://git.repo.i2p/w/grid-updates.git
 .. _Gitweb 2: http://killyourtv.i2p/gitweb/?p=grid-updates.git
@@ -112,7 +112,7 @@ email.
 
 .. [2]
    The Tahoe URI of the script is
-   ``URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a``
+   ``URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq``
 
 .. [3]
    See also the tahoe-repair-all.sh script at

@@ -196,7 +196,7 @@ The *grid-updates* Git repositories:
 
 The README on the grid:
 
-    URI:DIR2-RO:mjozenx3522pxtqyruekcx7mh4:eaqgy2gfsb73wb4f4z2csbjyoh7imwxn22g4qi332dgcvfyzg73a/README.html
+    URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/README.html
 
 Information about Tahoe-LAFS for I2P and the I2P grid: http://killyourtv.i2p
 
