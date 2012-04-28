@@ -42,6 +42,8 @@ html:
 		| $(DOCCOMPILER) INSTALL.html
 	@sed -e 's|see\ below|see <a href="#header">above</a>|' man/grid-updates.1.md | \
 		pandoc --email-obfuscation=none -s -r markdown -t html -o MAN.html
+	@sed -e '5,$$s|\(http://[:a-zA-Z0-9._/-]\{1,\}\)|<a href="\1">\1</a>|g' < MAN.html > MAN.html.tmp
+	@mv MAN.html.tmp MAN.html
 	@echo "Generated HTML documentation from Markdown sources."
 
 tahoehtml: html
@@ -53,6 +55,8 @@ tahoehtml: html
 		done
 	@sed -e 's|http\://127\.0\.0\.1\:3456||g' tahoe-html/README.html > tahoe-html/README.html.tmp
 	@mv tahoe-html/README.html.tmp tahoe-html/README.html
+	@sed -e 's|\(URI:[A-Za-z0-9.:_/-]\{1,\}\)|<a href="/uri/\1">\1</a>|g' < tahoe-html/MAN.html > tahoe-html/MAN.html.tmp
+	@mv tahoe-html/MAN.html.tmp tahoe-html/MAN.html
 	@echo "Added links to Tahoe locations."
 
 release: html
