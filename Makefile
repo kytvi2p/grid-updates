@@ -40,7 +40,8 @@ html:
 		| $(DOCCOMPILER) README.html
 	@sed -e 's;\(README\\\?\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' INSTALL.txt\
 		| $(DOCCOMPILER) INSTALL.html
-	@pandoc -s -r markdown -t html man/grid-updates.1.md -o MAN.html
+	@sed -e 's|see\ below|see <a href="#header">above</a>|' man/grid-updates.1.md | \
+		pandoc --email-obfuscation=none -s -r markdown -t html -o MAN.html
 	@echo "Generated HTML documentation from Markdown sources."
 
 tahoehtml: html
