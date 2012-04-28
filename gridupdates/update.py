@@ -121,7 +121,7 @@ class Update(object):
             print('This version of grid-updates (%s) is up-to-date.' %
                                                              self.version)
 
-    def download(self, download_filename, type):
+    def download(self, download_filename, filetype):
         """Download script tarball and/or signature."""
         download_url = (self.url + '/' + download_filename)
         if self.verbosity > 1:
@@ -147,4 +147,4 @@ class Update(object):
         else:
             if self.verbosity > 0:
                 print('Success: Saved %s file to %s.' %
-                        (type, os.path.abspath(local_file)))
+                        (filetype, os.path.abspath(local_file)))

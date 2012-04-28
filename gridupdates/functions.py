@@ -191,6 +191,7 @@ def set_tahoe_node_url(cli_node_url, tahoe_node_dir):
     return node_url_parsed
 
 def json_list_is_valid(json_list, verbosity=0):
+    """Investigates a JSON list's validity."""
     try:
         keys = json.loads(json_list).keys()
     except ValueError:
@@ -198,7 +199,7 @@ def json_list_is_valid(json_list, verbosity=0):
         return False
     for uri in list(keys):
         try:
-            name = json.loads(json_list)[uri]['name']
+            json.loads(json_list)[uri]['name']
         except TypeError:
             print("ERROR: Can't parse JSON list.", file=sys.stderr)
             return False
