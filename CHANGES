@@ -7,7 +7,7 @@
 	* Improved JSON list format (incompatible to 1.0.0)
 	* --download-update now takes an argument (tar, deb, zip, exe, py2exe)
 	* Split gridupdates.py into separate modules
-	* Changed default Tahoe dir for script updates
+	* Changed default Tahoe locations of script updates and the introducer list
 	* Various bug fixes
 
 2012-04-20 (version 1.0.0)
