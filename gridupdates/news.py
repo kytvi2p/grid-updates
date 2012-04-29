@@ -16,6 +16,7 @@ else:
     from urllib.error import URLError
 
 from gridupdates.functions import remove_temporary_dir
+from gridupdates.functions import create_web_static_dir
 
 class News(object):
     """This class implements the --download-news function of grid-updates."""
@@ -29,7 +30,7 @@ class News(object):
         self.web_static = web_static_dir
         self.tahoe_node_url = tahoe_node_url
         if not os.path.exists(web_static_dir):
-            os.mkdir(web_static_dir)
+            create_web_static_dir(web_static_dir)
         self.url = url
         self.local_news = os.path.join(self.tahoe_node_dir, 'NEWS')
         self.tempdir = tempfile.mkdtemp()

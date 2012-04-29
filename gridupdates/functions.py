@@ -43,6 +43,21 @@ def gen_full_tahoe_uri(node_url, uri):
     """Generate a complete, accessible URL from a Tahoe URI."""
     return node_url + '/uri/' + uri
 
+def create_web_static_dir(web_static_dir):
+    """
+    This function will create the directory configured with the
+    'web.static' variable in ~/.tahoe/tahoe.cfg.
+
+    This location is used to store our news items for later display in
+    the WebUI.
+    """
+    try:
+        os.mkdir(web_static_dir)
+    except (IOError, os.error) as exc:
+        print("ERROR: %s while creating %s" % (exc, web_static_dir),
+                                                    file=sys.stderr)
+        return False
+
 def tahoe_dl_file(url, verbosity=0):
     """Download a file from the Tahoe grid; returns the raw response."""
     if verbosity > 1:
@@ -142,6 +157,14 @@ def find_webstatic_dir(tahoe_node_dir):
                 os.path.join(
                         tahoe_node_dir,
                         tahoe_config.get('node', 'web.static')))
+        if not os.path.exists(web_static_dir):
+            create_web_static_dir(web_static_dir)
+        else:
+            if not os.path.isdir(web_static_dir):
+                print("ERROR: %s is a file, but it should be a directory." %
+                        web_static_dir, file=sys.stderr)
+                return False
+
     except ConfigParser.NoSectionError:
         print('ERROR: Could not parse tahoe.cfg. Not a valid Tahoe node.',
                 file=sys.stderr)
