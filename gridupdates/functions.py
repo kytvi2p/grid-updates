@@ -164,7 +164,7 @@ def find_web_static_dir(tahoe_node_dir):
             create_web_static_dir(web_static_dir)
         else:
             if not os.path.isdir(web_static_dir):
-                print("ERROR: %s is a file, but it should be a directory." %
+                print("ERROR: %s is a file but it should be a directory." %
                         web_static_dir, file=sys.stderr)
                 return False
 
