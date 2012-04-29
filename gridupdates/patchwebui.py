@@ -8,6 +8,7 @@ import re
 import sys
 
 from gridupdates.functions import find_tahoe_dir
+from gridupdates.functions import find_datadir
 from gridupdates.functions import is_root
 from gridupdates.functions import get_tahoe_version
 from gridupdates.functions import install_news_stub
@@ -19,6 +20,7 @@ class PatchWebUI(object):
         self.verbosity = verbosity
         self.tahoe_node_url = tahoe_node_url
         self.latest_patch_version = latest_patch_version
+        self.datadir = find_datadir()
         if self.verbosity > 0:
             print("-- Patching or checking Tahoe web console --")
         self.webdir = os.path.join(find_tahoe_dir(tahoe_node_url), 'web')
