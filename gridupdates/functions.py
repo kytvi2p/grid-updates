@@ -1,4 +1,5 @@
 from __future__ import print_function
+from shutil import copyfile
 from shutil import rmtree
 import ctypes # TODO import only needed function?
 import imp
@@ -57,6 +58,8 @@ def create_web_static_dir(web_static_dir):
         print("ERROR: %s while creating %s" % (exc, web_static_dir),
                                                     file=sys.stderr)
         return False
+    else:
+        install_news_stub(web_static_dir)
 
 def tahoe_dl_file(url, verbosity=0):
     """Download a file from the Tahoe grid; returns the raw response."""
@@ -230,3 +233,11 @@ def json_list_is_valid(json_list, verbosity=0):
         print('DEBUG: JSON list seems to be valid. Found %d keys.' %
                 len(keys))
     return True
+
+def install_news_stub(web_static_dir):
+    """Copy a placeholder NEWS.html file to Tahoe's web.static directory to
+    avoid 404 Errors (e.g. in the Iframe)."""
+    targetfile = os.path.join(web_static_dir, 'NEWS.html')
+    if not os.access(targetfile, os.F_OK):
+        news_stub_file = os.path.join(find_datadir(), 'news-stub.html')
+        copyfile(news_stub_file, targetfile)

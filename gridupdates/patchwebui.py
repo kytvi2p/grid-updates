@@ -8,18 +8,9 @@ import re
 import sys
 
 from gridupdates.functions import find_tahoe_dir
-from gridupdates.functions import find_datadir
 from gridupdates.functions import is_root
 from gridupdates.functions import get_tahoe_version
-
-def install_news_stub(web_static_dir):
-    """Copy a placeholder NEWS.html file to Tahoe's web.static directory to
-    avoid 404 Errors (e.g. in the Iframe)."""
-    targetfile = os.path.join(web_static_dir, 'NEWS.html')
-    if not os.access(targetfile, os.F_OK):
-        news_stub_file = os.path.join(find_datadir(), 'news-stub.html')
-        copyfile(news_stub_file, targetfile)
-
+from gridupdates.functions import install_news_stub
 
 class PatchWebUI(object):
     """This class implements the patching functions of grid-updates."""
@@ -30,7 +21,6 @@ class PatchWebUI(object):
         self.latest_patch_version = latest_patch_version
         if self.verbosity > 0:
             print("-- Patching or checking Tahoe web console --")
-        self.datadir = find_datadir()
         self.webdir = os.path.join(find_tahoe_dir(tahoe_node_url), 'web')
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
         self.add_patch_filepaths()
