@@ -17,7 +17,7 @@ from gridupdates.news import News
 from gridupdates.patchwebui import PatchWebUI
 from gridupdates.update import Update
 from gridupdates import repairs
-from gridupdates.functions import find_webstatic_dir
+from gridupdates.functions import find_web_static_dir
 from gridupdates.functions import gen_full_tahoe_uri
 from gridupdates.functions import is_root
 from gridupdates.functions import proxy_configured
@@ -83,7 +83,7 @@ def main():
 
     # Check Tahoe node dir validity
     if os.access(opts.tahoe_node_dir, os.W_OK):
-        web_static_dir = find_webstatic_dir(opts.tahoe_node_dir)
+        web_static_dir = find_web_static_dir(opts.tahoe_node_dir)
         if not web_static_dir:
             sys.exit(1)
     else:

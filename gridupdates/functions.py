@@ -147,7 +147,7 @@ def find_tahoe_dir(tahoe_node_url):
     tahoe_dir = os.path.dirname(match.group(1))
     return tahoe_dir
 
-def find_webstatic_dir(tahoe_node_dir):
+def find_web_static_dir(tahoe_node_dir):
     """Get web.static directory from tahoe.cfg."""
     tahoe_cfg_path = os.path.join(tahoe_node_dir, 'tahoe.cfg')
     tahoe_config = SafeConfigParser({'web.static': 'public_html'})
