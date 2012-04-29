@@ -29,7 +29,7 @@ class PatchWebUI(object):
         self.tahoe_node_url = tahoe_node_url
         self.latest_patch_version = latest_patch_version
         if self.verbosity > 0:
-            print("-- Patching Tahoe web console --")
+            print("-- Patching or checking Tahoe web console --")
         self.datadir = find_datadir()
         self.webdir = os.path.join(find_tahoe_dir(tahoe_node_url), 'web')
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
@@ -70,6 +70,23 @@ class PatchWebUI(object):
             if mode == 'undo':
                 for uifile in list(self.filepaths.keys()):
                     self.restore_file(uifile)
+
+    def patch_update_available(self):
+        patch_version = self.read_patch_version(
+                self.filepaths['welcome.xhtml'][1])
+        if not patch_version:
+            if self.verbosity > 1:
+                print('Tahoe web console not patched.')
+                return False
+        if patch_version == self.latest_patch_version:
+            if self.verbosity > 0:
+                print('Patch is up-to-date.')
+            return False
+        else:
+            if self.verbosity > 0:
+                print('A newer patch version is available. '
+                        'Run --patch-tahoe to install it.')
+            return True
 
     def compatible_version(self, tahoe_node_url):
         """Check Tahoe-LAFS's version to be known. We don't want to replace an

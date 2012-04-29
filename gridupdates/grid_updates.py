@@ -152,10 +152,10 @@ def main():
             update.run_action('check')
         elif opts.download_update:
             update.run_action('download', opts.update_format)
+        webui = PatchWebUI(__patch_version__, tahoe_node_url, opts.verbosity)
+        webui.patch_update_available()
     if opts.patch_ui or opts.undo_patch_ui:
-        webui = PatchWebUI(__patch_version__,
-                                        tahoe_node_url,
-                                        opts.verbosity)
+        webui = PatchWebUI(__patch_version__, tahoe_node_url, opts.verbosity)
         if opts.patch_ui:
             webui.run_action('patch', web_static_dir)
         elif opts.undo_patch_ui:
