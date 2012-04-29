@@ -155,8 +155,8 @@ class PatchWebUI(object):
         # TODO exception
         targetfile  = self.filepaths[uifile][1]
         backupfile = targetfile + '.grid-updates.original'
-        if self.verbosity > 1:
-            print('INFO: Restoring %s' % backupfile)
+        if self.verbosity > 0:
+            print('Restoring %s' % backupfile)
         copyfile(backupfile, targetfile)
 
 
@@ -165,6 +165,6 @@ class PatchWebUI(object):
         # TODO exception
         patchedfile = self.filepaths[uifile][0]
         targetfile  = self.filepaths[uifile][1]
-        if self.verbosity > 1:
-            print('INFO: Installing patched version of %s' % targetfile)
+        if self.verbosity > 0:
+            print('Installing patched version of %s' % targetfile)
         copyfile(patchedfile, targetfile)
