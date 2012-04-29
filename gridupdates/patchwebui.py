@@ -110,8 +110,11 @@ class PatchWebUI(object):
         for targetfile in list(self.filepaths.keys()):
             filepath = (os.path.join(self.webdir, targetfile))
             if not os.path.exists(filepath):
-                print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
-                sys.exit(1)
+                # Tahoe 1.9.x moves tahoe.css to a 'static' subdirectory
+                filepath = (os.path.join(self.webdir, 'static', targetfile))
+                if not os.path.exists(filepath):
+                    print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
+                    sys.exit(1)
             self.filepaths[targetfile].append(filepath)
 
     def read_patch_version(self, uifile):
