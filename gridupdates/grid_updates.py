@@ -49,8 +49,13 @@ def main():
     if is_root():
         print("WARN: You're running grid-updates as root. Only certain actions"
                 " will be available.")
+        if not opts.tahoe_node_url:
+            print("WARN: --node-url not specified. Defaulting to http://127.0.0.1:3456")
+            tahoe_node_url = 'http://127.0.0.1:3456'
+        else:
+            tahoe_node_url = opts.tahoe_node_url
         if opts.patch_ui or opts.undo_patch_ui:
-            webui = PatchWebUI(opts.tahoe_node_url, opts.verbosity)
+            webui = PatchWebUI(__patch_version__, tahoe_node_url, opts.verbosity)
             if opts.patch_ui:
                 webui.run_action('patch', 'None')
             elif opts.undo_patch_ui:
