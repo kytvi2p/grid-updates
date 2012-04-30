@@ -24,6 +24,7 @@ class Update(object):
         if self.verbosity > 0:
             print("-- Looking for script updates --")
         self.dir_url = self.url + '/?t=json'
+        self.latest_version = self.get_version_number()
 
     def run_action(self, mode, requested_dist='tar'):
         """Call this method to execute the desired action (--check-version or
@@ -104,7 +105,6 @@ class Update(object):
     def new_version_available(self):
         """Determine if the local version is smaller than the available
         version."""
-        self.latest_version = self.get_version_number()
         if self.version < self.latest_version:
             return True
         else:

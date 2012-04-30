@@ -37,7 +37,7 @@ class PatchWebUI(object):
     def run_action(self, mode, web_static_dir):
         """Call this method to execute the desired action (--patch-tahoe or
         --undo-patch-tahoe). It will run the necessary methods."""
-        if self.compatible_version(self.tahoe_node_url):
+        if self.compatible_version:
             if mode == 'patch':
                 if is_root():
                     print('WARN: Not installing NEWS.html placeholder (running'
@@ -82,7 +82,7 @@ class PatchWebUI(object):
                         'Run --patch-tahoe to install it.')
             return True
 
-    def compatible_version(self, tahoe_node_url):
+    def compatible_version(self):
         """Check Tahoe-LAFS's version to be known. We don't want to replace an
         unexpected and possibly redesigned web UI."""
         if self.tahoe_version >= LooseVersion('1.8.3') and \
@@ -117,7 +117,8 @@ class PatchWebUI(object):
                 # Tahoe 1.9.x moves tahoe.css to a 'static' subdirectory
                 filepath = (os.path.join(self.webdir, 'static', targetfile))
                 if not os.path.exists(filepath):
-                    print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
+                    print('ERROR: Could not find %s.' %
+                                                   filepath, file=sys.stderr)
                     sys.exit(1)
             self.filepaths[targetfile].append(filepath)
 
