@@ -65,12 +65,13 @@ class PatchWebUI(object):
                     self.restore_file(uifile)
 
     def patch_update_available(self):
+        """Function to check if patched WebUI files have available updates."""
         patch_version = self.read_patch_version(
                 self.filepaths['welcome.xhtml'][1])
         if not patch_version:
-            if self.verbosity > 1:
+            if self.verbosity > 0:
                 print('Tahoe web console not patched.')
-                return False
+            return False
         if patch_version == self.latest_patch_version:
             if self.verbosity > 0:
                 print('Patch is up-to-date.')
