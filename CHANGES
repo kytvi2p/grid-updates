@@ -1,3 +1,10 @@
+2012-04-30 (version 1.1.1)
+
+	* Support patching Tahoe-LAFS 1.8.3 to 1.9.3
+	* Bugfixes:
+		- --undo-patch-tahoe and --patch-tahoe can be run as user root
+		- Only inform of updated patches if Tahoe was patched
+
 2012-04-29 (version 1.1.0)
 
 	* Renamed --community-repair to --repair-list
