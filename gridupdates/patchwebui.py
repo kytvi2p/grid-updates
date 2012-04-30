@@ -19,6 +19,7 @@ class PatchWebUI(object):
     def __init__(self, latest_patch_version, tahoe_node_url, verbosity=0):
         self.verbosity = verbosity
         self.tahoe_node_url = tahoe_node_url
+        self.tahoe_version = LooseVersion(get_tahoe_version(tahoe_node_url))
         self.latest_patch_version = latest_patch_version
         self.datadir = find_datadir()
         if self.verbosity > 0:
@@ -83,23 +84,25 @@ class PatchWebUI(object):
     def compatible_version(self, tahoe_node_url):
         """Check Tahoe-LAFS's version to be known. We don't want to replace an
         unexpected and possibly redesigned web UI."""
-        tahoe_version = LooseVersion(get_tahoe_version(tahoe_node_url))
-        if tahoe_version >= LooseVersion('1.8.3') and \
-                tahoe_version < LooseVersion('1.9'):
+        if self.tahoe_version >= LooseVersion('1.8.3') and \
+                self.tahoe_version < LooseVersion('1.9.3'):
             if self.verbosity > 2:
                 print('DEBUG: Found compatible version of Tahoe-LAFS (%s)'
-                        % tahoe_version)
+                        % self.tahoe_version)
             return True
         else:
             if self.verbosity > 2:
                 print('DEBUG: Incompatible version of Tahoe-LAFS (%s).'
-                      ' Cannot patch web UI.' % tahoe_version)
+                      ' Cannot patch web UI.' % self.tahoe_version)
             return False
 
     def add_patch_filepaths(self):
         """Add locations of patched web UI files to the location dict."""
         for patchfile in list(self.filepaths.keys()):
-            filepath = os.path.join(self.datadir, patchfile + '.patched')
+            if self.tahoe_version < LooseVersion('1.9'):
+                filepath = os.path.join(self.datadir, patchfile + '.patched')
+            else:
+                filepath = os.path.join(self.datadir, patchfile + '.patched19')
             if not os.path.exists(filepath):
                 print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
                 sys.exit(1)

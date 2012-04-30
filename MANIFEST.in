@@ -1,4 +1,4 @@
-recursive-include share *.template  *.html  *.patched
+recursive-include share *.template  *.html  *.patched *.patched19
 include CHANGES TODO
 include INSTALL.txt  README.txt README.html INSTALL.html MAN.html
 include grid-updates

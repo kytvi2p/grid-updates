@@ -2,7 +2,6 @@
 * set() for local lists in case of manually added duplicates?
 * always make sure there is at least a NEWS.html stub in web.static?
 * is __patch_version__ a valid variable name?
-* Support web UI patches for multiple versions of Tahoe?
 * don't hardcode default URIs; use a default config file instead?
 
 * create grid-admin script
