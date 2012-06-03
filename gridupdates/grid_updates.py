@@ -46,9 +46,9 @@ def main():
         sys.exit(0)
 
     # Run actions allowed to root, then exit
-    if is_root():
-        print("WARN: You're running grid-updates as root. Only certain actions"
-                " will be available.")
+    if is_root() and not os.access(opts.tahoe_node_dir, os.W_OK):
+        print("WARN: You're running grid-updates as root. Only certain actions "
+                "will be available.")
         if opts.patch_ui or opts.undo_patch_ui:
             if not opts.tahoe_node_url:
                 print("WARN: --node-url not specified. Defaulting to http://127.0.0.1:3456")
@@ -61,7 +61,8 @@ def main():
             elif opts.undo_patch_ui:
                 webui.run_action('undo', 'None')
         else:
-            print("ERROR: Illegal action for root account.", file=sys.stderr)
+            print("ERROR: Only --patch-tahoe & --undo-patch-tahoe are legal actions for the root account.",
+                                                                                              file=sys.stderr)
             sys.exit(1)
         sys.exit(0)
 
