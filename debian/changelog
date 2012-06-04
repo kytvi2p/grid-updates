@@ -1,3 +1,11 @@
+grid-updates (1.1.2-1) stable; urgency=low
+
+  * New upstream release
+  * Bumped standards version (no source changes needed)
+  * Temporarily change project site to my eepsite
+
+ -- KillYourTV <killyourtv@i2pmail.org>  Mon, 04 Jun 2012 09:29:57 +0000
+
 grid-updates (1.1.1-0) stable; urgency=low
 
   * New upstream release

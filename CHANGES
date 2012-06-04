@@ -1,3 +1,7 @@
+2012-06-04 (version 1.1.2)
+	* Support running grid-updates as user root if it can be determined user root
+	  is running an instance of Tahoe.
+
 2012-04-30 (version 1.1.1)
 
 	* Support patching Tahoe-LAFS 1.8.3 to 1.9.3
