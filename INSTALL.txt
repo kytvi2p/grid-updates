@@ -24,10 +24,13 @@ documentation.
 
 Windows users have the following available options:
 
--  Binary installer for use on systems without Python
--  Installer for systems with Python
--  Installation from the source archive (``python setup.py install`` as
-   above)
+-  Binary installer for use on systems without Python (``grid-updates-$ver.py2exe.exe``)
+-  Installer for systems with Python (``grid-updates-$ver.win32.exe``)
+-  Installation from the source archive (``python setup.py install`` as above)
+
+In short: if you're running Windows and don't know which file to get, download
+the py2exe version.
+
 
 Consider running ``grid-updates --patch-tahoe`` after installation.  This will
 apply a small patch to Tahoe-LAFS's web console to allow displaying news from
