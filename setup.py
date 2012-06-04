@@ -55,7 +55,7 @@ operators about their wrongly configured nodes, necessary
 updates, recommended configuration changes and such.""",
         author = 'darrob, KillYourTV',
         author_email = 'darrob@mail.i2p, killyourtv@mail.i2p',
-        url = 'http://darrob.i2p/grid-updates',
+        url = 'http://killyourtv.i2p/grid-updates',
         license = 'Public Domain',
         data_files = [
            ('share/grid-updates', ['share/NEWS.atom.template',
