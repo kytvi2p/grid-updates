@@ -1,3 +1,8 @@
+xxxx-xx-xx (version 1.?.?)
+	* Add arch as an option for --format
+	* Bugfixes:
+		- make-news: links from news will now open outside of the IFRAME.
+
 2012-06-04 (version 1.1.2)
 	* Support running grid-updates as user root if it can be determined user root
 	  is running an instance of Tahoe.
