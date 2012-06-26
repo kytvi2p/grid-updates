@@ -138,7 +138,7 @@ def find_tahoe_dir(tahoe_node_url):
     """Determine the location of the tahoe installation directory and included
     'web' directory by parsing the tahoe web console."""
     webconsole = urlopen(tahoe_node_url)
-    match = re.search(r'.*\ \'(.*__init__.pyc)', webconsole.read())
+    match = re.search(r'.*\ \'(.*__init__.py)', webconsole.read())
     tahoe_dir = os.path.dirname(match.group(1))
     return tahoe_dir
 
