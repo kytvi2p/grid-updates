@@ -24,7 +24,11 @@ class PatchWebUI(object):
         self.datadir = find_datadir()
         if self.verbosity > 0:
             print("-- Patching or checking Tahoe web console --")
-        self.webdir = os.path.join(find_tahoe_dir(tahoe_node_url), 'web')
+        tahoe_dir = find_tahoe_dir(tahoe_node_url)
+        if tahoe_dir:
+            self.webdir = os.path.join(tahoe_dir, 'web')
+        else:
+            sys.exit(1)
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
         self.add_patch_filepaths()
         self.add_target_filepaths()

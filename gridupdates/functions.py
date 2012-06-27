@@ -139,8 +139,12 @@ def find_tahoe_dir(tahoe_node_url):
     'web' directory by parsing the tahoe web console."""
     webconsole = urlopen(tahoe_node_url)
     match = re.search(r'.*\ \'(.*__init__.py)', webconsole.read())
-    tahoe_dir = os.path.dirname(match.group(1))
-    return tahoe_dir
+    if match:
+        tahoe_dir = os.path.dirname(match.group(1))
+        return tahoe_dir
+    else:
+        print('ERROR: Cannot find node directory.', file=sys.stderr)
+        return False
 
 def find_web_static_dir(tahoe_node_dir):
     """Get web.static directory from tahoe.cfg."""
