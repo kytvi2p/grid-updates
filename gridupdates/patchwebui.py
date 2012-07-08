@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 from distutils.version import LooseVersion
-from shutil import copyfile
+from shutil import copy2
 import os
 import re
 import sys
@@ -148,7 +148,7 @@ class PatchWebUI(object):
         if not os.path.exists(backupfile):
             if self.verbosity > 2:
                 print('DEBUG: Backing up %s' % targetfile)
-            copyfile(targetfile, backupfile)
+            copy2(targetfile, backupfile)
         else:
             if self.verbosity > 2:
                 print('DEBUG: Backup of %s already exists.' % targetfile)
@@ -161,7 +161,8 @@ class PatchWebUI(object):
         backupfile = targetfile + '.grid-updates.original'
         if self.verbosity > 0:
             print('Restoring %s' % backupfile)
-        copyfile(backupfile, targetfile)
+        copy2(backupfile, targetfile)
+        os.remove(backupfile)
 
 
     def install_file(self, uifile):
@@ -171,4 +172,4 @@ class PatchWebUI(object):
         targetfile  = self.filepaths[uifile][1]
         if self.verbosity > 0:
             print('Installing patched version of %s' % targetfile)
-        copyfile(patchedfile, targetfile)
+        copy2(patchedfile, targetfile)
