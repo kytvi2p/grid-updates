@@ -45,7 +45,7 @@ class PatchWebUI(object):
             if mode == 'patch':
                 if is_root():
                     print('WARN: Not installing NEWS.html placeholder (running'
-                        ' as root.')
+                        ' as root).')
                 else:
                     install_news_stub(web_static_dir)
                 for uifile in list(self.filepaths.keys()):
