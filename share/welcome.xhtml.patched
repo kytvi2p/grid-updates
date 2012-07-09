@@ -28,15 +28,15 @@
 </div>
 
 <div class="section" id="grid-updates">
-	<h2>Grid News</h2>
-	<iframe id="grid-updates" scrolling="auto" name="grid-updates-news" src="static/NEWS.html" />
-	<div class="grid-updates">
-		Please note: the above are <a class="grid-updates" href="static/NEWS.html">news</a>
-		retrieved by <a class="grid-updates"
-		href="/uri/URI%3ADIR2-RO%3Ahgh5ylzzj6ey4a654ir2yxxblu%3Ahzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/"
-		>grid-updates</a>.
-		You need to run it regularly to update these news.
-	</div>
+        <h2>Grid News</h2>
+        <iframe id="grid-updates" scrolling="auto" name="grid-updates-news" src="static/NEWS.html" />
+        <div class="grid-updates">
+                Please note: the above <a class="grid-updates" href="static/NEWS.html">news items</a> are
+                retrieved by <a class="grid-updates"
+                href="/uri/URI%3ADIR2-RO%3Ahgh5ylzzj6ey4a654ir2yxxblu%3Ahzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/"
+                >grid-updates</a>.
+                It needs to be run regularly in order to receive news updates.
+        </div>
 </div>
 
 <div class="section" id="controls">
@@ -123,4 +123,4 @@
 </div>
 
 </body></html>
-<!-- grid-updates patch VERSION=1.8.3-gu6 -->
+<!-- grid-updates patch VERSION=gu7 -->

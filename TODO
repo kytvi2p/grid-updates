@@ -3,7 +3,6 @@
 * always make sure there is at least a NEWS.html stub in web.static?
 * is __patch_version__ a valid variable name?
 * don't hardcode default URIs; use a default config file instead?
-* patch version numbers don't really need to contain tahoe versions
 * backups of WUI files (created by --patch-tahoe) create regular files even if source is originally a symlink
 
 * create grid-admin script

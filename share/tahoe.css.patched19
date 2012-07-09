@@ -191,4 +191,4 @@ table.status-download-events td {
   border: 1px solid #a00;
   padding: 2px
 }
-/* grid-updates patch VERSION=1.8.3-gu6 */
+/* grid-updates patch VERSION=gu7 */
