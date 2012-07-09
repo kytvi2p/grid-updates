@@ -65,8 +65,8 @@ class PatchWebUI(object):
                             if not self.install_file(uifile):
                                 sys.exit(1)
                         else:
-                            if self.verbosity > 2:
-                                print('DEBUG: Patch is up-to-date.')
+                            if self.verbosity > 0:
+                                print('Patch is up-to-date.')
                     else:
                         # Only try to install the patched uifile if the backup
                         # succeeded.
