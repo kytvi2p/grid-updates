@@ -57,16 +57,32 @@ class PatchWebUI(object):
                             if self.verbosity > 1:
                                 print('INFO: A newer patch is available. '
                                                             'Installing.')
-                            self.install_file(uifile)
+                            # Try to run function and abort if it fails. This
+                            # will prevent g-u from trying the remaining files
+                            # in the for loop.
+                            # I'm not sure if this is the best way or a good
+                            # idea at all.
+                            if not self.install_file(uifile):
+                                sys.exit(1)
                         else:
                             if self.verbosity > 2:
                                 print('DEBUG: Patch is up-to-date.')
                     else:
-                        self.backup_file(uifile)
-                        self.install_file(uifile)
+                        # Only try to install the patched uifile if the backup
+                        # succeeded.
+                        if self.backup_file(uifile):
+                            self.install_file(uifile)
+                        else:
+                            sys.exit(1)
             if mode == 'undo':
                 for uifile in list(self.filepaths.keys()):
-                    self.restore_file(uifile)
+                    # Try to run function and abort if it fails. This
+                    # will prevent g-u from trying the remaining files
+                    # in the for loop.
+                    # I'm not sure if this is the best way or a good
+                    # idea at all.
+                    if not self.restore_file(uifile):
+                        sys.exit(1)
 
     def patch_update_available(self):
         """Function to check if patched WebUI files have available updates."""
@@ -142,16 +158,23 @@ class PatchWebUI(object):
 
     def backup_file(self, uifile):
         """Make a backup copy of file if it doesn't already exist."""
-        # TODO exception
         targetfile = self.filepaths[uifile][1]
         backupfile = targetfile + '.grid-updates.original'
         if not os.path.exists(backupfile):
             if self.verbosity > 2:
                 print('DEBUG: Backing up %s' % targetfile)
-            copy2(targetfile, backupfile)
+            try:
+                copy2(targetfile, backupfile)
+            except IOError as exc:
+                print('ERROR: Cannot backup original WUI:', exc, file=sys.stderr)
+            else:
+                if self.verbosity > 2:
+                    print('DEBUG: Backup successful.')
+                return True
         else:
             if self.verbosity > 2:
                 print('DEBUG: Backup of %s already exists.' % targetfile)
+            return True
 
 
     def restore_file(self, uifile):
@@ -161,8 +184,15 @@ class PatchWebUI(object):
         backupfile = targetfile + '.grid-updates.original'
         if self.verbosity > 0:
             print('Restoring %s' % backupfile)
-        copy2(backupfile, targetfile)
-        os.remove(backupfile)
+        try:
+            copy2(backupfile, targetfile)
+        except IOError as exc:
+            print('ERROR: Cannot restore original WUI:', exc, file=sys.stderr)
+        else:
+            if self.verbosity > 2:
+                print('DEBUG: File sucessfully restored.')
+            os.remove(backupfile) # does this require a separate permission check?
+            return True
 
 
     def install_file(self, uifile):
@@ -172,4 +202,9 @@ class PatchWebUI(object):
         targetfile  = self.filepaths[uifile][1]
         if self.verbosity > 0:
             print('Installing patched version of %s' % targetfile)
-        copy2(patchedfile, targetfile)
+        try:
+            copy2(patchedfile, targetfile)
+        except IOError as exc:
+            print('ERROR: Cannot install patched WUI files:', exc, file=sys.stderr)
+        else:
+            return True
