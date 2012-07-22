@@ -186,7 +186,7 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
                 print('INFO: Will check %d levels deep.' % levels)
             mode = 'one-check' # all item will be one-checked
             repair_uris = {}
-            repair_uris[sharename] = repair_uri # add root dir
+            repair_uris[name] = repair_uri # add root dir
             added = []
             while levels > 0: # keep adding items of subdirectories
                 for item in list(repair_uris.keys()):
