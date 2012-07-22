@@ -177,7 +177,7 @@ class RepairList(object):
                 print("ERROR: Unknown repair mode: '%s'." % mode, file=sys.stderr)
                 return
         if self.verbosity > 0:
-            print('Repairs have completed (self.unhealthy: %d).' % self.unhealthy)
+            print('Repairs have completed (unhealthy: %d).' % self.unhealthy)
 
     def dl_sharelist(self):
         url = self.subscription_uri + '/repair-list.json.txt'
