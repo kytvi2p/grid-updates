@@ -172,8 +172,10 @@ def main():
     if opts.repair:
         repairs.repair_action(uri_dict, opts.verbosity)
     if opts.repairlist:
-        repairs.repairlist_action(tahoe_node_url,
-                uri_dict['repairlist'][1], opts.verbosity)
+        repairlist = repairs.RepairList(tahoe_node_url,
+                                        uri_dict['repairlist'][1],
+                                        opts.verbosity)
+        repairlist.run_action()
 
 
 if __name__ == "__main__":
