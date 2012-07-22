@@ -137,7 +137,7 @@ def repair_action(uri_dict, verbosity=0):
         print("Deep-check of grid-updates shares completed: "
                             "%d %s unhealthy." % (unhealthy, sub))
 
-def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
+class RepairList(object):
     """
     The --repair-list command. Repair all shares in the subscription file.
 
@@ -149,79 +149,99 @@ def repairlist_action(tahoe_node_url, subscription_uri, verbosity=0):
     deep-check. It will repair a directory structure as far as the configured
     number of levels allows.
     """
-    if verbosity > 0:
-        print("-- Repairing Tahoe shares. --")
-    unhealthy = 0
-    url = subscription_uri + '/repair-list.json.txt'
-    shares = tahoe_dl_file(url, verbosity).read().decode('utf8')
-    # create a list of URI's to be shuffled; also serves as syntax verification
-    if json_list_is_valid(shares):
-        sharelist = list(json.loads(shares).keys())
-    else:
-        return
-    # shuffle() to even out chances of all shares to get repaired
-    random.shuffle(sharelist)
-    for uri in sharelist:
-        name  = json.loads(shares)[uri]['name']
-        repair_uri = gen_full_tahoe_uri(tahoe_node_url, uri)
-        mode  = json.loads(shares)[uri]['mode']
-        if mode == 'deep-check':
-            results = repair_share(name, repair_uri, mode, verbosity)
-            if not results:
+
+    def __init__(self, tahoe_node_url, subscription_uri, verbosity=0):
+        self.verbosity = verbosity
+        self.tahoe_node_url = tahoe_node_url
+        self.subscription_uri = subscription_uri
+        if verbosity > 0:
+            print("-- Repairing Tahoe shares. --")
+        self.unhealthy = 0
+
+    def run_action(self):
+        shares = self.dl_sharelist()
+        for uri in json.loads(shares).keys():
+            sharename  = json.loads(shares)[uri]['name']
+            repair_uri = gen_full_tahoe_uri(self.tahoe_node_url, uri)
+            mode  = json.loads(shares)[uri]['mode']
+            if mode == 'deep-check':
+                self.deep_check(sharename, repair_uri, mode)
+            if mode == 'one-check':
+                self.one_check(sharename, repair_uri, mode)
+            if mode.startswith('level-check '):
+                self.level_check(sharename, repair_uri, mode)
+            else:
+                print("ERROR: Unknown repair mode: '%s'." % mode, file=sys.stderr)
                 return
-            for result in results:
-                status, unhealthy = parse_result(result.decode('utf8'),
-                                                    mode, unhealthy, verbosity)
-        if mode == 'one-check':
-            result = repair_share(name, repair_uri, mode, verbosity)
+        if self.verbosity > 0:
+            print('Repairs have completed (self.unhealthy: %d).' % self.unhealthy)
+
+    def dl_sharelist(self):
+        url = self.subscription_uri + '/repair-list.json.txt'
+        shares = tahoe_dl_file(url, self.verbosity).read().decode('utf8')
+        # create a list of URI's to be shuffled; also serves as syntax verification
+        if json_list_is_valid(shares):
+            #sharelist = list(json.loads(shares).keys())
+            # shuffle() to even out chances of all shares to get repaired
+            #random.shuffle(sharelist)
+            return shares
+        else:
+            return
+
+    def add_subdir_items(self, repair_uris, sharename):
+        """
+        This function checks if a given item is a directory and adds its contents
+        to the directory.
+        """
+        shareuri = repair_uris[sharename]
+        dir_req = urlopen(shareuri + '?t=json').read()
+        if not json.loads(dir_req)[0] == 'dirnode':
+            if self.verbosity > 2:
+                print('DEBUG: Skipping %s' % sharename)
+            return repair_uris
+        for child in json.loads(dir_req)[1]['children']:
+            childname = sharename + '/' + child
+            if self.verbosity > 2:
+                print('DEBUG: Adding %s to repair list' % childname)
+            repair_uris[childname] = shareuri + '/' + child
+        return repair_uris
+
+    def one_check(self, sharename, repair_uri, mode):
+        result = repair_share(sharename, repair_uri, mode, self.verbosity)
+        if not result:
+            return
+        status, self.unhealthy = parse_result(result.decode('utf8'), mode,
+                                                    self.unhealthy, self.verbosity)
+        if self.verbosity > 1:
+            print("  Status: %s" % status)
+
+    def deep_check(self, sharename, repair_uri, mode):
+        results = repair_share(sharename, repair_uri, mode, self.verbosity)
+        if not results:
+            return
+        for result in results:
+            status, self.unhealthy = parse_result(result.decode('utf8'),
+                                                mode, self.unhealthy, self.verbosity)
+
+    def level_check(self, sharename, repair_uri, mode):
+        levels = int(re.sub(r'level-check\ (\d+)', r'\1', mode))
+        if self.verbosity > 1:
+            print('INFO: Will check %d levels deep.' % levels)
+        mode = 'one-check' # all item will be one-checked
+        repair_uris = {}
+        repair_uris[sharename] = repair_uri # add root dir
+        added = []
+        while levels > 0: # keep adding items of subdirectories
+            for item in list(repair_uris.keys()):
+                if not item in added:
+                    repair_uris = self.add_subdir_items(repair_uris, item)
+                added.append(item)
+            levels = levels - 1
+        for item in sorted(list(repair_uris.keys())):
+            if self.verbosity > 2:
+                print('Will repair %s.' % sorted(list(repair_uris.keys())))
+            result = repair_share(item, repair_uris[item], mode, self.verbosity)
             if not result:
                 return
-            status, unhealthy = parse_result(result.decode('utf8'), mode,
-                                                        unhealthy, verbosity)
-            if verbosity > 1:
-                print("  Status: %s" % status)
-        if mode.startswith('level-check '):
-            levels = int(re.sub(r'level-check\ (\d+)', r'\1', mode))
-            if verbosity > 1:
-                print('INFO: Will check %d levels deep.' % levels)
-            mode = 'one-check' # all item will be one-checked
-            repair_uris = {}
-            repair_uris[name] = repair_uri # add root dir
-            added = []
-            while levels > 0: # keep adding items of subdirectories
-                for item in list(repair_uris.keys()):
-                    if not item in added:
-                        repair_uris = add_subdir_items(repair_uris, item, verbosity)
-                    added.append(item)
-                levels = levels - 1
-            for item in sorted(list(repair_uris.keys())):
-                if verbosity > 2:
-                    print('Will repair %s.' % sorted(list(repair_uris.keys())))
-                result = repair_share(item, repair_uris[item], mode, verbosity)
-                if not result:
-                    return
-                status, unhealthy = parse_result(result.decode('utf8'), mode,
-                                                        unhealthy, verbosity)
-        else:
-            print("ERROR: Unknown repair mode: '%s'." % mode, file=sys.stderr)
-            return
-    if verbosity > 0:
-        print('Repairs have completed (unhealthy: %d).' % unhealthy)
-
-def add_subdir_items(repair_uris, sharename, verbosity):
-    """
-    This function checks if a given item is a directory and adds its contents
-    to the directory.
-    """
-    shareuri = repair_uris[sharename]
-    dir_req = urlopen(shareuri + '?t=json').read()
-    if not json.loads(dir_req)[0] == 'dirnode':
-        if verbosity > 2:
-            print('DEBUG: Skipping %s' %sharename)
-        return repair_uris
-    for child in json.loads(dir_req)[1]['children']:
-        childname = sharename + '/' + child
-        if verbosity > 2:
-            print('DEBUG: Adding %s to repair list' % childname)
-        repair_uris[childname] = shareuri + '/' + child
-    return repair_uris
+            status, self.unhealthy = parse_result(result.decode('utf8'), mode,
+                                                    self.unhealthy, self.verbosity)
