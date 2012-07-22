@@ -160,7 +160,10 @@ class RepairList(object):
 
     def run_action(self):
         shares = self.dl_sharelist()
-        for uri in json.loads(shares).keys():
+        sharelist = json.loads(shares).keys()
+        # shuffle() to even out chances of all shares to get repaired
+        random.shuffle(sharelist)
+        for uri in sharelist:
             sharename  = json.loads(shares)[uri]['name']
             repair_uri = gen_full_tahoe_uri(self.tahoe_node_url, uri)
             mode  = json.loads(shares)[uri]['mode']
@@ -179,11 +182,7 @@ class RepairList(object):
     def dl_sharelist(self):
         url = self.subscription_uri + '/repair-list.json.txt'
         shares = tahoe_dl_file(url, self.verbosity).read().decode('utf8')
-        # create a list of URI's to be shuffled; also serves as syntax verification
         if json_list_is_valid(shares):
-            #sharelist = list(json.loads(shares).keys())
-            # shuffle() to even out chances of all shares to get repaired
-            #random.shuffle(sharelist)
             return shares
         else:
             return
