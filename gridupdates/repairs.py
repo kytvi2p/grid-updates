@@ -193,7 +193,7 @@ class RepairList(object):
         to the directory.
         """
         shareuri = repair_uris[sharename]
-        dir_req = urlopen(shareuri + '?t=json').read()
+        dir_req = urlopen(shareuri + '?t=json').read().decode('utf8')
         if not json.loads(dir_req)[0] == 'dirnode':
             if self.verbosity > 2:
                 print('DEBUG: Skipping %s' % sharename)
