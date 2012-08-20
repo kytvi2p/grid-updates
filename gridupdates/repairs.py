@@ -169,9 +169,9 @@ class RepairList(object):
             mode  = json.loads(shares)[uri]['mode']
             if mode == 'deep-check':
                 self.deep_check(sharename, repair_uri, mode)
-            if mode == 'one-check':
+            elif mode == 'one-check':
                 self.one_check(sharename, repair_uri, mode)
-            if mode.startswith('level-check '):
+            elif mode.startswith('level-check '):
                 self.level_check(sharename, repair_uri, mode)
             else:
                 print("ERROR: Unknown repair mode: '%s'." % mode, file=sys.stderr)
