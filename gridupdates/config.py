@@ -32,10 +32,10 @@ def get_default_config():
     # 1. Default settings
     default_config = {
             'tahoe_node_dir' : default_tahoe_node_dir,
-            'list_uri'       : 'URI:DIR2-RO:2vuiokc4wgzkxgqf3qigcvefqa:45gscpimazsm44eoeern54b5t2u4gpf7363odjhut255jxkajpqa',
-            'news_uri'       : 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q',
+            'list_uri'       : 'URI:DIR2-RO:2vuiokc4wgzkxgqf3qigcvefqa:45gscpimazsm44eoeern54b5t2u4gpf7363odjhut255jxkajpqa/introducers.json.txt',
+            'news_uri'       : 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q/NEWS.tgz',
             'script_uri'     : 'URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq',
-            'repairlist_uri' : 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a',
+            'repairlist_uri' : 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a/repair-list.json.txt',
             'output_dir'     : os.path.abspath(os.getcwd())
             }
     return default_config

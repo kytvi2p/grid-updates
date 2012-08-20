@@ -58,7 +58,7 @@ class News(object):
 
     def download_news(self):
         """Download NEWS.tgz file to local temporary file."""
-        url = self.url + '/NEWS.tgz'
+        url = self.url
         if self.verbosity > 1:
             print("INFO: Downloading news from the Tahoe grid.")
         if self.verbosity > 2:

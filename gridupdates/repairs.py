@@ -180,8 +180,7 @@ class RepairList(object):
             print('Repairs have completed (unhealthy: %d).' % self.unhealthy)
 
     def dl_sharelist(self):
-        url = self.subscription_uri + '/repair-list.json.txt'
-        shares = tahoe_dl_file(url, self.verbosity).read().decode('utf8')
+        shares = tahoe_dl_file(self.subscription_uri, self.verbosity).read().decode('utf8')
         if json_list_is_valid(shares):
             return shares
         else:
