@@ -111,7 +111,7 @@ def parse_result(result, mode, unhealthy, verbosity=0):
 def repair_action(uri_dict, verbosity=0):
     """Repair all (deep-check) Tahoe shares in a dictionary."""
     if verbosity > 0:
-        print("-- Repairing the grid-updates Tahoe shares. --")
+        print("-- Repairing the grid-updates Tahoe shares --")
     mode = 'deep-check'
     unhealthy = 0
     # shuffle() to even out chances of all shares to get repaired

@@ -130,7 +130,7 @@ def main():
             sys.exit(1)
 
     if opts.verbosity > 2:
-        print("DEBUG: Tahoe node dir is", opts.tahoe_node_dir)
+        print("DEBUG: Tahoe node dir is:", opts.tahoe_node_dir)
 
     # Run actions
     # -----------

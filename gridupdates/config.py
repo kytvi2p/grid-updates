@@ -283,7 +283,7 @@ def parse_args(argv):
                 'repairlist_uri',
                 'output_dir']:
             print('%16s: %s' % (opt, vars(opts)[opt]))
-        print("DEBUG: Patch directory is", find_datadir())
+        print("DEBUG: Patch directory is:", find_datadir())
 
     # Temporar: abort on deprecated options
     if opts.deprecated:
