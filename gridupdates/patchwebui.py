@@ -132,14 +132,16 @@ class PatchWebUI(object):
     def add_target_filepaths(self):
         """Add locations of original web UI files to the location dict."""
         for targetfile in list(self.filepaths.keys()):
-            filepath = (os.path.join(self.webdir, targetfile))
-            if not os.path.exists(filepath):
-                # Tahoe 1.9.x moves tahoe.css to a 'static' subdirectory
+            # tahoe.css is located in web, not web/static/ in Tahoe < 1.9
+            if self.tahoe_version < LooseVersion('1.9'):
+                filepath = (os.path.join(self.webdir, targetfile))
+            elif targetfile == 'tahoe.css':
                 filepath = (os.path.join(self.webdir, 'static', targetfile))
-                if not os.path.exists(filepath):
-                    print('ERROR: Could not find %s.' %
-                                                   filepath, file=sys.stderr)
-                    sys.exit(1)
+            else:
+                filepath = (os.path.join(self.webdir, targetfile))
+            if not os.path.exists(filepath):
+                print('ERROR: Could not find %s.' % filepath, file=sys.stderr)
+                sys.exit(1)
             self.filepaths[targetfile].append(filepath)
 
     def read_patch_version(self, uifile):
