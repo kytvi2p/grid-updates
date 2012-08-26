@@ -24,31 +24,31 @@ class MakeNews(object):
         # find template locations
         self.datadir = find_datadir()
 
-    def run_action(self, md_file, output_dir):
+    def run_action(self, src_file, output_dir):
         """Call this method to execute the desired action (--make-news). It
         will run the necessary methods."""
-        copyfile(md_file, os.path.join(self.tempdir, 'NEWS'))
-        md_file = os.path.join(self.tempdir, 'NEWS')
-        html_file = self.compile_md(md_file)
+        copyfile(src_file, os.path.join(self.tempdir, 'NEWS'))
+        src_file = os.path.join(self.tempdir, 'NEWS')
+        html_file = self.compile_src(src_file)
         if not html_file:
             print('ERROR: Could not compile HTML version.', file=sys.stderr)
         else:
             atom_file = self.compile_atom()
-            include_list = [md_file, html_file, atom_file]
+            include_list = [src_file, html_file, atom_file]
             self.make_tarball(include_list, output_dir)
         remove_temporary_dir(self.tempdir, self.verbosity)
 
 
-    def compile_md(self, mdfile):
+    def compile_src(self, src_file):
         """Compile an HTML version of the Markdown source of NEWS; return the
         file path."""
-        source = mdfile
+        source = src_file
         output_html = os.path.join(self.tempdir, 'NEWS.html')
         pandoc_tmplt = os.path.join(self.datadir, 'pandoc-template.html')
         try:
             subprocess.call(["pandoc",
+                            "-r", "rst",
                             "-w", "html",
-                            "-r", "markdown",
                             "--email-obfuscation", "none",
                             "--template", pandoc_tmplt,
                             "--output", output_html,
