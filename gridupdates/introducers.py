@@ -14,7 +14,7 @@ class Introducers(object):
     def __init__(self, nodedir, url, verbosity=0):
         self.verbosity = verbosity
         self.nodedir = nodedir
-        self.url = url + '/introducers.json.txt'
+        self.url = url
         if self.verbosity > 0:
             print("-- Updating introducers --")
         self.old_list = []

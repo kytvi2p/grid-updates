@@ -75,16 +75,16 @@ OPTIONS
 	'exe' (Windows installer [requires Python]),
 	'py2exe' (Windows installers [doesn't require Python]).
 
-\--list-uri *URI*
+\--list-uri *FILE CAP*
 :   Override the default location of the introducers list.
 
-\--news-uri *URI*
+\--news-uri *FILE CAP*
 :   Override the default location of the NEWS.tgz file.
 
-\--script-uri *URI*
+\--script-uri *DIR CAP*
 :   Override the default location of script updates.
 
-\--repairlist-uri *URI*
+\--repairlist-uri *FILE CAP*
 :   Override the default location of the \--repair-list subscription file.
 
 -v
@@ -109,20 +109,14 @@ Accepted options are:
 
 tahoe\_node\_dir = *directory*
 :    Same as \--node-dir above
-list_uri = *URI*
+list_uri = *FILE CAP*
 :    Same as \--list-uri option above
-news_uri = *URI*
+news_uri = *FILE CAP*
 :    Same as \--news-uri option above
-script_uri = *URI*
+script_uri = *DIR CAP*
 :    Same as \--script-uri option above
-comrepair_uri = *URI*
+comrepair_uri = *FILE CAP*
 :    Same as \--comrepair-uri option above
-
-NOTES
-=====
-
-*URIs*, in this context, are Tahoe-LAFS directories like, for example
-`URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq`.
 
 NEWS
 ====
@@ -159,16 +153,12 @@ INFORMATION FOR SUBSCRIPTION MAINTAINERS
 ========================================
 
 If you want to offer a *grid-updates* subscription service, you will have to
-provide users with URIs to directories that contain the subscription files. The
-available subscription types are the news feed (called **NEWS.tgz**), the
-introducer list (called **introducers.json.txt**) and the repair list (called
-**repair-list.json.txt**).
+provide users with the URIs of your subscription files.  They can be either in
+the form *DIR CAP/filename* or the the file cap itself.  In the latter case you
+must make sure to create mutable files.
 
 For the specific requirements of the JSON lists, please see the included
 example files in the share directory.
-
-Please note that *grid-updates* expects the URIs of directories, not of the
-files themselves. It will append the filenames itself.
 
 FILES
 =====
