@@ -160,11 +160,6 @@ def parse_args(argv):
             dest = "deprecated",
             default = False,
             help = 'This action is deprecated! Please use --repair instead.')
-    action_opts.add_argument('--community-repair',
-            action = 'store_true',
-            dest = "deprecated",
-            default = False,
-            help = 'This action is deprecated! Please use --repair-list instead.')
     action_opts.add_argument('--check-version',
             action = 'store_true',
             dest = "check_version",
@@ -225,12 +220,6 @@ def parse_args(argv):
             default = default_config['repairlist_uri'],
             help = ('Override default location of additional repair '
                     'subscription.'))
-    other_opts.add_argument('--comrepair-uri',
-            action = 'store_true',
-            dest = 'deprecated',
-            default = False,
-            help = ('This option is deprecated! Please use --repairlist-uri '
-                    'instead.'))
     other_opts.add_argument('--format',
             action = 'store',
             dest = 'update_format',
