@@ -162,7 +162,7 @@ class RepairList(object):
         shares = self.dl_sharelist()
         sharelist = json.loads(shares).keys()
         # shuffle() to even out chances of all shares to get repaired
-        random.shuffle(sharelist)
+        random.shuffle(list(sharelist))
         for uri in sharelist:
             sharename  = json.loads(shares)[uri]['name']
             repair_uri = gen_full_tahoe_uri(self.tahoe_node_url, uri)

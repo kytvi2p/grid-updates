@@ -138,7 +138,7 @@ def find_tahoe_dir(tahoe_node_url):
     """Determine the location of the tahoe installation directory and included
     'web' directory by parsing the tahoe web console."""
     webconsole = urlopen(tahoe_node_url)
-    match = re.search(r'.*\ \'(.*__init__.py)', webconsole.read())
+    match = re.search(r'.*\ \'(.*__init__.py)', webconsole.read().decode('utf8'))
     if match:
         tahoe_dir = os.path.dirname(match.group(1))
         return tahoe_dir
@@ -174,7 +174,7 @@ def find_web_static_dir(tahoe_node_dir):
 def get_tahoe_version(tahoe_node_url):
     """Determine Tahoe-LAFS version number from web console."""
     webconsole = urlopen(tahoe_node_url)
-    match = re.search(r'allmydata-tahoe:\ (.*),', webconsole.read())
+    match = re.search(r'allmydata-tahoe:\ (.*),', webconsole.read().decode('utf'))
     version = match.group(1)
     return version
 
