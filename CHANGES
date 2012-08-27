@@ -1,3 +1,10 @@
+2012-XX-XX (version 1.2)
+	* Subscription URIs need to be file caps now
+	* Added a new repair mode (level-check)
+	* Changed source file format for --make-news to reStructuredText
+	* Switched from Optparse to Argparse
+	* Minor bug fixes and improvements
+
 2012-06-30 (version 1.1.3)
 	* Add arch as an option for --format
 	* Bugfixes:
