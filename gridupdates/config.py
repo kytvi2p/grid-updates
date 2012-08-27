@@ -35,7 +35,7 @@ def get_default_config():
             'list_uri'       : 'URI:DIR2-RO:2vuiokc4wgzkxgqf3qigcvefqa:45gscpimazsm44eoeern54b5t2u4gpf7363odjhut255jxkajpqa/introducers.json.txt',
             'news_uri'       : 'URI:DIR2-RO:hx6754mru4kjn5xhda2fdxhaiu:hbk4u6s7cqfiurqgqcnkv2ckwwxk4lybuq3brsaj2bq5hzajd65q/NEWS.tgz',
             'script_uri'     : 'URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq',
-            'repairlist_uri' : 'URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjmsqq6vzfjuicjtploh4k7mx6viz3a/repair-list.json.txt',
+            'repairlist_uri' : 'URI:SSK-RO:tznoapeyurs5ezqxjgelakbmgq:uysydm2wtflu6v5k4giv5nuc7isx3xnxrwc7cmmzafb6ht2haxtq',
             'output_dir'     : os.path.abspath(os.getcwd())
             }
     return default_config
@@ -153,12 +153,13 @@ def parse_args(argv):
             action = 'store_true',
             dest = "repair",
             default = False,
-            help = 'Run a deep-check and repair on all grid-updates shares.')
+            help = 'Retrieve a list of shares and maintain/repair them. '
+                    'Repairs the grid-updates subscriptions by default.')
     action_opts.add_argument('-R', '--repair-list',
             action = 'store_true',
-            dest = "repairlist",
+            dest = "deprecated",
             default = False,
-            help = 'Retrieve a list of shares and maintain/repair them.')
+            help = 'This action is deprecated! Please use --repair instead.')
     action_opts.add_argument('--community-repair',
             action = 'store_true',
             dest = "deprecated",

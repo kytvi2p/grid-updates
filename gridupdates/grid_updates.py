@@ -167,8 +167,6 @@ def main():
         mknews = MakeNews(opts.verbosity)
         mknews.run_action(opts.news_source_file, opts.output_dir)
     if opts.repair:
-        repairs.repair_action(uri_dict, opts.verbosity)
-    if opts.repairlist:
         repairlist = repairs.RepairList(tahoe_node_url,
                                         uri_dict['repairlist'][1],
                                         opts.verbosity)
