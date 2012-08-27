@@ -108,34 +108,6 @@ def parse_result(result, mode, unhealthy, verbosity=0):
             unhealthy += 1
         return status, unhealthy
 
-def repair_action(uri_dict, verbosity=0):
-    """Repair all (deep-check) Tahoe shares in a dictionary."""
-    if verbosity > 0:
-        print("-- Repairing the grid-updates Tahoe shares --")
-    mode = 'deep-check'
-    unhealthy = 0
-    # shuffle() to even out chances of all shares to get repaired
-    # (Is this useful?)
-    sharelist = list(uri_dict.keys())
-    random.shuffle(sharelist)
-    for sharename in sharelist:
-        repair_uri = uri_dict[sharename][1]
-        results = repair_share(sharename, repair_uri, mode, verbosity)
-        if not results:
-            return
-        if verbosity > 1:
-            print('INFO: Post-repair results for: %s' % sharename)
-        for result in results:
-            status, unhealthy = parse_result(result.decode('utf8'),
-                                                mode, unhealthy, verbosity)
-    # Print summary
-    if unhealthy == 1:
-        sub = 'object'
-    else:
-        sub = 'objects'
-    if verbosity > 0:
-        print("Deep-check of grid-updates shares completed: "
-                            "%d %s unhealthy." % (unhealthy, sub))
 
 class RepairList(object):
     """
