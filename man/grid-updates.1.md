@@ -47,8 +47,8 @@ ACTIONS
     original version.
 
 \--make-news *file*
-:   Create a *grid-updates*-compatible NEWS.tgz file from a Markdown source
-    file.
+:   Create a *grid-updates*-compatible NEWS.tgz file from a reStructuredText
+    source file.
 
 \--check-version
 :   Check for a new version of this script on the grid.
