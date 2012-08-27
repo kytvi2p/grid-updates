@@ -187,7 +187,7 @@ def parse_args(argv):
             help = 'Restore the original Tahoe Web console files.')
     action_opts.add_argument('--make-news',
             action = 'store',
-            dest = "mknews_md_file",
+            dest = "news_source_file",
             help = 'Compile a grid-updates-compatible NEWS.tgz file from'
                     ' a Markdown file.')
     parser.add_argument_group(action_opts)
