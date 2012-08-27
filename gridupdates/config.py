@@ -1,5 +1,5 @@
 from __future__ import print_function
-import optparse
+import argparse
 import os
 import platform
 import sys
@@ -126,137 +126,135 @@ def parse_args(argv):
 
     default_config = parse_config_files(argv)
 
-    # 3. Optparse
+    # 3. Argparse
     # defaults to values from Configparser
-    parser = optparse.OptionParser()
+    parser = argparse.ArgumentParser()
     # actions
-    action_opts = optparse.OptionGroup(
-        parser, 'Actions',
-        'These arguments control which actions will be executed.')
-    action_opts.add_option('-s', '--sync-introducers',
+    action_opts = parser.add_argument_group(
+        'Actions', 'These arguments control which actions will be executed.')
+    action_opts.add_argument('-s', '--sync-introducers',
             action = 'store_true',
             dest = "sync",
             default = False,
             help = "Synchronize the local list of introducers with the "
                     "subscription's.")
-    action_opts.add_option('-m', '--merge-introducers',
+    action_opts.add_argument('-m', '--merge-introducers',
             action = 'store_true',
             dest = "merge",
             default = False,
             help = 'Downloads and merges list of introducers into your '
                     'local list.')
-    action_opts.add_option('-n', '--download-news',
+    action_opts.add_argument('-n', '--download-news',
             action = 'store_true',
             dest = "news",
             default = False,
             help = 'Downloads news feed.')
-    action_opts.add_option('-r', '--repair',
+    action_opts.add_argument('-r', '--repair',
             action = 'store_true',
             dest = "repair",
             default = False,
             help = 'Run a deep-check and repair on all grid-updates shares.')
-    action_opts.add_option('-R', '--repair-list',
+    action_opts.add_argument('-R', '--repair-list',
             action = 'store_true',
             dest = "repairlist",
             default = False,
             help = 'Retrieve a list of shares and maintain/repair them.')
-    action_opts.add_option('--community-repair',
+    action_opts.add_argument('--community-repair',
             action = 'store_true',
             dest = "deprecated",
             default = False,
             help = 'This action is deprecated! Please use --repair-list instead.')
-    action_opts.add_option('--check-version',
+    action_opts.add_argument('--check-version',
             action = 'store_true',
             dest = "check_version",
             default = False,
             help = 'Check for a new version of grid-updates.')
-    action_opts.add_option('--download-update',
+    action_opts.add_argument('--download-update',
             action = 'store_true',
             dest = "download_update",
             default = False,
             help = 'Download a new version of grid-updates.')
-    action_opts.add_option('--patch-tahoe',
+    action_opts.add_argument('--patch-tahoe',
             action = 'store_true',
             dest = "patch_ui",
             default = False,
             help = ('Patch the Tahoe Web UI to display grid-updates news '
                                                 'in an IFrame.'))
-    action_opts.add_option('--undo-patch-tahoe',
+    action_opts.add_argument('--undo-patch-tahoe',
             action = 'store_true',
             dest = "undo_patch_ui",
             default = False,
             help = 'Restore the original Tahoe Web console files.')
-    action_opts.add_option('--make-news',
+    action_opts.add_argument('--make-news',
             action = 'store',
             dest = "mknews_md_file",
             help = 'Compile a grid-updates-compatible NEWS.tgz file from'
                     ' a Markdown file.')
-    parser.add_option_group(action_opts)
+    parser.add_argument_group(action_opts)
     # options
-    other_opts = optparse.OptionGroup(
-        parser, 'Options',
-        'These arguments can override various settings.')
-    other_opts.add_option('-d', '--node-directory',
+    other_opts = parser.add_argument_group(
+        'Options', 'These arguments can override various settings.')
+    other_opts.add_argument('-d', '--node-directory',
             action = 'store',
             dest = "tahoe_node_dir",
             default = default_config['tahoe_node_dir'],
             help = 'Specify the Tahoe node directory.')
-    other_opts.add_option('-u', '--node-url',
+    other_opts.add_argument('-u', '--node-url',
             action = 'store',
             dest = 'tahoe_node_url',
             help = "Specify the Tahoe gateway node's URL.")
-    other_opts.add_option('--list-uri',
+    other_opts.add_argument('--list-uri',
             action = 'store',
             dest = 'list_uri',
             default = default_config['list_uri'],
             help = 'Override default location of introducers list.')
-    other_opts.add_option('--news-uri',
+    other_opts.add_argument('--news-uri',
             action = 'store',
             dest = 'news_uri',
             default = default_config['news_uri'],
             help = 'Override default location of news list.')
-    other_opts.add_option('--script-uri',
+    other_opts.add_argument('--script-uri',
             action = 'store',
             dest = 'script_uri',
             default = default_config['script_uri'],
             help = 'Override default location of script releases.')
-    other_opts.add_option('--repairlist-uri',
+    other_opts.add_argument('--repairlist-uri',
             action = 'store',
             dest = 'repairlist_uri',
             default = default_config['repairlist_uri'],
             help = ('Override default location of additional repair '
                     'subscription.'))
-    other_opts.add_option('--comrepair-uri',
+    other_opts.add_argument('--comrepair-uri',
             action = 'store_true',
             dest = 'deprecated',
             default = False,
             help = ('This option is deprecated! Please use --repairlist-uri '
                     'instead.'))
-    other_opts.add_option('--format',
+    other_opts.add_argument('--format',
             action = 'store',
             dest = 'update_format',
             default = 'tar',
             help = ('Specify in which format to download the update.'))
-    other_opts.add_option('-o', '--output-dir',
+    other_opts.add_argument('-o', '--output-dir',
             action = 'store',
             dest = 'output_dir',
             default = default_config['output_dir'],
             help = ('Override default output directory (%s) for script '
                     'update downloads and NEWS.tgz generation.'
                     % os.getcwd()))
-    parser.add_option_group(other_opts)
+    parser.add_argument_group(other_opts)
     # remaining
-    parser.add_option('-v',
+    parser.add_argument('-v',
             action='count',
             dest='verbosity',
             default=1,
             help = 'Increase verbosity (-vv for debug mode).')
-    parser.add_option('-q',
+    parser.add_argument('-q',
             action='store_const',
             const=0,
             dest='verbosity',
             help = 'Turn off verbosity.')
-    parser.add_option('-V', '--version',
+    parser.add_argument('-V', '--version',
             dest = "version",
             action = "store_true",
             default = False,
@@ -264,12 +262,12 @@ def parse_args(argv):
     # Fake option: this option will not be accessed directly; --config is used
     # for ConfigParser (see above); this entry exists here for completeness of
     # --help
-    parser.add_option('-c', '--config',
+    parser.add_argument('-c', '--config',
             action = 'store',
             dest = 'config',
             help = 'Manually specify a configuration file.')
     # parse arguments
-    (opts, args) = parser.parse_args()
+    opts = parser.parse_args()
 
     # DEBUG
     if opts.verbosity > 2:
@@ -291,4 +289,4 @@ def parse_args(argv):
                 sys.argv[0], file=sys.stderr)
         sys.exit(1)
 
-    return (opts, args)
+    return opts
