@@ -217,8 +217,13 @@ def json_list_is_valid(json_list, verbosity=0):
     try:
         keys = json.loads(json_list).keys()
     except ValueError as ve:
-        print("ERROR: Can't parse JSON list:", ve, file=sys.stderr)
-        if verbosity > 1:
+        print("ERROR: Can't parse JSON list:", ve)
+        if verbosity > 2:
+            print(json_list)
+        return False
+    except:
+        print("ERROR: JSON data is invalid (Unexpected Error).")
+        if verbosity > 2:
             print(json_list)
         return False
     else:
