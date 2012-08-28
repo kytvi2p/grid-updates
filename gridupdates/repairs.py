@@ -19,6 +19,7 @@ from gridupdates.functions import gen_full_tahoe_uri
 from gridupdates.functions import is_literal_file
 from gridupdates.functions import tahoe_dl_file
 from gridupdates.functions import json_list_is_valid
+from gridupdates.functions import subscription_list_is_valid
 
 def repair_share(sharename, repair_uri, mode, verbosity=0):
     """Run (deep-)checks including repair and add-lease on a Tahoe share;
@@ -153,7 +154,7 @@ class RepairList(object):
 
     def dl_sharelist(self):
         shares = tahoe_dl_file(self.subscription_uri, self.verbosity).read().decode('utf8')
-        if json_list_is_valid(shares):
+        if subscription_list_is_valid(shares, self.verbosity):
             return shares
         else:
             return
@@ -178,20 +179,21 @@ class RepairList(object):
 
     def one_check(self, sharename, repair_uri, mode):
         result = repair_share(sharename, repair_uri, mode, self.verbosity)
-        if not result:
-            return
-        status, self.unhealthy = parse_result(result.decode('utf8'), mode,
-                                                    self.unhealthy, self.verbosity)
-        if self.verbosity > 1:
-            print("  Status: %s" % status)
+        if json_list_is_valid(result, self.verbosity):
+            status, self.unhealthy = parse_result(result.decode('utf8'), mode,
+                                                self.unhealthy, self.verbosity)
+            if self.verbosity > 1:
+                print("  Status: %s" % status)
 
     def deep_check(self, sharename, repair_uri, mode):
         results = repair_share(sharename, repair_uri, mode, self.verbosity)
-        if not results:
+        if results is None:
+            print('WARN: Received no results.')
             return
         for result in results:
-            status, self.unhealthy = parse_result(result.decode('utf8'),
-                                                mode, self.unhealthy, self.verbosity)
+            if json_list_is_valid(result, self.verbosity):
+                status, self.unhealthy = parse_result(result.decode('utf8'),
+                                        mode, self.unhealthy, self.verbosity)
 
     def level_check(self, sharename, repair_uri, mode):
         levels = int(re.sub(r'level-check\ (\d+)', r'\1', mode))
