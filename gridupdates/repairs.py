@@ -49,7 +49,7 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
     except HTTPError as exc:
         print('ERROR: Could not run %s for %s: %s' % (mode, sharename, exc),
                                                         file=sys.stderr)
-        return
+        return exc
     except URLError as urlexc:
         print("ERROR: %s while running %s for %s." % (urlexc, mode, sharename),
                                                                file=sys.stderr)
@@ -180,11 +180,16 @@ class RepairList(object):
 
     def one_check(self, sharename, repair_uri, mode):
         result = repair_share(sharename, repair_uri, mode, self.verbosity)
-        if json_list_is_valid(result, self.verbosity):
+        if re.match(r'^HTTP\ Error\ 410:\ Gone$', str(result)):
+            status = 'not retrievable'
+            self.unhealthy += 1
+        elif json_list_is_valid(result, self.verbosity):
             status, self.unhealthy = parse_result(result.decode('utf8'), mode,
                                                 self.unhealthy, self.verbosity)
-            if self.verbosity > 1:
-                print("  Status: %s" % status)
+        else:
+            status = 'unknown: Errors occured. Check this file manually to investigate.'
+        if self.verbosity > 1:
+            print("  Status: %s" % status)
 
     def deep_check(self, sharename, repair_uri, mode):
         results = repair_share(sharename, repair_uri, mode, self.verbosity)
