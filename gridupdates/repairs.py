@@ -29,7 +29,8 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
     if mode == 'deep-check':
         params = urlencode({'t': 'stream-deep-check',
                             'repair': 'true',
-                            'add-lease': 'true'}
+                            'add-lease': 'true',
+                            'output': 'json'}
                             ).encode('utf8')
     elif mode == 'one-check':
         params = urlencode({'t': 'check',
