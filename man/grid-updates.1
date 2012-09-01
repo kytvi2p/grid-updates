@@ -97,22 +97,22 @@ Choices are: `tar' (unix source archive), `deb' (Debian package),
 .RS
 .RE
 .TP
-.B --list-uri \f[I]URI\f[]
+.B --list-uri \f[I]FILE CAP\f[]
 Override the default location of the introducers list.
 .RS
 .RE
 .TP
-.B --news-uri \f[I]URI\f[]
+.B --news-uri \f[I]FILE CAP\f[]
 Override the default location of the NEWS.tgz file.
 .RS
 .RE
 .TP
-.B --script-uri \f[I]URI\f[]
+.B --script-uri \f[I]DIR CAP\f[]
 Override the default location of script updates.
 .RS
 .RE
 .TP
-.B --repairlist-uri \f[I]URI\f[]
+.B --repairlist-uri \f[I]FILE CAP\f[]
 Override the default location of the --repair-list subscription
 file.
 .RS
@@ -147,30 +147,25 @@ Same as --node-dir above
 .RS
 .RE
 .TP
-.B list_uri = \f[I]URI\f[]
+.B list_uri = \f[I]FILE CAP\f[]
 Same as --list-uri option above
 .RS
 .RE
 .TP
-.B news_uri = \f[I]URI\f[]
+.B news_uri = \f[I]FILE CAP\f[]
 Same as --news-uri option above
 .RS
 .RE
 .TP
-.B script_uri = \f[I]URI\f[]
+.B script_uri = \f[I]DIR CAP\f[]
 Same as --script-uri option above
 .RS
 .RE
 .TP
-.B comrepair_uri = \f[I]URI\f[]
+.B comrepair_uri = \f[I]FILE CAP\f[]
 Same as --comrepair-uri option above
 .RS
 .RE
-.SH NOTES
-.PP
-\f[I]URIs\f[], in this context, are Tahoe-LAFS directories like,
-for example
-\f[B]URI:DIR2-RO:22s6zidugdxaeikq6lakbxbcci:mgrc3nfnygslyqrh7hds22usp6hbn3pulg5bu2puv6y3wpoaaqqq\f[].
 .SH NEWS
 .PP
 If you choose to download the news feed, \f[I]grid-updates\f[] will
@@ -210,19 +205,14 @@ Newer versions might already include new default URIs.
 .SH INFORMATION FOR SUBSCRIPTION MAINTAINERS
 .PP
 If you want to offer a \f[I]grid-updates\f[] subscription service,
-you will have to provide users with URIs to directories that
-contain the subscription files.
-The available subscription types are the news feed (called
-\f[B]NEWS.tgz\f[]), the introducer list (called
-\f[B]introducers.json.txt\f[]) and the repair list (called
-\f[B]repair-list.json.txt\f[]).
+you will have to provide users with the URIs of your subscription
+files.
+They can be either in the form \f[I]DIR CAP/filename\f[] or the the
+file cap itself.
+In the latter case you must make sure to create mutable files.
 .PP
 For the specific requirements of the JSON lists, please see the
 included example files in the share directory.
-.PP
-Please note that \f[I]grid-updates\f[] expects the URIs of
-directories, not of the files themselves.
-It will append the filenames itself.
 .SH FILES
 .IP \[bu] 2
 \f[I]~/.tahoe/introducers\f[]
@@ -259,6 +249,22 @@ It will append the filenames itself.
 \f[I]$XDG_CONFIG_DIRS/grid-updates/config\f[] (most commonly
 /etc/xdg)
 .SH BUGS
+.TP
+.B \f[B]ERROR: Can't parse JSON list: No JSON object could be decoded\f[]
+Currently Tahoe doesn't return JSON data if it encounters
+exceptions (see Trac ticket #1799).
+If you see this \f[B]grid-updates\f[] error, you can rerun your
+command in debug mode (\f[B]-vvv\f[]) to see Tahoe's actual
+response.
+.RS
+.PP
+This error is most likely to occur during \f[I]deep-check\f[]
+operations.
+If it does, it probably encountered the
+\f[I]NotEnoughSharesError\f[] error, which means that a file was
+unrecoverable.
+You should investigate the problem using Tahoe directly.
+.RE
 .PP
 Please report bugs in #tahoe-lafs on Irc2p or via email (see
 below).
