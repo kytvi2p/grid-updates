@@ -265,6 +265,14 @@ If it does, it probably encountered the
 unrecoverable.
 You should investigate the problem using Tahoe directly.
 .RE
+.TP
+.B \f[B]ERROR: Could not run one-check for testfile: HTTP Error 410: Gone\f[]
+This error is related to the one above but happens during
+\f[I]one-check\f[] operations.
+If a file is not retrievable (due to not enough remaining shares)
+Tahoe responds with HTTP error 410.
+.RS
+.RE
 .PP
 Please report bugs in #tahoe-lafs on Irc2p or via email (see
 below).

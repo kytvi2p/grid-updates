@@ -176,12 +176,17 @@ BUGS
 **ERROR: Can't parse JSON list: No JSON object could be decoded**
 :   Currently Tahoe doesn't return JSON data if it encounters exceptions (see
     Trac ticket #1799). If you see this **grid-updates** error, you can rerun
-    your command in debug mode (``-vvv``) to see Tahoe's actual response.
+    your command in debug mode (`-vvv`) to see Tahoe's actual response.
 
 	This error is most likely to occur during *deep-check* operations. If it
 	does, it probably encountered the *NotEnoughSharesError* error, which means
 	that a file was unrecoverable. You should investigate the problem using
 	Tahoe directly.
+
+**ERROR: Could not run one-check for testfile: HTTP Error 410: Gone**
+:   This error is related to the one above but happens during *one-check*
+    operations.  If a file is not retrievable (due to not enough remaining
+    shares) Tahoe responds with HTTP error 410.
 
 Please report bugs in #tahoe-lafs on Irc2p or via email (see below).
 
