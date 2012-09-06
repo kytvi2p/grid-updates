@@ -70,7 +70,6 @@ def main():
     and not opts.repair
     and not opts.check_version
     and not opts.download_update
-    and not opts.repairlist
     and not opts.patch_ui
     and not opts.undo_patch_ui
     and not opts.news_source_file):
