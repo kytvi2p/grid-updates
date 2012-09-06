@@ -2,6 +2,7 @@
 	* Subscription URIs need to be file caps now
 	* Added a new repair mode (level-check)
 	* Changed source file format for --make-news to reStructuredText
+	* Removed arch as an optionto --format
 	* Switched from Optparse to Argparse
 	* Minor bug fixes and improvements
 
