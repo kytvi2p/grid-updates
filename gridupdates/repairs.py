@@ -180,10 +180,10 @@ class RepairList(object):
 
     def one_check(self, sharename, repair_uri, mode):
         result = repair_share(sharename, repair_uri, mode, self.verbosity)
-        if re.match(r'^HTTP\ Error\ 410:\ Gone$', str(result)):
+        if re.match(r'^HTTP\ Error\ 410:\ Gone$', result.decode('utf8')):
             status = 'not retrievable'
             self.unhealthy += 1
-        elif json_list_is_valid(result, self.verbosity):
+        elif json_list_is_valid(result.decode('utf8'), self.verbosity):
             status, self.unhealthy = parse_result(result.decode('utf8'), mode,
                                                 self.unhealthy, self.verbosity)
         else:
@@ -197,7 +197,7 @@ class RepairList(object):
             print('WARN: Received no results.')
             return
         for result in results:
-            if json_list_is_valid(result, self.verbosity):
+            if json_list_is_valid(result.decode('utf8'), self.verbosity):
                 status, self.unhealthy = parse_result(result.decode('utf8'),
                                         mode, self.unhealthy, self.verbosity)
 
