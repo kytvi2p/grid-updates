@@ -5,6 +5,7 @@
 		- Changed the default repair subscription to the former community repair list
 	* Added a new repair mode (level-check)
 	* Changed source file format for --make-news to reStructuredText
+	* Removed arch as an optionto --format
 	* Switched from Optparse to Argparse
 	* Catch non-JSON responses from Tahoe (see ticket #1799)
 	* Minor bug fixes and improvements

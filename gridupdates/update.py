@@ -54,8 +54,6 @@ class Update(object):
             download_filename = (basename + '.py2exe.exe')
         elif req_dist == 'exe':
             download_filename = (basename + '.win32.exe')
-        elif req_dist == 'arch':
-            download_filename = (basename + '-1-any.pkg.tar.xz')
         elif req_dist == 'deb':
             download_filename = ('grid-updates_' +
                                 self.latest_version +
