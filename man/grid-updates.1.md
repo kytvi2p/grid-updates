@@ -33,10 +33,7 @@ ACTIONS
 :   Retrieve the news feed.  See the **NEWS** section below.
 
 -r, \--repair
-:   Maintain or repair the health of the subscription service's URIs.
-
--R, \--repair-list
-:   Retrieve a list of shares and maintain/repair them.
+:   Maintain the health of Tahoe shares listed in a subscription.
 
 \--patch-tahoe
 :   Patch the Tahoe-LAFS web console to display the grid-updates news feed in
@@ -85,7 +82,7 @@ OPTIONS
 :   Override the default location of script updates.
 
 \--repairlist-uri *FILE CAP*
-:   Override the default location of the \--repair-list subscription file.
+:   Override the default location of the \--repair subscription file.
 
 -v
 :   Increase verbosity of output.
@@ -135,19 +132,6 @@ The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used by
 regular feed readers to check for *grid-updates* news.  (Please note, however,
 that you cannot "refresh" the feed with regular news readers.  These files have
 to always be fetched by *grid-updates* first.)
-
-SHARE HEALTH
-============
-
-All *grid-updates* subscriptions reside on the Tahoe grid, which means that
-they need to be maintained (renewal of leases, repairs).  Please contribute to
-their maintenance by running `--repair` from time to time.
-
-If the script repeatedly fails to retrieve files from the grid, the share may
-be damaged and you will have to find a new set of URIs to subscribe to.  One
-way to possibly get them is to run `--check-version` to see if there is a new
-version of *grid-updates* available.  Newer versions might already include new
-default URIs.
 
 INFORMATION FOR SUBSCRIPTION MAINTAINERS
 ========================================
