@@ -2,12 +2,11 @@
 	* Subscription URIs need to be file caps now
 	* Changed repair routines
 		- Removed former --repair; renamed --repair-list to --repair
-		- The default shares have to be provided as a repair list on the grid
-		- There is no default "community repairs" list anymore.
+		- Changed the default repair subscription to the former community repair list
 	* Added a new repair mode (level-check)
 	* Changed source file format for --make-news to reStructuredText
 	* Switched from Optparse to Argparse
-	* Catch invalid JSON responses caused by a Tahoe bug (#1799)
+	* Catch non-JSON responses from Tahoe (see ticket #1799)
 	* Minor bug fixes and improvements
 
 2012-06-30 (version 1.1.3)
