@@ -11,7 +11,7 @@ Homepage: http://killyourtv.i2p/grid-updates
 
 Package: grid-updates
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}
+Depends: ${misc:Depends}, ${python:Depends}, python-argparse
 Recommends: i2p, i2p-tahoe-lafs
 Description: helper script for Tahoe-LAFS
  grid-updates attempts to keep Tahoe-LAFS nodes' configurations up-to-date and
