@@ -6,8 +6,6 @@ configurations up-to-date. It can retrieve lists of introducers [1]_ as well as
 news feeds from the Tahoe grid. This is useful for any public grid that relies
 solely on volunteers.
 
-.. _Tahoe\-LAFS:  http://www.tahoe-lafs.org
-
 On some public grids (especially the one on I2P) all nodes, even
 introducers, are run by volunteers and may disappear at any given time.
 Maintaining a list of all known introducers and distributing it to all
@@ -20,13 +18,16 @@ their Tahoe grid. We hope it's going to be a way to inform unknown node
 operators about their wrongly configured nodes, necessary updates,
 recommended configuration changes and such.
 
+.. _Tahoe\-LAFS:  http://www.tahoe-lafs.org
+
+
 Download
 ========
 
 ``grid-updates`` can be downloaded from any of the following locations.
 
 -  `Project Eepsite`_
--  `Tahoe grid`_  [2]_
+-  Tahoe grid: `URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq`_
 -  Git
 
    -  `Git repository`_ (`Gitweb`_)
@@ -34,16 +35,18 @@ Download
    -  `Git mirror 2 <http://killyourtv.i2p/git/grid-updates.git>`_ (`Gitweb 2`_ )
 
 .. _Project Eepsite:  http://killyourtv.i2p/grid-updates/
-.. _Tahoe grid: http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Ahgh5ylzzj6ey4a654ir2yxxblu%3Ahzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/
+.. _`URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq`: http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Ahgh5ylzzj6ey4a654ir2yxxblu%3Ahzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/
 .. _Git repository:  http://git.repo.i2p/r/grid-updates.git
 .. _Gitweb: http://git.repo.i2p/w/grid-updates.git
 .. _Gitweb 2: http://killyourtv.i2p/gitweb/?p=grid-updates.git
+
 
 Installation
 ============
 
 See `INSTALL\.txt`_ for information on how to install
 grid-updates.
+
 
 Usage
 =====
@@ -65,17 +68,10 @@ feed from the grid. It will also allow you to view the news your browser
 of news by a regular news reader using an Atom news feed. Following the
 grid-updates news is recommended.
 
-The subscriptions and script installation files are stored on the grid itself
-and -- like all other shares -- need maintenance and repairs [3]_. If you can,
-please also add the ``--repair`` action to your cron job, or run
-it separately every once in a while. This is necessary to keep the service
-available.
-
-``--repair-list`` is another subscription-based service. It will download
-download a list of shares and check/repair them. This is supposed to make it
-easier for a community or group of people to support each others Tahoe shares.
-(The default subscription includes shares such as the DeepWiki on the I2P
-grid.)
+``--repair`` is another subscription-based service. It will download a list of
+shares and check/repair them. This is supposed to make it easier for a
+community or group of people to support each other's Tahoe shares.  (The
+default subscription includes shares such as the DeepWiki on the I2P grid.)
 
 Please refer to the `man page`_  for detailed usage information.
 
@@ -87,17 +83,20 @@ Example cron job setup
   0  0 *   * * grid-updates --sync-introducers --download-news --check-version
   30 0 */2 * * grid-updates --repair
 
+
 Authors
 =======
 
 -  darrob <darrob@mail.i2p>
 -  KillYourTV <killyourtv@mail.i2p>
 
+
 License
 =======
 
 ``grid-updates`` has been released into the public domain. You may do
 what you wish with it.
+
 
 Support
 =======
@@ -109,14 +108,6 @@ email.
 .. [1]
    You need at least Tahoe version 1.8.3 patched for multiple introducer
    support. See <http://killyourtv.i2p/tag/multiple_introducer/>
-
-.. [2]
-   The Tahoe URI of the script is
-   ``URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq``
-
-.. [3]
-   See also the tahoe-repair-all.sh script at
-   <http://killyourtv.i2p/tahoe-lafs/scripts/>
 
 .. _man page: man/grid-updates.1.md
 .. _INSTALL\.txt: INSTALL.txt
