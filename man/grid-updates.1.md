@@ -1,6 +1,6 @@
 % GRID-UPDATES(1) User Commands
 % darrob <darrob@mail.i2p>, KillYourTV <killyourtv@mail.i2p>
-% April 2012
+% September 2012
 
 NAME
 ====
@@ -66,11 +66,11 @@ OPTIONS
 -d *directory*, \--node-directory *directory*
 :   Specify the node directory (default: *~/.tahoe*),
 
-\--format *tar|deb|zip|arch|exe|py2exe*
+\--format *tar|deb|zip|exe|py2exe*
 :   Specify in which format to download the update. Choices are: 'tar' (unix source
-	archive), 'deb' (Debian package), 'arch' (ArchLinux package), 'zip' (Windows source archive),
+	archive), 'deb' (Debian package), 'zip' (Windows source archive),
 	'exe' (Windows installer [requires Python]),
-	'py2exe' (Windows installers [doesn't require Python]).
+	'py2exe' (Windows installer [doesn't require Python]).
 
 \--list-uri *FILE CAP*
 :   Override the default location of the introducers list.
