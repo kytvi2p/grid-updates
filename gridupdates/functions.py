@@ -5,7 +5,6 @@ import ctypes # TODO import only needed function?
 import imp
 import json
 import os
-import platform
 import re
 import sys
 # Maybe this is better than try -> except?
