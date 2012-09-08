@@ -154,6 +154,10 @@ class RepairList(object):
             print('Repairs have completed (unhealthy: %d).' % self.unhealthy)
 
     def dl_sharelist(self):
+        """
+        Attempt to retrieve sharelist from the grid. If the sharelist is determined to
+        be valid, the sharelist is returned.
+        """
         shares = tahoe_dl_file(self.subscription_uri, self.verbosity).read().decode('utf8')
         if subscription_list_is_valid(shares, self.verbosity):
             return shares
@@ -179,6 +183,7 @@ class RepairList(object):
         return repair_uris
 
     def one_check(self, sharename, repair_uri, mode):
+        """Performs a shallow repair on 'repair_uri'"""
         result = repair_share(sharename, repair_uri, mode, self.verbosity)
         if re.match(r'^HTTP\ Error\ 410:\ Gone$', result.decode('utf8')):
             status = 'not retrievable'
@@ -192,6 +197,7 @@ class RepairList(object):
             print("  Status: %s" % status)
 
     def deep_check(self, sharename, repair_uri, mode):
+        """Performs a deep recursive check on 'repair_uri'"""
         results = repair_share(sharename, repair_uri, mode, self.verbosity)
         if results is None:
             print('WARN: Received no results.')
@@ -202,6 +208,7 @@ class RepairList(object):
                                         mode, self.unhealthy, self.verbosity)
 
     def level_check(self, sharename, repair_uri, mode):
+        """Performs a custom repair of 'repair_uri' %d levels deep."""
         levels = int(re.sub(r'level-check\ (\d+)', r'\1', mode))
         if self.verbosity > 1:
             print('INFO: Will check %d levels deep.' % levels)
