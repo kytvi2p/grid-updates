@@ -2,13 +2,14 @@
 Setup notes for grid-updates
 ============================
 
-See `README\.txt`_  and the `man page`_
+See `README.txt`_  and the `man page`_
 for more information about grid-updates.
 
 Requirements
 ------------
 
-Python version 2.6 and later. Python is not a requirement for Windows users.
+Python version 2.6 and later. A Python installation is not required
+for Windows users.
 
 Installation
 ------------
@@ -34,7 +35,7 @@ the py2exe version.
 
 Consider running ``grid-updates --patch-tahoe`` after installation.  This will
 apply a small patch to Tahoe-LAFS's web console to allow displaying news from
-grid-update's in an Iframe. The web console can be restored to its original
+grid-updates in an Iframe. The web console can be restored to its original
 state with ``grid-updates --undo-tahoe-patch``.
 
 Permissions
@@ -42,7 +43,7 @@ Permissions
 
 In order for this script to work, it needs to have read and write permission
 for the Tahoe-LAFS node's directory. This directory is typically located at
-``%appdata%\.tahoe`` for Windows users and ``~/.tahoe`` for other systems.
+``%APPDATA%\.tahoe`` for Windows users and ``~/.tahoe`` for other systems.
 
 If asked to, ``grid-updates`` will update your introducers file and make a
 backup of it. When fetching NEWS, the script will write a plain text version to
@@ -52,7 +53,7 @@ saved to your Tahoe node's ``web.static`` directory (typically
 `/static`_ directory, or (having patched Tahoe's Web UI) right on your node's
 `front page`_
 
-.. _README\.txt: README.txt
+.. _README.txt: README.txt
 .. _man page: man/grid-updates.1.md
 .. _/static: http://127.0.0.1:3456/static/
 .. _front page: http://127.0.0.1:3456/

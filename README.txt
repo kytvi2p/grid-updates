@@ -1,7 +1,7 @@
 Introduction to grid-updates
 ============================
 
-``grid-updates`` is a Python script intended to help keep `Tahoe\-LAFS`_ nodes'
+``grid-updates`` is a Python script intended to help keep `Tahoe-LAFS`_ nodes'
 configurations up-to-date. It can retrieve lists of introducers [1]_ as well as
 news feeds from the Tahoe grid. This is useful for any public grid that relies
 solely on volunteers.
@@ -18,7 +18,7 @@ their Tahoe grid. We hope it's going to be a way to inform unknown node
 operators about their wrongly configured nodes, necessary updates,
 recommended configuration changes and such.
 
-.. _Tahoe\-LAFS:  http://www.tahoe-lafs.org
+.. _Tahoe-LAFS:  http://www.tahoe-lafs.org
 
 
 Download
@@ -44,7 +44,7 @@ Download
 Installation
 ============
 
-See `INSTALL\.txt`_ for information on how to install
+See `INSTALL.txt`_ for information on how to install
 grid-updates.
 
 
@@ -110,4 +110,4 @@ email.
    support. See <http://killyourtv.i2p/tag/multiple_introducer/>
 
 .. _man page: man/grid-updates.1.md
-.. _INSTALL\.txt: INSTALL.txt
+.. _INSTALL.txt: INSTALL.txt
