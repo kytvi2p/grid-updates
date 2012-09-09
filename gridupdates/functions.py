@@ -5,7 +5,6 @@ import ctypes # TODO import only needed function?
 import imp
 import json
 import os
-import platform
 import re
 import sys
 # Maybe this is better than try -> except?
@@ -216,19 +215,38 @@ def json_list_is_valid(json_list, verbosity=0):
     """Investigates a JSON list's validity."""
     try:
         keys = json.loads(json_list).keys()
-    except ValueError:
-        print("ERROR: Can't parse JSON list.", file=sys.stderr)
+    except ValueError as ve:
+        print("ERROR: Can't parse JSON list:", ve)
+        if verbosity > 2:
+            print(json_list)
         return False
-    for uri in list(keys):
-        try:
-            json.loads(json_list)[uri]['name']
-        except TypeError:
-            print("ERROR: Can't parse JSON list.", file=sys.stderr)
-            return False
-    if verbosity > 2:
-        print('DEBUG: JSON list seems to be valid. Found %d keys.' %
-                len(keys))
-    return True
+    except:
+        print("ERROR: JSON data is invalid (Unexpected Error).")
+        if verbosity > 2:
+            print(json_list)
+        return False
+    else:
+        if verbosity > 3:
+            print('DEBUG: JSON list seems to be valid. Found %d keys.' %
+                    len(keys))
+        return True
+
+def subscription_list_is_valid(json_list, verbosity=0):
+    """Investigates a share list's JSON validity."""
+    if json_list_is_valid(json_list):
+        keys = json.loads(json_list).keys()
+        for uri in list(keys):
+            try:
+                json.loads(json_list)[uri]['name']
+            except TypeError:
+                print("ERROR: Can't parse JSON list.", file=sys.stderr)
+                return False
+        if verbosity > 3:
+            print('DEBUG: Subscription list seems to be valid. '
+                    'Found %d keys.' % len(keys))
+        return True
+    else:
+        return False
 
 def install_news_stub(web_static_dir):
     """Copy a placeholder NEWS.html file to Tahoe's web.static directory to

@@ -9,10 +9,11 @@ APP= grid-updates
 INSTALL= install
 INSTALL_DATA= $(INSTALL) -m 644
 MAN= man/grid-updates.1
-DOCCOMPILER= pandoc -s -r rst -w html --email-obfuscation=none -o
-#DOCCOMPILER= rst2html -
+#DOCCOMPILER= pandoc -s -r rst -w html --email-obfuscation=none -o
+DOCCOMPILER= rst2html -
 TAHOE_DIR= /uri/URI%3ADIR2-RO%3Ahgh5ylzzj6ey4a654ir2yxxblu%3Ahzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq
-VERSION= $$(git tag | tail -n 1 | sed s/v//)
+##VERSION= $$(git tag | tail -n 1 | sed s/v//)
+VERSION= $$(python -c "from gridupdates.version import __version__; print __version__")
 RELEASE_BASENAME= grid-updates-$(VERSION)
 
 install:
@@ -25,28 +26,38 @@ uninstall:
 
 clean:
 	@rm -f README.html INSTALL.html MAN.html MANIFEST
+	@rm -rf gridupdates/__pycache__
 	@find . \( -name "*\.py[co]" -o -name "*\.log" \) -exec rm -f {} \;
 	@rm -rf dist tahoe-html
+	@rm -f tahoehtml-stamp html-stamp dist-stamp man-stamp
 
-man:
+man: man-stamp
+
+man-stamp:
 	pandoc -s -w man man/grid-updates.1.md -o $(MAN)
 	@echo "Generated new manpage from markdown source."
+	@touch $@
 
 viewman: man
 	@man ./$(MAN)
 
-html:
+html: html-stamp
+html-stamp:
 	@sed -e 's;\(INSTALL\\\?\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' README.txt\
 		| $(DOCCOMPILER) README.html
-	@sed -e 's;\(README\\\?\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' INSTALL.txt\
-		| $(DOCCOMPILER) INSTALL.html
+	@sed -e 's;\(README\\\?\)\.txt;\1.html;g' -e 's;man/grid-updates\.1\.md;MAN.html;' \
+		-e "s|\$$ver|$(VERSION)|" INSTALL.txt | $(DOCCOMPILER) INSTALL.html
 	@sed -e 's|see\ below|see <a href="#header">above</a>|' man/grid-updates.1.md | \
 		pandoc --email-obfuscation=none -s -r markdown -t html -o MAN.html
 	@sed -e '5,$$s|\(http://[:a-zA-Z0-9._/-]\{1,\}\)|<a href="\1">\1</a>|g' < MAN.html > MAN.html.tmp
-	@mv MAN.html.tmp MAN.html
+	@sed -e 's|\(Trac ticket #1799\)|<a href="https://tahoe-lafs.org/trac/tahoe-lafs/ticket/1799">\1</a>|' < MAN.html.tmp > MAN.html
+	@rm MAN.html.tmp
 	@echo "Generated HTML documentation from Markdown sources."
+	@touch $@
 
-tahoehtml: html
+tahoehtml: html tahoehtml-stamp
+
+tahoehtml-stamp:
 	@mkdir -p tahoe-html
 	@for file in README.html INSTALL.html MAN.html; \
 		do \
@@ -58,14 +69,15 @@ tahoehtml: html
 	@sed -e 's|\(URI:[A-Za-z0-9.:_/-]\{1,\}\)|<a href="/uri/\1">\1</a>|g' < tahoe-html/MAN.html > tahoe-html/MAN.html.tmp
 	@mv tahoe-html/MAN.html.tmp tahoe-html/MAN.html
 	@echo "Added links to Tahoe locations."
+	@touch $@
 
-release: html
-	@git archive --format=tar --prefix=$(RELEASE_BASENAME)/ --output $(RELEASE_BASENAME).tar v$(VERSION)
-	@mkdir $(RELEASE_BASENAME)
-	@mv INSTALL.html README.html MAN.html $(RELEASE_BASENAME)/
-	@tar rf $(RELEASE_BASENAME).tar $(RELEASE_BASENAME)
-	@gzip -9 $(RELEASE_BASENAME).tar
-	@rm -r $(RELEASE_BASENAME)
+##release: html
+##	@git archive --format=tar --prefix=$(RELEASE_BASENAME)/ --output $(RELEASE_BASENAME).tar v$(VERSION)
+##	@mkdir $(RELEASE_BASENAME)
+##	@mv INSTALL.html README.html MAN.html $(RELEASE_BASENAME)/
+##	@tar rf $(RELEASE_BASENAME).tar $(RELEASE_BASENAME)
+##	@gzip -9 $(RELEASE_BASENAME).tar
+##	@rm -r $(RELEASE_BASENAME)
 
 help:
 	@echo "Type 'make install' to install grid-updates on your system."
@@ -83,7 +95,10 @@ lint:
 		done; \
 		exit 0
 
-dist: html
+dist: html man dist-stamp
+
+dist-stamp:
 	python setup.py sdist --owner root --group root --formats gztar,zip
+	@touch $@
 
 .PHONY: man viewman clean install help html tahoehtml default installpatch lint dist

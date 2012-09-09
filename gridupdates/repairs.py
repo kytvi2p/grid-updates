@@ -19,6 +19,7 @@ from gridupdates.functions import gen_full_tahoe_uri
 from gridupdates.functions import is_literal_file
 from gridupdates.functions import tahoe_dl_file
 from gridupdates.functions import json_list_is_valid
+from gridupdates.functions import subscription_list_is_valid
 
 def repair_share(sharename, repair_uri, mode, verbosity=0):
     """Run (deep-)checks including repair and add-lease on a Tahoe share;
@@ -28,7 +29,8 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
     if mode == 'deep-check':
         params = urlencode({'t': 'stream-deep-check',
                             'repair': 'true',
-                            'add-lease': 'true'}
+                            'add-lease': 'true',
+                            'output': 'json'}
                             ).encode('utf8')
     elif mode == 'one-check':
         params = urlencode({'t': 'check',
@@ -47,7 +49,7 @@ def repair_share(sharename, repair_uri, mode, verbosity=0):
     except HTTPError as exc:
         print('ERROR: Could not run %s for %s: %s' % (mode, sharename, exc),
                                                         file=sys.stderr)
-        return
+        return exc
     except URLError as urlexc:
         print("ERROR: %s while running %s for %s." % (urlexc, mode, sharename),
                                                                file=sys.stderr)
@@ -108,34 +110,6 @@ def parse_result(result, mode, unhealthy, verbosity=0):
             unhealthy += 1
         return status, unhealthy
 
-def repair_action(uri_dict, verbosity=0):
-    """Repair all (deep-check) Tahoe shares in a dictionary."""
-    if verbosity > 0:
-        print("-- Repairing the grid-updates Tahoe shares --")
-    mode = 'deep-check'
-    unhealthy = 0
-    # shuffle() to even out chances of all shares to get repaired
-    # (Is this useful?)
-    sharelist = list(uri_dict.keys())
-    random.shuffle(sharelist)
-    for sharename in sharelist:
-        repair_uri = uri_dict[sharename][1]
-        results = repair_share(sharename, repair_uri, mode, verbosity)
-        if not results:
-            return
-        if verbosity > 1:
-            print('INFO: Post-repair results for: %s' % sharename)
-        for result in results:
-            status, unhealthy = parse_result(result.decode('utf8'),
-                                                mode, unhealthy, verbosity)
-    # Print summary
-    if unhealthy == 1:
-        sub = 'object'
-    else:
-        sub = 'objects'
-    if verbosity > 0:
-        print("Deep-check of grid-updates shares completed: "
-                            "%d %s unhealthy." % (unhealthy, sub))
 
 class RepairList(object):
     """
@@ -180,8 +154,12 @@ class RepairList(object):
             print('Repairs have completed (unhealthy: %d).' % self.unhealthy)
 
     def dl_sharelist(self):
+        """
+        Attempt to retrieve sharelist from the grid. If the sharelist is determined to
+        be valid, the sharelist is returned.
+        """
         shares = tahoe_dl_file(self.subscription_uri, self.verbosity).read().decode('utf8')
-        if json_list_is_valid(shares):
+        if subscription_list_is_valid(shares, self.verbosity):
             return shares
         else:
             return
@@ -205,23 +183,32 @@ class RepairList(object):
         return repair_uris
 
     def one_check(self, sharename, repair_uri, mode):
+        """Performs a shallow repair on 'repair_uri'"""
         result = repair_share(sharename, repair_uri, mode, self.verbosity)
-        if not result:
-            return
-        status, self.unhealthy = parse_result(result.decode('utf8'), mode,
-                                                    self.unhealthy, self.verbosity)
+        if re.match(r'^HTTP\ Error\ 410:\ Gone$', result.decode('utf8')):
+            status = 'not retrievable'
+            self.unhealthy += 1
+        elif json_list_is_valid(result.decode('utf8'), self.verbosity):
+            status, self.unhealthy = parse_result(result.decode('utf8'), mode,
+                                                self.unhealthy, self.verbosity)
+        else:
+            status = 'unknown: Errors occured. Check this file manually to investigate.'
         if self.verbosity > 1:
             print("  Status: %s" % status)
 
     def deep_check(self, sharename, repair_uri, mode):
+        """Performs a deep recursive check on 'repair_uri'"""
         results = repair_share(sharename, repair_uri, mode, self.verbosity)
-        if not results:
+        if results is None:
+            print('WARN: Received no results.')
             return
         for result in results:
-            status, self.unhealthy = parse_result(result.decode('utf8'),
-                                                mode, self.unhealthy, self.verbosity)
+            if json_list_is_valid(result.decode('utf8'), self.verbosity):
+                status, self.unhealthy = parse_result(result.decode('utf8'),
+                                        mode, self.unhealthy, self.verbosity)
 
     def level_check(self, sharename, repair_uri, mode):
+        """Performs a custom repair of 'repair_uri' %d levels deep."""
         levels = int(re.sub(r'level-check\ (\d+)', r'\1', mode))
         if self.verbosity > 1:
             print('INFO: Will check %d levels deep.' % levels)

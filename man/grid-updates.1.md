@@ -1,6 +1,6 @@
 % GRID-UPDATES(1) User Commands
 % darrob <darrob@mail.i2p>, KillYourTV <killyourtv@mail.i2p>
-% April 2012
+% September 2012
 
 NAME
 ====
@@ -33,10 +33,7 @@ ACTIONS
 :   Retrieve the news feed.  See the **NEWS** section below.
 
 -r, \--repair
-:   Maintain or repair the health of the subscription service's URIs.
-
--R, \--repair-list
-:   Retrieve a list of shares and maintain/repair them.
+:   Maintain the health of Tahoe shares listed in a subscription.
 
 \--patch-tahoe
 :   Patch the Tahoe-LAFS web console to display the grid-updates news feed in
@@ -69,11 +66,11 @@ OPTIONS
 -d *directory*, \--node-directory *directory*
 :   Specify the node directory (default: *~/.tahoe*),
 
-\--format *tar|deb|zip|arch|exe|py2exe*
+\--format *tar|deb|zip|exe|py2exe*
 :   Specify in which format to download the update. Choices are: 'tar' (unix source
-	archive), 'deb' (Debian package), 'arch' (ArchLinux package), 'zip' (Windows source archive),
+	archive), 'deb' (Debian package), 'zip' (Windows source archive),
 	'exe' (Windows installer [requires Python]),
-	'py2exe' (Windows installers [doesn't require Python]).
+	'py2exe' (Windows installer [doesn't require Python]).
 
 \--list-uri *FILE CAP*
 :   Override the default location of the introducers list.
@@ -85,7 +82,7 @@ OPTIONS
 :   Override the default location of script updates.
 
 \--repairlist-uri *FILE CAP*
-:   Override the default location of the \--repair-list subscription file.
+:   Override the default location of the \--repair subscription file.
 
 -v
 :   Increase verbosity of output.
@@ -136,19 +133,6 @@ regular feed readers to check for *grid-updates* news.  (Please note, however,
 that you cannot "refresh" the feed with regular news readers.  These files have
 to always be fetched by *grid-updates* first.)
 
-SHARE HEALTH
-============
-
-All *grid-updates* subscriptions reside on the Tahoe grid, which means that
-they need to be maintained (renewal of leases, repairs).  Please contribute to
-their maintenance by running `--repair` from time to time.
-
-If the script repeatedly fails to retrieve files from the grid, the share may
-be damaged and you will have to find a new set of URIs to subscribe to.  One
-way to possibly get them is to run `--check-version` to see if there is a new
-version of *grid-updates* available.  Newer versions might already include new
-default URIs.
-
 INFORMATION FOR SUBSCRIPTION MAINTAINERS
 ========================================
 
@@ -173,7 +157,23 @@ FILES
 BUGS
 ====
 
+**ERROR: Can't parse JSON list: No JSON object could be decoded**
+:   Currently Tahoe doesn't return JSON data if it encounters exceptions (see
+    Trac ticket #1799). If you see this **grid-updates** error, you can rerun
+    your command in debug mode (`-vvv`) to see Tahoe's actual response.
+
+	This error is most likely to occur during *deep-check* operations. If it
+	does, it probably encountered the *NotEnoughSharesError* error, which means
+	that a file was unrecoverable. You should investigate the problem using
+	Tahoe directly.
+
+**ERROR: Could not run one-check for testfile: HTTP Error 410: Gone**
+:   This error is related to the one above but happens during *one-check*
+    operations.  If a file is not retrievable (due to not enough remaining
+    shares) Tahoe responds with HTTP error 410.
+
 Please report bugs in #tahoe-lafs on Irc2p or via email (see below).
+
 
 SEE ALSO
 ========

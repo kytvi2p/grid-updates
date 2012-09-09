@@ -70,10 +70,9 @@ def main():
     and not opts.repair
     and not opts.check_version
     and not opts.download_update
-    and not opts.repairlist
     and not opts.patch_ui
     and not opts.undo_patch_ui
-    and not opts.mknews_md_file):
+    and not opts.news_source_file):
         print('ERROR: You need to specify an action. Please see %s --help.' %
                 sys.argv[0], file=sys.stderr)
         sys.exit(2)
@@ -163,12 +162,10 @@ def main():
             webui.run_action('patch', web_static_dir)
         elif opts.undo_patch_ui:
             webui.run_action('undo', web_static_dir)
-    if opts.mknews_md_file:
+    if opts.news_source_file:
         mknews = MakeNews(opts.verbosity)
-        mknews.run_action(opts.mknews_md_file, opts.output_dir)
+        mknews.run_action(opts.news_source_file, opts.output_dir)
     if opts.repair:
-        repairs.repair_action(uri_dict, opts.verbosity)
-    if opts.repairlist:
         repairlist = repairs.RepairList(tahoe_node_url,
                                         uri_dict['repairlist'][1],
                                         opts.verbosity)

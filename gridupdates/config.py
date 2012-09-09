@@ -153,17 +153,13 @@ def parse_args(argv):
             action = 'store_true',
             dest = "repair",
             default = False,
-            help = 'Run a deep-check and repair on all grid-updates shares.')
+            help = 'Retrieve a list of shares and maintain/repair them. '
+                    'Repairs the grid-updates subscriptions by default.')
     action_opts.add_argument('-R', '--repair-list',
-            action = 'store_true',
-            dest = "repairlist",
-            default = False,
-            help = 'Retrieve a list of shares and maintain/repair them.')
-    action_opts.add_argument('--community-repair',
             action = 'store_true',
             dest = "deprecated",
             default = False,
-            help = 'This action is deprecated! Please use --repair-list instead.')
+            help = 'This action is deprecated! Please use --repair instead.')
     action_opts.add_argument('--check-version',
             action = 'store_true',
             dest = "check_version",
@@ -187,7 +183,7 @@ def parse_args(argv):
             help = 'Restore the original Tahoe Web console files.')
     action_opts.add_argument('--make-news',
             action = 'store',
-            dest = "mknews_md_file",
+            dest = "news_source_file",
             help = 'Compile a grid-updates-compatible NEWS.tgz file from'
                     ' a Markdown file.')
     parser.add_argument_group(action_opts)
@@ -224,12 +220,6 @@ def parse_args(argv):
             default = default_config['repairlist_uri'],
             help = ('Override default location of additional repair '
                     'subscription.'))
-    other_opts.add_argument('--comrepair-uri',
-            action = 'store_true',
-            dest = 'deprecated',
-            default = False,
-            help = ('This option is deprecated! Please use --repairlist-uri '
-                    'instead.'))
     other_opts.add_argument('--format',
             action = 'store',
             dest = 'update_format',
