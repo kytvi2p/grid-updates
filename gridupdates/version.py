@@ -3,5 +3,5 @@ __license__ = "Public Domain"
 __maintainer__ = ['darrob', 'KillYourTV']
 __email__ = ['darrob@mail.i2p', 'killyourtv@mail.i2p']
 __status__ = "Development"
-__version__ = "1.1.3"
+__version__ = "1.2.0"
 __patch_version__ = 'gu7'

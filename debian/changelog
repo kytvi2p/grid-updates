@@ -1,9 +1,9 @@
-grid-updates (1.2.0-1) UNRELEASED; urgency=low
+grid-updates (1.2.0-1) stable; urgency=low
 
   * New upstream release
   * Add dependency on python-argparse
 
- -- Kill Your TV <killyourtv@i2pmail.org>  Thu, 06 Sep 2012 11:27:17 +0000
+ -- Kill Your TV <killyourtv@i2pmail.org>  Sun, 09 Sep 2012 14:42:38 +0000
 
 grid-updates (1.1.3-1) stable; urgency=low
 
