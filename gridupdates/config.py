@@ -154,7 +154,7 @@ def parse_args(argv):
             dest = "repair",
             default = False,
             help = 'Retrieve a list of shares and maintain/repair them. '
-                    'Repairs the grid-updates subscriptions by default.')
+                    'Repairs I2P community shares by default.')
     action_opts.add_argument('-R', '--repair-list',
             action = 'store_true',
             dest = "deprecated",
