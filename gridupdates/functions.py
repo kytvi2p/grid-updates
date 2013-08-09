@@ -138,7 +138,7 @@ def find_tahoe_dir(tahoe_node_url):
     'web' directory by parsing the tahoe web console."""
     webconsole = urlopen(tahoe_node_url)
     match = re.search(r'.*\ \'(.*__init__.py)', webconsole.read().decode('utf8'))
-    if match:
+    if match is not None:
         tahoe_dir = os.path.dirname(match.group(1))
         return tahoe_dir
     else:
@@ -173,9 +173,12 @@ def find_web_static_dir(tahoe_node_dir):
 def get_tahoe_version(tahoe_node_url):
     """Determine Tahoe-LAFS version number from web console."""
     webconsole = urlopen(tahoe_node_url)
-    match = re.search(r'allmydata-tahoe:\ (.*),', webconsole.read().decode('utf'))
-    version = match.group(1)
-    return version
+    match = re.search(r'allmydata-tahoe:\ (.*),?', webconsole.read().decode('utf'))
+    if match is not None:
+        version = match.group(1)
+        return version
+    else:
+        return False
 
 def remove_temporary_dir(directory, verbosity=0):
     """Remove a (temporary) directory."""
