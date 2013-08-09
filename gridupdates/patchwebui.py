@@ -19,29 +19,37 @@ class PatchWebUI(object):
     def __init__(self, latest_patch_version, tahoe_node_url, verbosity=0):
         self.verbosity = verbosity
         self.tahoe_node_url = tahoe_node_url
-        self.tahoe_version = LooseVersion(get_tahoe_version(tahoe_node_url))
+        ver = get_tahoe_version(tahoe_node_url)
+        if ver is not None:
+            self.tahoe_version = LooseVersion(ver)
+        else:
+            self.tahoe_version = ver
+        print("Detected tahoe v%s" % self.tahoe_version)
         self.latest_patch_version = latest_patch_version
         self.datadir = find_datadir()
-        if self.verbosity > 0:
+        self.is_compatible_version = self.compatible_version()
+        if self.verbosity > 0 and ver is not None:
             print("-- Patching or checking Tahoe web console --")
         tahoe_dir = find_tahoe_dir(tahoe_node_url)
-        if tahoe_dir:
+        if tahoe_dir is not None:
             self.webdir = os.path.join(tahoe_dir, 'web')
         else:
             sys.exit(1)
         self.filepaths = {'welcome.xhtml': [], 'tahoe.css': []}
-        self.add_patch_filepaths()
-        self.add_target_filepaths()
+        if ver is not None:
+            self.add_patch_filepaths()
+            self.add_target_filepaths()
         if self.verbosity > 3:
             print('DEBUG: Data dir is: %s' % self.datadir)
             print('DEBUG: Tahoe web dir is: %s' % self.webdir)
-            print('DEBUG: File paths:')
-            print(self.filepaths)
+            if ver is not None and self.is_compatible_version:
+                print('DEBUG: File paths:')
+                print(self.filepaths)
 
     def run_action(self, mode, web_static_dir):
         """Call this method to execute the desired action (--patch-tahoe or
         --undo-patch-tahoe). It will run the necessary methods."""
-        if self.compatible_version:
+        if self.is_compatible_version:
             if mode == 'patch':
                 if is_root():
                     print('WARN: Not installing NEWS.html placeholder (running'
@@ -105,7 +113,7 @@ class PatchWebUI(object):
     def compatible_version(self):
         """Check Tahoe-LAFS's version to be known. We don't want to replace an
         unexpected and possibly redesigned web UI."""
-        if self.tahoe_version >= LooseVersion('1.8.3') and \
+        if self.tahoe_version is not None and self.tahoe_version >= LooseVersion('1.8.3') and \
                 self.tahoe_version < LooseVersion('1.9.3'):
             if self.verbosity > 2:
                 print('DEBUG: Found compatible version of Tahoe-LAFS (%s)'
