@@ -95,6 +95,8 @@ def main():
 
     tahoe_node_url = set_tahoe_node_url(opts.tahoe_node_url,
                                         opts.tahoe_node_dir)
+    if not tahoe_node_url.startswith('http://'):
+        tahoe_node_url = 'http://' + tahoe_node_url
     if opts.verbosity > 2:
         print('DEBUG: tahoe_node_url is: %s.' % tahoe_node_url)
 
