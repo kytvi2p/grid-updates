@@ -23,24 +23,28 @@ class Update(object):
         self.url = url
         if self.verbosity > 0:
             print("-- Looking for script updates --")
-        self.dir_url = self.url + '/?t=json'
-        self.latest_version = self.get_version_number()
+        if self.url is not None:
+            self.dir_url = self.url + '/?t=json'
+            self.latest_version = self.get_version_number()
 
     def run_action(self, mode, requested_dist='tar'):
         """Call this method to execute the desired action (--check-version or
         --download-update). It will run the necessary methods."""
+        # TODO Requested download type should be checked for validity before
+        # making any network connections.
+
         if self.new_version_available():
             if mode == 'check':
                 self.print_versions()
             elif mode == 'download':
                 download_filename = self.gen_download_filename(requested_dist)
-                if not download_filename:
-                    return
                 self.download(download_filename, 'update')
                 self.download(download_filename + '.sig', 'signature')
+            return True
         else:
             if self.verbosity > 0:
                 print('No update available.')
+                return False
 
     def gen_download_filename(self, req_dist):
         """This function accepts a file extension and returns the filename of a
@@ -72,6 +76,8 @@ class Update(object):
         if self.verbosity > 2:
             print('DEBUG: Parsing Tahoe dir: %s.' % self.dir_url)
         # list Tahoe dir
+        if self.url is None:  # will only happen when testing
+            return
         try:
             json_dir = urlopen(self.dir_url).read().decode('utf8')
         except HTTPError as exc:

@@ -10,6 +10,7 @@ import sys
 from gridupdates.functions import find_tahoe_dir
 from gridupdates.functions import find_datadir
 from gridupdates.functions import is_root
+from gridupdates.functions import compatible_version
 from gridupdates.functions import get_tahoe_version
 from gridupdates.functions import install_news_stub
 
@@ -27,7 +28,8 @@ class PatchWebUI(object):
         print("Detected tahoe v%s" % self.tahoe_version)
         self.latest_patch_version = latest_patch_version
         self.datadir = find_datadir()
-        self.is_compatible_version = self.compatible_version()
+        self.is_compatible_version = compatible_version(self.tahoe_version,
+                self.verbosity)
         if self.verbosity > 0 and ver is not None:
             print("-- Patching or checking Tahoe web console --")
         tahoe_dir = find_tahoe_dir(tahoe_node_url)
@@ -109,21 +111,6 @@ class PatchWebUI(object):
                 print('A newer patch version is available. '
                         'Run --patch-tahoe to install it.')
             return True
-
-    def compatible_version(self):
-        """Check Tahoe-LAFS's version to be known. We don't want to replace an
-        unexpected and possibly redesigned web UI."""
-        if self.tahoe_version is not None and self.tahoe_version >= LooseVersion('1.8.3') and \
-                self.tahoe_version < LooseVersion('1.9.3'):
-            if self.verbosity > 2:
-                print('DEBUG: Found compatible version of Tahoe-LAFS (%s)'
-                        % self.tahoe_version)
-            return True
-        else:
-            if self.verbosity > 2:
-                print('DEBUG: Incompatible version of Tahoe-LAFS (%s).'
-                      ' Cannot patch web UI.' % self.tahoe_version)
-            return False
 
     def add_patch_filepaths(self):
         """Add locations of patched web UI files to the location dict."""

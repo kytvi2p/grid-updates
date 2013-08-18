@@ -50,11 +50,13 @@ class News(object):
         else:
             if self.verbosity > 0:
                 print('There are no news.')
+                return False
         # adjust Atom links to point to the configured node URL
         self.fix_atom_links()
         # Copy in any case to make easily make sure that all versions
         # (escpecially the HTML version) are always present:
         self.install_files()
+        return True
 
     def download_news(self):
         """Download NEWS.tgz file to local temporary file."""

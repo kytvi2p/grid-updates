@@ -1,6 +1,7 @@
 from __future__ import print_function
 from shutil import copyfile
 from shutil import rmtree
+from distutils.version import LooseVersion
 import ctypes # TODO import only needed function?
 import imp
 import json
@@ -259,3 +260,19 @@ def install_news_stub(web_static_dir):
     if not os.access(targetfile, os.F_OK):
         news_stub_file = os.path.join(find_datadir(), 'news-stub.html')
         copyfile(news_stub_file, targetfile)
+
+def compatible_version(tahoe_version, verbosity=0):
+    """Check Tahoe-LAFS's version to be known. We don't want to replace an
+    unexpected and possibly redesigned web UI."""
+    if tahoe_version is not None and tahoe_version >= LooseVersion('1.8.3') and \
+            tahoe_version < LooseVersion('1.9.3'):
+        if verbosity > 2:
+            print('DEBUG: Found compatible version of Tahoe-LAFS (%s)'
+                    % tahoe_version)
+        return True
+    else:
+        if verbosity > 2:
+            print('DEBUG: Incompatible version of Tahoe-LAFS (%s).'
+                  ' Cannot patch web UI.' % tahoe_version)
+        return False
+
