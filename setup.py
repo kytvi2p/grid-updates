@@ -8,6 +8,9 @@ import sys
 if sys.hexversion < int(0x020600f0):
     sys.stderr.write('ERROR: grid-updates requires Python 2.6 or newer.\n')
     sys.exit(1)
+elif sys.hexversion > int(0x030000f0) and sys.hexversion < int(0x030200f0):
+    sys.stderr.write('ERROR: grid-updates requires Python 3.2 or newer.\n')
+    sys.exit(1)
 
 from distutils.core import setup
 import platform
