@@ -50,23 +50,18 @@ class Update(object):
         """This function accepts a file extension and returns the filename of a
         grid-updates update."""
         basename = ('grid-updates-' + self.latest_version)
-        if req_dist == 'tar' :
-            download_filename = (basename + '.tar.gz')
-        elif req_dist == 'zip':
-            download_filename = (basename + '.zip')
-        elif req_dist == 'py2exe':
-            download_filename = (basename + '.py2exe.exe')
-        elif req_dist == 'exe':
-            download_filename = (basename + '.win32.exe')
-        elif req_dist == 'deb':
-            download_filename = ('grid-updates_' +
-                                self.latest_version +
-                                '-1_all.deb')
-        else:
-            print("ERROR: You've requested an unknown update format.",
-                    file=sys.stderr)
-            return
-        return download_filename
+        available_formats = {
+                'tar': basename + '.tar.gz',
+                'zip': basename + '.zip',
+                'py2exe': basename + '.py2exe.exe',
+                'exe': basename + '.win32.exe',
+                'deb': 'grid-updates_' + self.latest_version + '-1_all.deb'
+                }
+        if req_dist not in available_formats.keys():
+            raise ValueError("""You've requested an unknown update format. Valid formats: %s """ %
+                    [ i for i in list(available_formats.keys())])
+
+        return available_formats[req_dist]
 
     def get_version_number(self):
         """Determine latest available version number by parsing the Tahoe
