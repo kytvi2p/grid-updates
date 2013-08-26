@@ -12,9 +12,10 @@ elif sys.hexversion > int(0x030000f0) and sys.hexversion < int(0x030200f0):
     sys.stderr.write('ERROR: grid-updates requires Python 3.2 or newer.\n')
     sys.exit(1)
 
-from distutils.core import setup
+from distutils.core import setup, Command
 import platform
 import shutil
+import subprocess
 from gridupdates.version import __version__
 extra_args = {}
 SCRIPTS = []
@@ -31,7 +32,29 @@ else:
     script_name = 'grid-updates'
 SCRIPTS.append(script_name)
 
-setup(name = 'grid-updates',
+class Trial(Command):
+    user_options = [ ("no-rterrors", None, "Don't print out tracebacks as they occur."),
+                     ("rterrors", "e", "Print out tracebacks as they occur (default, so ignored)."),
+                     ("until-failure", "u", "Repeat a test (specified by -s) until it fails."),
+                     ("reporter=", None, "The reporter to use for this test run."),
+                     ("quiet", None, "Don't display version numbers and paths of Tahoe dependencies."),
+                   ] 
+    def initialize_options(self):
+        self.rterrors = False
+        self.no_rterrors = False
+        self.until_failure = False
+        self.reporter = None
+        self.quiet = False
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        args = [sys.executable, './tests.py', '--verbose']
+        rc = subprocess.call(args)
+        sys.exit(rc)
+
+setup(cmdclass = {'trial': Trial}, name = 'grid-updates',
         # Get the version number dynamically after importing g-u
         version = __version__,
         packages = ['gridupdates'],
@@ -126,5 +149,23 @@ updates, recommended configuration changes and such.""",
             provides = ['gridupdates'],
             **extra_args
         )
+
+def run_command(args, cwd=None, verbose=False):
+    try:
+        # remember shell=False, so use git.cmd on windows, not just git
+        p = subprocess.Popen(args, stdout=subprocess.PIPE, cwd=cwd)
+    except EnvironmentError:
+        # Python2.5 hack
+        _, err, _= sys.exc_info()
+        if verbose:
+            print("unable to run %s" % args[0])
+            print(e)
+        return None
+    stdout = p.communicate()[0].strip()
+    if p.returncode != 0:
+        if verbose:
+            print("unable to run %s (error)" % args[0])
+        return None
+    return stdout
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
