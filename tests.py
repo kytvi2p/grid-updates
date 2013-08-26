@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
-from gridupdates import functions, config, update, version, news, introducers
+from gridupdates import functions, config, update, version, news, introducers, repairs
 #from gridupdates.news import News
 from gridupdates.functions import gen_full_tahoe_uri
 import os
@@ -225,6 +225,10 @@ pb://6y2vv5gnnd4lrw2mv4rehxfzapgdmebq@abaihqkysj6celuk6k6rmfnqjscf4uvl5nxrs4v7yk
             count = len(intro.readlines())
         self.assertGreater(count, 5)
 
+    def test_repairs(self):
+        repairlist = repairs.RepairList(self.tahoe_node_uri,
+                functions.gen_full_tahoe_uri(self.tahoe_node_uri, self.config['repairlist_uri']), 2)
+        repairlist.run_action()
 
 if __name__ == '__main__':
     unittest.main()
