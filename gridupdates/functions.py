@@ -173,12 +173,13 @@ def find_web_static_dir(tahoe_node_dir):
 def get_tahoe_version(tahoe_node_url):
     """Determine Tahoe-LAFS version number from web console."""
     webconsole = urlopen(tahoe_node_url)
-    match = re.search(r'allmydata-tahoe:\ (.*),?', webconsole.read().decode('utf'))
+    match = re.search(r'allmydata-tahoe:\s+([A-Za-z0-9.-]+)', webconsole.read().decode('utf8'))
     if match is not None:
         version = match.group(1)
-        return version
+        return str(version)
     else:
-        return False
+        raise ValueError('Incompatible Tahoe-LAFS version')
+        #return False
 
 def remove_temporary_dir(directory, verbosity=0):
     """Remove a (temporary) directory."""
