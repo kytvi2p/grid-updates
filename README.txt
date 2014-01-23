@@ -31,8 +31,7 @@ Download
 -  Git
 
    -  `Git repository`_ (`Gitweb`_)
-   -  `Git mirror 1 <http://darrob.i2p/grid-updates/grid-updates.git>`_
-   -  `Git mirror 2 <http://killyourtv.i2p/git/grid-updates.git>`_ (`Gitweb 2`_ )
+   -  `Git mirror <http://killyourtv.i2p/git/grid-updates.git>`_ (`Gitweb 2`_ )
 
 .. _Project Eepsite:  http://killyourtv.i2p/grid-updates/
 .. _`URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq`: http://127.0.0.1:3456/uri/URI%3ADIR2-RO%3Ahgh5ylzzj6ey4a654ir2yxxblu%3Ahzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/
