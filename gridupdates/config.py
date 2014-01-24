@@ -155,11 +155,6 @@ def parse_args(argv):
             default = False,
             help = 'Retrieve a list of shares and maintain/repair them. '
                     'Repairs I2P community shares by default.')
-    action_opts.add_argument('-R', '--repair-list',
-            action = 'store_true',
-            dest = "deprecated",
-            default = False,
-            help = 'This action is deprecated! Please use --repair instead.')
     action_opts.add_argument('--check-version',
             action = 'store_true',
             dest = "check_version",
@@ -272,11 +267,5 @@ def parse_args(argv):
                 'output_dir']:
             print('%16s: %s' % (opt, vars(opts)[opt]))
         print("DEBUG: Patch directory is:", find_datadir())
-
-    # Temporar: abort on deprecated options
-    if opts.deprecated:
-        print('ERROR: you have used a deprecated command. Please see %s --help.' %
-                sys.argv[0], file=sys.stderr)
-        sys.exit(1)
 
     return opts
