@@ -43,6 +43,7 @@ class TestWithoutNetwork(unittest.TestCase):
     def test_valid_introducer(self):
         """is_valid_introducer should be able to weed out bad introducers"""
         self.assertTrue(functions.is_valid_introducer('pb://md2tltfmdjvzptg4mznha5zktaxatpmz@5nrsgknvztikjxnpvidlokquojjlsudf7xlnrnyobj7e7trdmuta.b32.i2p/introducer'))
+        self.assertTrue(functions.is_valid_introducer('pb://md2tltfmdjvzptg4mznha5zktaxatpmz@5nrsgknvztikjxnpvidlokquojjlsudf7xlnrnyobj7e7trdmuta.b32.i2p:666/introducer'))
         self.assertFalse(functions.is_valid_introducer('http://killyourtv.i2p'))
 
     def test_valid_sublist(self):
