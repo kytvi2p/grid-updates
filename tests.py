@@ -122,9 +122,12 @@ repairlist_uri = URI:DIR2-RO:ysxswonidme22ireuqrsrkcv4y:nqxg7ihxnx7eqoqeqoy7xxjm
             return functions.compatible_version(ver)
         self.assertTrue(compat('1.9.2'))
         self.assertTrue(compat('1.9'))
+        self.assertTrue(compat('1.9.0'))
         self.assertTrue(compat('1.8.3'))
 
         self.assertFalse(compat('1.9.10'))
+        self.assertFalse(compat('1.9.3'))
+        self.assertFalse(compat('1.10.0'))
         self.assertFalse(compat('1.7.0'))
         self.assertFalse(compat('1.8.0'))
 
