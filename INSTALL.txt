@@ -8,15 +8,14 @@ for more information about grid-updates.
 Requirements
 ------------
 
-Python version 2.6 and later. A Python installation is not required
-for Windows users.
+Python version 2.6 and later, not including Python 3.0 or 3.1. A Python
+installation is not required for Windows users when using the py2exe version.
 
 Installation
 ------------
 
-Users with an available Python installation can install grid-updates
-with the command ``python setup.py install`` from within the source
-archive.
+Those with a supported version of Python can install grid-updates with the
+command ``python setup.py install`` from within the source archive.
 
 Debian users can build packages with the command
 ``fakeroot debian/rules binary``. This will build a package that can be
@@ -33,10 +32,10 @@ In short: if you're running Windows and don't know which file to get, download
 the py2exe version.
 
 
-Consider running ``grid-updates --patch-tahoe`` after installation.  This will
-apply a small patch to Tahoe-LAFS's web console to allow displaying news from
-grid-updates in an Iframe. The web console can be restored to its original
-state with ``grid-updates --undo-tahoe-patch``.
+Consider running ``grid-updates --patch-tahoe`` after installation (not yet
+available for Tahoe-LAFS 1.10).  This will apply a small patch to Tahoe-LAFS's
+web console to allow displaying news from grid-updates in an Iframe. The web
+console can be restored to its original state with ``grid-updates --undo-tahoe-patch``.
 
 Permissions
 -----------

@@ -106,7 +106,8 @@ email.
 
 .. [1]
    You need at least Tahoe version 1.8.3 patched for multiple introducer
-   support. See <http://killyourtv.i2p/tag/multiple_introducer/>
+   support. See <http://killyourtv.i2p/tag/multiple_introducer/> (Inline
+   news-feeds are not yet supported in Tahoe 1.10)
 
 .. _man page: man/grid-updates.1.md
 .. _INSTALL.txt: INSTALL.txt
