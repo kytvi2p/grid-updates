@@ -155,12 +155,12 @@ def parse_args(argv):
             default = False,
             help = 'Retrieve a list of shares and maintain/repair them. '
                     'Repairs I2P community shares by default.')
-    action_opts.add_argument('--check-version',
+    action_opts.add_argument('--check-version', '--check-update',
             action = 'store_true',
             dest = "check_version",
             default = False,
             help = 'Check for a new version of grid-updates.')
-    action_opts.add_argument('--download-update',
+    action_opts.add_argument('--download-update', '--update',
             action = 'store_true',
             dest = "download_update",
             default = False,
