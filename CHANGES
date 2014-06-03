@@ -1,10 +1,10 @@
-2014-01-?? (version 1.2.1)
+2014-06-04 (version 1.2.1)
         * Initial support for Tahoe-LAFS 1.10. Support for displaying news in an iframe is not yet
 	  supported on this version of Tahoe.
 	* Fix compatibility check when run on systems with Tahoe-LAFS 1.10
 	* Automatically add `http://` to node URLS that lack them.
 	* Refuse to run on Python 3.0 or 3.1
-	* Some basic unit tests
+	* Addition of some basic unit tests
 	* Other minor fixes and improvements
 
 2012-09-09 (version 1.2.0)
