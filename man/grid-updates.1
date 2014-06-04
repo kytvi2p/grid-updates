@@ -1,89 +1,89 @@
-.TH GRID-UPDATES 1 "September 2012" "User Commands"
+.TH "GRID\-UPDATES" "1" "September 2012" "User Commands" ""
 .SH NAME
 .PP
-grid-updates - Helper Script for Tahoe-LAFS Nodes
+grid\-updates \- Helper Script for Tahoe\-LAFS Nodes
 .SH SYNOPSIS
 .PP
-\f[B]grid-updates\f[] [\f[I]OPTIONS\f[]] \f[I]ACTIONS\f[]
+\f[B]grid\-updates\f[] [\f[I]OPTIONS\f[]] \f[I]ACTIONS\f[]
 .SH DESCRIPTION
 .PP
-\f[I]grid-updates\f[] is a Python script intended to help keep
-Tahoe-LAFS nodes\[aq] configurations up-to-date.
+\f[I]grid\-updates\f[] is a Python script intended to help keep
+Tahoe\-LAFS nodes\[aq] configurations up\-to\-date.
 It can retrieve lists of introducers as well as news feeds from the
 Tahoe grid.
 This is useful for any public grid that relies solely on volunteers.
 .SH ACTIONS
 .TP
-.B -s, --sync-introducers
+.B \-s, \-\-sync\-introducers
 Synchronize your node\[aq]s local list of introducers with the master
 list.
 .RS
 .RE
 .TP
-.B -m, --merge-introducers
+.B \-m, \-\-merge\-introducers
 Merge your node\[aq]s local introducers list with the
 subscription\[aq]s.
 .RS
 .RE
 .TP
-.B -n, --download-news
+.B \-n, \-\-download\-news
 Retrieve the news feed.
 See the \f[B]NEWS\f[] section below.
 .RS
 .RE
 .TP
-.B -r, --repair
+.B \-r, \-\-repair
 Maintain the health of Tahoe shares listed in a subscription.
 .RS
 .RE
 .TP
-.B --patch-tahoe
-Patch the Tahoe-LAFS web console to display the grid-updates news feed
+.B \-\-patch\-tahoe
+Patch the Tahoe\-LAFS web console to display the grid\-updates news feed
 in an Iframe.
 .RS
 .RE
 .TP
-.B --undo-patch-tahoe
-Remove the grid-updates patch to the Tahoe web console and restore its
+.B \-\-undo\-patch\-tahoe
+Remove the grid\-updates patch to the Tahoe web console and restore its
 original version.
 .RS
 .RE
 .TP
-.B --make-news \f[I]file\f[]
-Create a \f[I]grid-updates\f[]-compatible NEWS.tgz file from a
+.B \-\-make\-news \f[I]file\f[]
+Create a \f[I]grid\-updates\f[]\-compatible NEWS.tgz file from a
 reStructuredText source file.
 .RS
 .RE
 .TP
-.B --check-version
+.B \-\-check\-version
 Check for a new version of this script on the grid.
 .RS
 .RE
 .TP
-.B --download-update
+.B \-\-download\-update
 Download a new version of this script from the grid to the specified
-directory (implies \f[C]--check-update\f[]).
+directory (implies \f[C]\-\-check\-update\f[]).
 .RS
 .RE
 .SH OPTIONS
 .TP
-.B -c \f[I]config file\f[], --config \f[I]config file\f[]
-Specify a grid-updates config file.
+.B \-c \f[I]config file\f[], \-\-config \f[I]config file\f[]
+Specify a grid\-updates config file.
 See \f[B]CONFIG FILES\f[] section below.
 .RS
 .RE
 .TP
-.B -u \f[I]URL\f[], --node-url \f[I]URL\f[]
+.B \-u \f[I]URL\f[], \-\-node\-url \f[I]URL\f[]
 Specify the gateway node\[aq]s URL (default: http://127.0.0.1:3456),
 .RS
 .RE
 .TP
-.B -d \f[I]directory\f[], --node-directory \f[I]directory\f[]
+.B \-d \f[I]directory\f[], \-\-node\-directory \f[I]directory\f[]
 Specify the node directory (default: \f[I]~/.tahoe\f[]),
 .RS
 .RE
 .TP
-.B --format \f[I]tar|deb|zip|exe|py2exe\f[]
+.B \-\-format \f[I]tar|deb|zip|exe|py2exe\f[]
 Specify in which format to download the update.
 Choices are: \[aq]tar\[aq] (unix source archive), \[aq]deb\[aq] (Debian
 package), \[aq]zip\[aq] (Windows source archive), \[aq]exe\[aq] (Windows
@@ -92,77 +92,76 @@ installer [requires Python]), \[aq]py2exe\[aq] (Windows installer
 .RS
 .RE
 .TP
-.B --list-uri \f[I]FILE CAP\f[]
+.B \-\-list\-uri \f[I]FILE CAP\f[]
 Override the default location of the introducers list.
 .RS
 .RE
 .TP
-.B --news-uri \f[I]FILE CAP\f[]
+.B \-\-news\-uri \f[I]FILE CAP\f[]
 Override the default location of the NEWS.tgz file.
 .RS
 .RE
 .TP
-.B --script-uri \f[I]DIR CAP\f[]
+.B \-\-script\-uri \f[I]DIR CAP\f[]
 Override the default location of script updates.
 .RS
 .RE
 .TP
-.B --repairlist-uri \f[I]FILE CAP\f[]
-Override the default location of the --repair subscription file.
+.B \-\-repairlist\-uri \f[I]FILE CAP\f[]
+Override the default location of the \-\-repair subscription file.
 .RS
 .RE
 .TP
-.B -v
+.B \-v
 Increase verbosity of output.
 .RS
 .RE
 .TP
-.B -V, --version
+.B \-V, \-\-version
 Display version information.
 .RS
 .RE
 .TP
-.B -h, --help
+.B \-h, \-\-help
 Print usage information.
 .RS
 .RE
 .SH CONFIG FILES
 .PP
-\f[I]grid-updates\f[] will look for configuration files in
-$XDG_CONFIG_HOME/grid-updates/config.ini and
-$XDG_CONFIG_DIRS/grid-updates/config.ini.
+\f[I]grid\-updates\f[] will look for configuration files in
+\f[I]X\f[]\f[I]D\f[]\f[I]G\f[]~\f[I]C\f[]~\f[I]O\f[]\f[I]N\f[]\f[I]F\f[]\f[I]I\f[]\f[I]G\f[]~\f[I]H\f[]~\f[I]O\f[]\f[I]M\f[]\f[I]E\f[]/\f[I]g\f[]\f[I]r\f[]\f[I]i\f[]\f[I]d\f[] − \f[I]u\f[]\f[I]p\f[]\f[I]d\f[]\f[I]a\f[]\f[I]t\f[]\f[I]e\f[]\f[I]s\f[]/\f[I]c\f[]\f[I]o\f[]\f[I]n\f[]\f[I]f\f[]\f[I]i\f[]\f[I]g\f[].\f[I]i\f[]\f[I]n\f[]\f[I]i\f[]\f[I]a\f[]\f[I]n\f[]\f[I]d\f[]XDG_CONFIG_DIRS/grid\-updates/config.ini.
 .PP
 All options must be listed below the section \f[C][OPTIONS]\f[].
 .PP
 Accepted options are:
 .TP
 .B tahoe_node_dir = \f[I]directory\f[]
-Same as --node-dir above
+Same as \-\-node\-dir above
 .RS
 .RE
 .TP
 .B list_uri = \f[I]FILE CAP\f[]
-Same as --list-uri option above
+Same as \-\-list\-uri option above
 .RS
 .RE
 .TP
 .B news_uri = \f[I]FILE CAP\f[]
-Same as --news-uri option above
+Same as \-\-news\-uri option above
 .RS
 .RE
 .TP
 .B script_uri = \f[I]DIR CAP\f[]
-Same as --script-uri option above
+Same as \-\-script\-uri option above
 .RS
 .RE
 .TP
 .B comrepair_uri = \f[I]FILE CAP\f[]
-Same as --comrepair-uri option above
+Same as \-\-comrepair\-uri option above
 .RS
 .RE
 .SH NEWS
 .PP
-If you choose to download the news feed, \f[I]grid-updates\f[] will
+If you choose to download the news feed, \f[I]grid\-updates\f[] will
 place a plain text version of it in your node\[aq]s directory and print
 it to stdout.
 This is intended to be sent by cron mail.
@@ -173,16 +172,16 @@ You can access it either directly
 (http://127.0.0.1:3456/static/NEWS.html) or have it be displayed on your
 Tahoe node\[aq]s web console.
 You can prepare the console by running
-\f[C]grid-updates\ --patch-tahoe\f[] once.
+\f[C]grid\-updates\ \-\-patch\-tahoe\f[] once.
 .PP
 The Atom news feed (http://127.0.0.1:3456/static/NEWS.atom) can be used
-by regular feed readers to check for \f[I]grid-updates\f[] news.
+by regular feed readers to check for \f[I]grid\-updates\f[] news.
 (Please note, however, that you cannot "refresh" the feed with regular
 news readers.
-These files have to always be fetched by \f[I]grid-updates\f[] first.)
+These files have to always be fetched by \f[I]grid\-updates\f[] first.)
 .SH INFORMATION FOR SUBSCRIPTION MAINTAINERS
 .PP
-If you want to offer a \f[I]grid-updates\f[] subscription service, you
+If you want to offer a \f[I]grid\-updates\f[] subscription service, you
 will have to provide users with the URIs of your subscription files.
 They can be either in the form \f[I]DIR CAP/filename\f[] or the the file
 cap itself.
@@ -212,68 +211,68 @@ example files in the share directory.
 .P
 .PD
 .IP \[bu] 2
-\f[I]$XDG_CONFIG_HOME/grid-updates/config\f[] (most commonly ~/.config)
+\f[I]$XDG_CONFIG_HOME/grid\-updates/config\f[] (most commonly ~/.config)
 .PD 0
 .P
 .PD
 .IP \[bu] 2
-\f[I]$XDG_CONFIG_DIRS/grid-updates/config\f[] (most commonly /etc/xdg)
+\f[I]$XDG_CONFIG_DIRS/grid\-updates/config\f[] (most commonly /etc/xdg)
 .SH BUGS
 .TP
 .B \f[B]ERROR: Can\[aq]t parse JSON list: No JSON object could be
 decoded\f[]
 Currently Tahoe doesn\[aq]t return JSON data if it encounters exceptions
 (see Trac ticket #1799).
-If you see this \f[B]grid-updates\f[] error, you can rerun your command
-in debug mode (\f[C]-vvv\f[]) to see Tahoe\[aq]s actual response.
+If you see this \f[B]grid\-updates\f[] error, you can rerun your command
+in debug mode (\f[C]\-vvv\f[]) to see Tahoe\[aq]s actual response.
 .RS
 .PP
-This error is most likely to occur during \f[I]deep-check\f[]
+This error is most likely to occur during \f[I]deep\-check\f[]
 operations.
 If it does, it probably encountered the \f[I]NotEnoughSharesError\f[]
 error, which means that a file was unrecoverable.
 You should investigate the problem using Tahoe directly.
 .RE
 .TP
-.B \f[B]ERROR: Could not run one-check for testfile: HTTP Error 410:
+.B \f[B]ERROR: Could not run one\-check for testfile: HTTP Error 410:
 Gone\f[]
 This error is related to the one above but happens during
-\f[I]one-check\f[] operations.
+\f[I]one\-check\f[] operations.
 If a file is not retrievable (due to not enough remaining shares) Tahoe
 responds with HTTP error 410.
 .RS
 .RE
 .PP
-Please report bugs in #tahoe-lafs on Irc2p or via email (see below).
+Please report bugs in #tahoe\-lafs on Irc2p or via email (see below).
 .SH SEE ALSO
 .PP
-The \f[I]grid-updates\f[] Git repositories:
+The \f[I]grid\-updates\f[] Git repositories:
 .IP \[bu] 2
-http://darrob.i2p/grid-updates/
+http://darrob.i2p/grid\-updates/
 .PD 0
 .P
 .PD
 .IP \[bu] 2
-http://git.repo.i2p/r/grid-updates.git
+http://git.repo.i2p/r/grid\-updates.git
 .PD 0
 .P
 .PD
 .IP \[bu] 2
-http://killyourtv.i2p/git/grid-updates.git
+http://killyourtv.i2p/git/grid\-updates.git
 .PP
 The README on the grid:
 .IP
 .nf
 \f[C]
-URI:DIR2-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/README.html
+URI:DIR2\-RO:hgh5ylzzj6ey4a654ir2yxxblu:hzk3e5rbsefobeqhliytxpycop7ep6qlscmw4wzj5plicg3ilotq/README.html
 \f[]
 .fi
 .PP
-Information about Tahoe-LAFS for I2P and the I2P grid:
+Information about Tahoe\-LAFS for I2P and the I2P grid:
 http://killyourtv.i2p
 .SH LICENSE
 .PP
-\f[I]grid-updates\f[] has been released into the public domain.
+\f[I]grid\-updates\f[] has been released into the public domain.
 This means that you can do whatever you please with it.
 .SH AUTHORS
 darrob <darrob@mail.i2p>, KillYourTV <killyourtv@mail.i2p>.
